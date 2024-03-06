@@ -185,7 +185,7 @@ const Index = () => {
           <LocationStat
             changeYear={changeYear}
             changeCity={changeCity}
-            changeType={changeType}
+            changeTitle={changeTitle}
           />
         ) : (
           <YearsStat year={year} onClick={changeYear} />
