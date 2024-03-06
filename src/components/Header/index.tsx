@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import useSiteMetadata from '@/hooks/useSiteMetadata';
+import styles from './style.module.scss';
+import { ReactComponent as StravaSvg } from '@assets/strava.svg';
+import { ReactComponent as WatchSvg } from '@assets/watch.svg';
 
 const Header = () => {
   const { logo, siteUrl, navLinks } = useSiteMetadata();
@@ -17,7 +20,7 @@ const Header = () => {
             </picture>
           </Link>
         </div>
-        <div className="dib w-75 v-mid tr">
+        {/* <div className="dib w-75 v-mid tr">
           {navLinks.map((n, i) => (
             <a
               key={i}
@@ -27,6 +30,12 @@ const Header = () => {
               {n.name}
             </a>
           ))}
+        </div> */}
+        <div className={styles.appsWrapper}>
+          <a href="https://developers.strava.com/" rel="noopener noreferrer" target="_blank">
+            <picture><StravaSvg className={styles.stravaSVG} /></picture>
+          </a>
+          <picture><WatchSvg className={styles.watchSVG} /></picture>
         </div>
       </nav>
     </>

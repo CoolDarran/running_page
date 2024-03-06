@@ -1,0 +1,19 @@
+@import '../../styles/variables.scss';
+
+.appsWrapper {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.stravaSVG {
+  height: 1.2rem;
+  fill: $nike;
+  margin-right: .5rem;
+}
+
+.watchSVG {
+  height: 2rem;
+  fill: $nike;
+}
