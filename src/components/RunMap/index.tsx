@@ -10,6 +10,7 @@ import {
   MAIN_COLOR,
   MAPBOX_TOKEN,
   PROVINCE_FILL_COLOR,
+  COUNTRY_FILL_COLOR,
   USE_DASH_LINE,
   LINE_OPACITY,
   MAP_HEIGHT,
@@ -42,7 +43,7 @@ const RunMap = ({
   geoData,
   thisYear,
 }: IRunMapProps) => {
-  const { provinces } = useActivities();
+  const { countries, provinces } = useActivities();
   const mapRef = useRef<MapRef>();
   const [lights, setLights] = useState(PRIVACY_MODE ? false : LIGHTS_ON);
   const keepWhenLightsOff = ['runs2']
@@ -84,8 +85,10 @@ const RunMap = ({
     [mapRef, lights]
   );
   const filterProvinces = provinces.slice();
+  const filterCountries = countries.slice();
   // for geojson format
   filterProvinces.unshift('in', 'name');
+  filterCountries.unshift('in', 'name');
 
   const initGeoDataLength = geoData.features.length;
   const isBigMap = (viewState.zoom ?? 0) <= 3;
@@ -131,7 +134,11 @@ const RunMap = ({
       {...viewState}
       onMove={onMove}
       style={style}
-      mapStyle="mapbox://styles/mapbox/dark-v10"
+      // mapStyle="mapbox://styles/mapbox/dark-v10"
+      // mapStyle="mapbox://styles/mapbox/outdoors-v12"
+      mapStyle="https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json"
+      // mapStyle="https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json"
+      // mapStyle="mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7"
       ref={mapRefCallback}
       mapboxAccessToken={MAPBOX_TOKEN}
     >
@@ -142,15 +149,25 @@ const RunMap = ({
           type="fill"
           paint={{
             'fill-color': PROVINCE_FILL_COLOR,
+            'fill-opacity': 0.2,
           }}
           filter={filterProvinces}
+        />
+        <Layer
+          id="countries"
+          type="fill"
+          paint={{
+            'fill-color': COUNTRY_FILL_COLOR,
+            'fill-opacity': 0.5,
+          }}
+          filter={filterCountries}
         />
         <Layer
           id="runs2"
           type="line"
           paint={{
-            'line-color': MAIN_COLOR,
-            'line-width': isBigMap && lights ? 1 : 2,
+            'line-color': ['get', 'color'],
+            'line-width': isBigMap ? 1 : 2,
             'line-dasharray': dash,
             'line-opacity': isSingleRun || isBigMap || !lights ? 1 : LINE_OPACITY,
             'line-blur': 1,

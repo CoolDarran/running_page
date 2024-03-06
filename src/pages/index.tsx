@@ -15,6 +15,7 @@ import {
   filterAndSortRuns,
   filterCityRuns,
   filterTitleRuns,
+  filterTypeRuns,
   filterYearRuns,
   geoJsonForRuns,
   getBoundsForGeoData,
@@ -76,6 +77,10 @@ const Index = () => {
 
   const changeTitle = (title: string) => {
     changeByItem(title, 'Title', filterTitleRuns);
+  };
+
+  const changeType = (type: string) => {
+    changeByItem(type, 'Type', filterTypeRuns, false);
   };
 
   const locateActivity = (runIds: RunIds) => {
@@ -180,7 +185,7 @@ const Index = () => {
           <LocationStat
             changeYear={changeYear}
             changeCity={changeCity}
-            changeTitle={changeTitle}
+            changeType={changeType}
           />
         ) : (
           <YearsStat year={year} onClick={changeYear} />

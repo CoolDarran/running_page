@@ -28,6 +28,8 @@ const RunTable = ({
 }: IRunTableProperties) => {
   const [sortFuncInfo, setSortFuncInfo] = useState('');
   // TODO refactor?
+  const sortTypeFunc: SortFunc = (a, b) =>
+    sortFuncInfo === 'Type' ? a.type > b.type ? 1:-1 : b.type < a.type ? -1:1;
   const sortKMFunc: SortFunc = (a, b) =>
     sortFuncInfo === 'KM' ? a.distance - b.distance : b.distance - a.distance;
   const sortPaceFunc: SortFunc = (a, b) =>
@@ -39,6 +41,8 @@ const RunTable = ({
       ? (a.average_heartrate ?? 0) - (b.average_heartrate ?? 0)
       : (b.average_heartrate ?? 0) - (a.average_heartrate ?? 0);
   };
+  const sortCaloriesFunc: SortFunc = (a, b) =>
+    sortFuncInfo === 'Calories' ? a.calories - b.calories : b.calories - a.calories;
   const sortRunTimeFunc: SortFunc = (a, b) => {
     const aTotalSeconds = convertMovingTime2Sec(a.moving_time);
     const bTotalSeconds = convertMovingTime2Sec(b.moving_time);
@@ -49,9 +53,11 @@ const RunTable = ({
   const sortDateFuncClick =
     sortFuncInfo === 'Date' ? sortDateFunc : sortDateFuncReverse;
   const sortFuncMap = new Map([
+    ['Type', sortTypeFunc],
     ['KM', sortKMFunc],
     ['Pace', sortPaceFunc],
     ['BPM', sortBPMFunc],
+    ['Calories', sortCaloriesFunc],
     ['Time', sortRunTimeFunc],
     ['Date', sortDateFuncClick],
   ]);

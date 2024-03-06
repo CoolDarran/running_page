@@ -10,7 +10,7 @@ import PeriodStat from './PeriodStat';
 interface ILocationStatProps {
   changeYear: (_year: string) => void;
   changeCity: (_city: string) => void;
-  changeTitle: (_title: string) => void;
+  changeType: (_type: string) => void;
 }
 
 const LocationStat = ({ changeYear, changeCity, changeTitle }: ILocationStatProps) => (
@@ -30,7 +30,7 @@ const LocationStat = ({ changeYear, changeCity, changeTitle }: ILocationStatProp
     <hr color="red" />
     <LocationSummary />
     <CitiesStat onClick={changeCity} />
-    <PeriodStat onClick={changeTitle} />
+    <PeriodStat onClick={changeType} />
     <YearStat year="Total" onClick={changeYear} />
   </div>
 );
