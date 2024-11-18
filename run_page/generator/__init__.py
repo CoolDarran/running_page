@@ -69,7 +69,10 @@ class Generator:
             activity = self.client.get_activity(activity.id, include_all_efforts=True)
             # raw_activites.append(activity.to_dict())
             if IGNORE_BEFORE_SAVING:
-                activity.summary_polyline = filter_out(activity.summary_polyline)
+                if activity.map and activity.map.summary_polyline:
+                    activity.map.summary_polyline = filter_out(
+                        activity.map.summary_polyline
+                    )
             activity.source = "strava"
             created = update_or_create_activity(self.session, activity)
             if created:
@@ -94,7 +97,9 @@ class Generator:
         synced_files = []
 
         for t in tracks:
-            created = update_or_create_activity(self.session, t.to_namedtuple())
+            created = update_or_create_activity(
+                self.session, t.to_namedtuple(run_from=file_suffix)
+            )
             if created:
                 sys.stdout.write("+")
             else:
@@ -193,6 +198,19 @@ class Generator:
         try:
             activities = self.session.query(Activity).all()
             return [str(a.run_id) for a in activities]
+        except Exception as e:
+            # pass the error
+            print(f"something wrong with {str(e)}")
+            return []
+
+    def get_old_tracks_dates(self):
+        try:
+            activities = (
+                self.session.query(Activity)
+                .order_by(Activity.start_date_local.desc())
+                .all()
+            )
+            return [str(a.start_date_local) for a in activities]
         except Exception as e:
             # pass the error
             print(f"something wrong with {str(e)}")

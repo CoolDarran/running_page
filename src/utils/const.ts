@@ -35,10 +35,12 @@ const LINE_OPACITY = 0.4;
 const MAP_HEIGHT = 600;
 //set to `false` if you want to hide the road label characters
 const ROAD_LABEL_DISPLAY = true;
+// update for now 2024/11/17 the privacy mode is true
 //set to `true` if you want to display only the routes without showing the map.
 const PRIVACY_MODE = false;
+// update for now 2024/11/17 the lights on default is false
 //set to `false` if you want to make light off as default, only effect when `PRIVACY_MODE` = false
-const LIGHTS_ON = true;
+const LIGHTS_ON =false;
 
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
@@ -139,6 +141,7 @@ const gold = 'rgb(242,190,69)';
 const purple = 'rgb(154,118,252)';
 const veryPeri = 'rgb(105,106,173)';//长春花蓝
 const red = 'rgb(255,0,0)';//大红色
+const dark_vanilla = 'rgb(228,212,220)';
 
 // If your map has an offset please change this line
 // issues #92 and #198
@@ -158,3 +161,4 @@ export const KAYAKING_COLOR = red;
 export const SNOWBOARD_COLOR = wpink;
 export const TRAIL_RUN_COLOR = IKB;
 export const WORKOUT_COLOR = veryPeri;
+export const COUNTRY_FILL_COLOR = dark_vanilla;
