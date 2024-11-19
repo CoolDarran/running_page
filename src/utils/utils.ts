@@ -220,15 +220,13 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
     return {
       type: 'Feature',
       properties: {
-        color: MAIN_COLOR,
+        // color: MAIN_COLOR,
+        color: colorFromType(run.type),
       },
       geometry: {
         type: 'LineString',
         coordinates: points,
         workoutType: run.type,
-      },
-      properties: {
-        'color': colorFromType(run.type),
       },
       name: run.name,
     };

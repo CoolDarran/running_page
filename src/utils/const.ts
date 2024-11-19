@@ -161,4 +161,3 @@ export const KAYAKING_COLOR = red;
 export const SNOWBOARD_COLOR = wpink;
 export const TRAIL_RUN_COLOR = IKB;
 export const WORKOUT_COLOR = veryPeri;
-export const COUNTRY_FILL_COLOR = dark_vanilla;
