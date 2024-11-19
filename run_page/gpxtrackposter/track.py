@@ -357,9 +357,7 @@ class Track:
             "id": self.run_id,
             "type": self.type,
             "name": (
-                f"run from {run_from} by {self.device}"
-                if self.device
-                else self.name
+                f"run from {run_from} by {self.device}" if self.device else self.name
             ),  # maybe change later
             "start_date": self.start_time.strftime("%Y-%m-%d %H:%M:%S"),
             "end": self.end_time.strftime("%Y-%m-%d %H:%M:%S"),
