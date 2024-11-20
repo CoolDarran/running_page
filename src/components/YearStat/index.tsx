@@ -22,10 +22,14 @@ const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) =>
   let streak = 0;
   let heartRate = 0;
   let heartRateNullCount = 0;
-  const workoutsCounts = {};
+  let totalMetersAvail = 0;
+  let totalSecondsAvail = 0;
+  const workoutsCounts: { [key: string]: [number, number, number] } = {};
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
     if (run.average_speed) {
+      totalMetersAvail += run.distance || 0;
+      totalSecondsAvail += (run.distance || 0) / run.average_speed;
       if(workoutsCounts[run.type]){
         var [oriCount, oriSecondsAvail, oriMetersAvail] = workoutsCounts[run.type]
         workoutsCounts[run.type] = [oriCount + 1, oriSecondsAvail + (run.distance || 0) / run.average_speed, oriMetersAvail + (run.distance || 0)]
@@ -42,6 +46,9 @@ const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) =>
       streak = Math.max(streak, run.streak);
     }
   });
+  sumDistance = parseFloat((sumDistance / 1000.0).toFixed(1));
+  const hasPace = totalSecondsAvail > 0;
+  const avgPace = formatPace(totalMetersAvail / totalSecondsAvail);
   const hasHeartRate = !(heartRate === 0);
   const avgHeartRate = (heartRate / (runs.length - heartRateNullCount)).toFixed(
     0
@@ -72,11 +79,12 @@ const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) =>
             key={type}
             value={count[0]}
             description={` ${type}`+"s"}
-            // pace={formatPace(count[2] / count[1])}
+            pace={formatPace(count[2] / count[1])}
             distance={(count[2] / 1000.0).toFixed(0)}
             // color={colorFromType(type)}
           />
         ))}
+        {hasPace && (<Stat value={avgPace} description=" Avg Pace" />)}
         <Stat
           value={`${streak} day`}
           description=" Streak"
