@@ -21,7 +21,6 @@ import {
   SNOWBOARD_COLOR,
   TRAIL_RUN_COLOR,
   WORKOUT_COLOR,
-  NEED_FIX_MAP,
   RICH_TITLE,
 } from './const';
 import { FeatureCollection, LineString } from 'geojson';

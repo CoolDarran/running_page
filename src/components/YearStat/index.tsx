@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
-import { formatPace, colorFromType } from '@/utils/utils';
+import { formatPace } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
@@ -74,7 +74,7 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
         { sumDistance > 0 &&
           <WorkoutStat
             key='total'
-            value={runs.length}
+            value={`${runs.length}`}
             description={" Total"}
             distance={(sumDistance / 1000.0).toFixed(0)}
           />
@@ -82,7 +82,7 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
         { workoutsArr.map(([type, count]) => (
           <WorkoutStat
             key={type}
-            value={count[0]}
+            value={`${count[0]}`}
             description={` ${type}`+"s"}
             pace={formatPace(count[2] / count[1])}
             distance={(count[2] / 1000.0).toFixed(0)}

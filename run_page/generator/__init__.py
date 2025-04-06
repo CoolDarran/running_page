@@ -65,13 +65,11 @@ class Generator:
             else:
                 filters = {"before": datetime.datetime.utcnow()}
 
-        # raw_activites = []
         for activity in self.client.get_activities(**filters):
             if self.only_run and activity.type != "Run":
                 continue
             # get detailed activity
             activity = self.client.get_activity(activity.id, include_all_efforts=True)
-            # raw_activites.append(activity.to_dict())
             if IGNORE_BEFORE_SAVING:
                 if activity.map and activity.map.summary_polyline:
                     activity.map.summary_polyline = filter_out(
@@ -87,10 +85,6 @@ class Generator:
                 sys.stdout.write(".")
             sys.stdout.flush()
         self.session.commit()
-        # write to file
-        # with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "../activities/strava_raw.json"), "w") as f:
-        # import json
-        # json.dump(raw_activites, f)
 
     def sync_from_data_dir(self, data_dir, file_suffix="gpx", activity_title_dict={}):
         loader = track_loader.TrackLoader()
