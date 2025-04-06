@@ -1,4 +1,4 @@
-import { locationForRun, typeForRun } from '@/utils/utils';
+import {locationForRun, typeForRun} from '@/utils/utils';
 import activities from '@/static/activities.json';
 
 const useActivities = () => {
@@ -18,6 +18,7 @@ const useActivities = () => {
         ? runPeriod[periodName] + 1
         : 1;
     }
+
 
     const { city, province, country } = location;
     // drop only one char city

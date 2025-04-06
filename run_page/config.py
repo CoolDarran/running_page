@@ -20,6 +20,7 @@ SQL_FILE = os.path.join(parent, "run_page", "data.db")
 JSON_FILE = os.path.join(parent, "src", "static", "activities.json")
 SYNCED_FILE = os.path.join(parent, "imported.json")
 SYNCED_ACTIVITY_FILE = os.path.join(parent, "synced_activity.json")
+NAME_MAPPING_FILE = os.path.join(FIT_FOLDER, "name_mapping.json")
 
 # TODO: Move into nike_sync NRC THINGS
 
@@ -59,14 +60,23 @@ TYPE_DICT = {
     "cycling": "Ride",
     "CYCLING": "Ride",
     "Ride": "Ride",
+    "EBikeRide": "Ride",
+    "E-Bike": "Ride",
     "road_biking": "Ride",
+    "Road Bike": "Ride",
+    "Mountain Bike": "Ride",
     "VirtualRide": "VirtualRide",
     "indoor_cycling": "Indoor Ride",
+    "Indoor Bike ": "Indoor Ride",
     "walking": "Hike",
+    "Walk": "Hike",
     "hiking": "Hike",
     "Walk": "Hike",
     "Hike": "Hike",
     "Swim": "Swim",
+    "swimming": "Swim",
+    "Pool Swim": "Swim",
+    "Open Water": "Swim",
     "rowing": "Rowing",
     "RoadTrip": "RoadTrip",
     "flight": "Flight",

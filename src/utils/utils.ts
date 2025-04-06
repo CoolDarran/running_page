@@ -4,11 +4,11 @@ import { WebMercatorViewport } from 'viewport-mercator-project';
 import { chinaGeojson, RPGeometry } from '@/static/run_countries';
 import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
 import { chinaCities } from '@/static/city';
-import { 
-  MUNICIPALITY_CITIES_ARR,
-  NEED_FIX_MAP, 
-  RUN_TITLES,
+import {
   MAIN_COLOR,
+  MUNICIPALITY_CITIES_ARR,
+  NEED_FIX_MAP,
+  RUN_TITLES,
   RIDE_COLOR,
   VIRTUAL_RIDE_COLOR,
   HIKE_COLOR,
@@ -19,10 +19,10 @@ import {
   RUN_COLOR,
   KAYAKING_COLOR,
   SNOWBOARD_COLOR,
-  TRAIL_RUN_COLOR, 
+  TRAIL_RUN_COLOR,
   WORKOUT_COLOR,
   NEED_FIX_MAP,
-  RUN_TITLES,
+  RICH_TITLE,
 } from './const';
 import { FeatureCollection, LineString } from 'geojson';
 
@@ -38,10 +38,11 @@ export interface Activity {
   type: string;
   start_date: string;
   start_date_local: string;
-  location_country: string;
-  summary_polyline: string;
-  average_heartrate?: number;
+  location_country?: string | null;
+  summary_polyline?: string | null;
+  average_heartrate?: number | null;
   max_heartrate?: number;
+  elevation_gain?: number | null;
   average_speed?: number;
   calories?: number;
   streak: number;
@@ -99,17 +100,27 @@ const scrollToMap = () => {
   }
 };
 
-const pattern = /([\u4e00-\u9fa5]{2,}(市|自治州|特别行政区))/g;
-const extractLocations = (str: string): string[] => {
+const extractCities = (str: string): string[] => {
   const locations = [];
   let match;
-
+  const pattern = /([\u4e00-\u9fa5]{2,}(市|自治州|特别行政区|盟|地区))/g;
   while ((match = pattern.exec(str)) !== null) {
     locations.push(match[0]);
   }
 
   return locations;
 };
+
+const extractDistricts = (str: string): string[] => {
+  const locations = [];
+  let match;
+  const pattern = /([\u4e00-\u9fa5]{2,}(区|县))/g;
+  while ((match = pattern.exec(str)) !== null) {
+    locations.push(match[0]);
+  }
+
+  return locations;
+}
 
 const extractCoordinate = (str: string): [number, number] | null => {
   const pattern = /'latitude': ([-]?\d+\.\d+).*?'longitude': ([-]?\d+\.\d+)/;
@@ -144,12 +155,12 @@ const locationForRun = (
   if (location) {
     // Only for Chinese now
     // should filter 臺灣
-    const cityMatch = extractLocations(location);
+    const cityMatch = extractCities(location);
     const provinceMatch = location.match(/[\u4e00-\u9fa5]{2,}(省|自治区)/);
 
     if (cityMatch) {
       city = cities.find((value) => cityMatch.includes(value)) as string;
-      
+
       if (!city) {
         city = '';
       }
@@ -173,6 +184,12 @@ const locationForRun = (
   }
   if (MUNICIPALITY_CITIES_ARR.includes(city)) {
     province = city;
+    if (location) {
+      const districtMatch = extractDistricts(location);
+      if (districtMatch.length > 0) {
+        city = districtMatch[districtMatch.length - 1];
+      }
+    }
   }
 
   const r = { country, province, city, coordinate };
@@ -220,8 +237,7 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
     return {
       type: 'Feature',
       properties: {
-        // color: MAIN_COLOR,
-        color: colorFromType(run.type),
+        'color': colorFromType(run.type),
       },
       geometry: {
         type: 'LineString',
@@ -237,49 +253,6 @@ const geoJsonForMap = (): FeatureCollection<RPGeometry> => ({
   type: 'FeatureCollection',
   features: worldGeoJson.features.concat(chinaGeojson.features),
 })
-
-const typeForRun = (run: Activity): string => {
-  const type = run.type
-  switch (type) {
-    case 'Run':
-      var runDistance = run.distance / 1000;
-      if (runDistance >= 40) {
-        return 'Full Marathon';
-      }
-      else if (runDistance > 20) {
-        return 'Half Marathon';
-      }
-      return 'Run';
-    case 'Trail Run':
-      return 'Trail Run';
-    case 'Ride':
-      return 'Ride';
-    case 'Indoor Ride':
-      return 'Indoor Ride';
-    case 'VirtualRide':
-      return 'Virtual Ride';
-    case 'Hike':
-      return 'Hike';
-    case 'Rowing':
-      return 'Rowing';
-    case 'Swim':
-      return 'Swim';
-    case 'RoadTrip':
-      return 'RoadTrip';
-    case 'Flight':
-      return 'Flight';
-    case 'Kayaking':
-      return 'Kayaking';
-    case 'Snowboard':
-      return 'Snowboard';
-    case 'Ski':
-      return 'Ski';
-    case 'Workout':
-      return 'Workout';
-    default:
-      return 'Run';
-  }
-}
 
 const titleForType = (type: string): string => {
   switch (type) {
@@ -320,9 +293,47 @@ const titleForType = (type: string): string => {
   }
 }
 
+const typeForRun = (run: Activity): string => {
+  const type = run.type
+  var distance = run.distance / 1000;
+  switch (type) {
+    case 'Run':
+      if (distance >= 40) {
+        return 'Full Marathon';
+      }
+      else if (distance > 20) {
+        return 'Half Marathon';
+      }
+      return 'Run';
+    case 'Trail Run':
+      if (distance >= 40) {
+        return 'Full Marathon';
+      }
+      else if (distance > 20) {
+        return 'Half Marathon';
+      }
+      return 'Trail Run';
+    default:
+      return type;
+  }
+}
+
 const titleForRun = (run: Activity): string => {
   const type = run.type;
-  if (type == 'Run'){
+  if (RICH_TITLE) {
+    // 1. try to use user defined name
+    if (run.name != '') {
+      return run.name;
+    }
+    // 2. try to use location+type if the location is available, eg. 'Shanghai Run'
+    const { city, province } = locationForRun(run);
+    const activity_sport = titleForType(typeForRun(run));
+    if (city && city.length > 0 && activity_sport.length > 0) {
+      return `${city} ${activity_sport}`;
+    }
+  }
+  // 3. use time+length if location or type is not available
+  if (type == 'Run' || type == 'Trail Run'){
       const runDistance = run.distance / 1000;
       if (runDistance >= 40) {
         return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
@@ -425,17 +436,31 @@ const filterCityRuns = (run: Activity, city: string) => {
 const filterTitleRuns = (run: Activity, title: string) =>
   titleForRun(run) === title;
 
-const filterTypeRuns = (run: Activity, type: string) => run.type === type;
+const filterTypeRuns = (run: Activity, type: string) => {
+  switch (type){
+    case 'Full Marathon':
+      return (run.type === 'Run' || run.type === 'Trail Run') && run.distance > 40000
+    case 'Half Marathon':
+      return (run.type === 'Run' || run.type === 'Trail Run') && run.distance < 40000 && run.distance > 20000
+    default:
+      return run.type === type
+  }
+}
 
 const filterAndSortRuns = (
   activities: Activity[],
   item: string,
   filterFunc: (_run: Activity, _bvalue: string) => boolean,
-  sortFunc: (_a: Activity, _b: Activity) => number
+  sortFunc: (_a: Activity, _b: Activity) => number,
+  item2: string | null,
+  filterFunc2: ((_run: Activity, _bvalue: string) => boolean) | null,
 ) => {
   let s = activities;
   if (item !== 'Total') {
     s = activities.filter((run) => filterFunc(run, item));
+  }
+  if(filterFunc2 != null && item2 != null){
+    s = s.filter((run) => filterFunc2(run, item2));
   }
   return s.sort(sortFunc);
 };

@@ -41,6 +41,7 @@ class Track:
         self.file_names = []
         self.polylines = []
         self.polyline_str = ""
+        self.track_name = None
         self.start_time = None
         self.end_time = None
         self.start_time_local = None
@@ -48,6 +49,7 @@ class Track:
         self.length = 0
         self.special = False
         self.average_heartrate = None
+        self.elevation_gain = None
         self.moving_dict = {}
         self.run_id = 0
         self.start_latlng = []
@@ -168,6 +170,7 @@ class Track:
             except:
                 pass
             self.polyline_str = polyline.encode(polyline_container)
+        self.elevation_gain = tcx.ascent
         self.moving_dict = {
             "distance": self.length,
             "moving_time": datetime.timedelta(seconds=moving_time),
@@ -191,17 +194,17 @@ class Track:
         gpx.simplify()
         polyline_container = []
         heart_rate_list = []
-
         # determinate type
         if gpx.tracks[0].type:
             self.type = gpx.tracks[0].type
         # determinate source
         if gpx.creator:
             self.source = gpx.creator
-        elif gpx.tracks[0].source:
+        if gpx.tracks[0].source:
             self.source = gpx.tracks[0].source
         if self.source == "xingzhe":
             self.start_time_local = self.start_time
+            self.end_time_local = self.end_time
             self.run_id = gpx.tracks[0].number
         # determinate name
         if gpx.name:
@@ -212,6 +215,8 @@ class Track:
             self.name = self.type + " from " + self.source
 
         for t in gpx.tracks:
+            if self.track_name is None:
+                self.track_name = t.name
             for s in t.segments:
                 try:
                     extensions = [
@@ -243,14 +248,16 @@ class Track:
             self.start_latlng = start_point(*polyline_container[0])
         except:
             pass
-        self.start_time_local, self.end_time_local = parse_datetime_to_local(
-            self.start_time, self.end_time, polyline_container[0]
-        )
+        if not self.start_time_local:
+            self.start_time_local, self.end_time_local = parse_datetime_to_local(
+                self.start_time, self.end_time, polyline_container[0]
+            )
         self.polyline_str = polyline.encode(polyline_container)
         self.average_heartrate = (
             sum(heart_rate_list) / len(heart_rate_list) if heart_rate_list else None
         )
         self.moving_dict = self._get_moving_data(gpx)
+        self.elevation_gain = gpx.get_uphill_downhill().uphill
 
     def _load_fit_data(self, fit: dict):
         _polylines = []
@@ -267,6 +274,9 @@ class Track:
         self.length = message["total_distance"]
         self.average_heartrate = (
             message["avg_heart_rate"] if "avg_heart_rate" in message else None
+        )
+        self.elevation_gain = (
+            message["total_ascent"] if "total_ascent" in message else None
         )
         self.type = message["sport"].lower()
 
@@ -305,14 +315,6 @@ class Track:
                 self.start_time, self.end_time, None
             )
 
-        # The FIT file created by Garmin
-        if "file_id_mesgs" in fit:
-            device_message = fit["file_id_mesgs"][0]
-            if "manufacturer" in device_message:
-                self.device = device_message["manufacturer"]
-            if "garmin_product" in device_message:
-                self.device += " " + device_message["garmin_product"]
-
     def append(self, other):
         """Append other track to self."""
         self.end_time = other.end_time
@@ -330,6 +332,10 @@ class Track:
             )
             self.file_names.extend(other.file_names)
             self.special = self.special or other.special
+            self.average_heartrate = self.average_heartrate or other.average_heartrate
+            self.elevation_gain = (
+                self.elevation_gain if self.elevation_gain else 0
+            ) + (other.elevation_gain if other.elevation_gain else 0)
         except:
             print(
                 f"something wrong append this {self.end_time},in files {str(self.file_names)}"
@@ -352,13 +358,11 @@ class Track:
             ),
         }
 
-    def to_namedtuple(self, run_from="gpx"):
+    def to_namedtuple(self):
         d = {
             "id": self.run_id,
+            "name": (self.track_name if self.track_name else ""),  # maybe change later
             "type": self.type,
-            "name": (
-                f"run from {run_from} by {self.device}" if self.device else self.name
-            ),  # maybe change later
             "start_date": self.start_time.strftime("%Y-%m-%d %H:%M:%S"),
             "end": self.end_time.strftime("%Y-%m-%d %H:%M:%S"),
             "start_date_local": self.start_time_local.strftime("%Y-%m-%d %H:%M:%S"),
@@ -367,6 +371,7 @@ class Track:
             "average_heartrate": (
                 int(self.average_heartrate) if self.average_heartrate else None
             ),
+            "elevation_gain": (int(self.elevation_gain) if self.elevation_gain else 0),
             "map": run_map(self.polyline_str),
             "start_latlng": self.start_latlng,
             "source": self.source,

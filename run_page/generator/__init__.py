@@ -4,11 +4,11 @@ import sys
 
 import arrow
 import stravalib
+from config import MAPPING_TYPE
 from gpxtrackposter import track_loader
 from sqlalchemy import func
 
 from polyline_processor import filter_out
-from config import MAPPING_TYPE
 
 from .db import Activity, init_db, update_or_create_activity
 
@@ -47,6 +47,10 @@ class Generator:
         print("Access ok")
 
     def sync(self, force):
+        """
+        Sync activities means sync from strava
+        TODO, better name later
+        """
         self.check_access()
 
         print("Start syncing")
@@ -74,6 +78,8 @@ class Generator:
                         activity.map.summary_polyline
                     )
             activity.source = "strava"
+            #  strava use total_elevation_gain as elevation_gain
+            activity.elevation_gain = activity.total_elevation_gain
             created = update_or_create_activity(self.session, activity)
             if created:
                 sys.stdout.write("+")
@@ -86,9 +92,11 @@ class Generator:
         # import json
         # json.dump(raw_activites, f)
 
-    def sync_from_data_dir(self, data_dir, file_suffix="gpx"):
+    def sync_from_data_dir(self, data_dir, file_suffix="gpx", activity_title_dict={}):
         loader = track_loader.TrackLoader()
-        tracks = loader.load_tracks(data_dir, file_suffix=file_suffix)
+        tracks = loader.load_tracks(
+            data_dir, file_suffix=file_suffix, activity_title_dict=activity_title_dict
+        )
         print(f"load {len(tracks)} tracks")
         if not tracks:
             print("No tracks found.")
@@ -97,9 +105,7 @@ class Generator:
         synced_files = []
 
         for t in tracks:
-            created = update_or_create_activity(
-                self.session, t.to_namedtuple(run_from=file_suffix)
-            )
+            created = update_or_create_activity(self.session, t.to_namedtuple())
             if created:
                 sys.stdout.write("+")
             else:
@@ -108,6 +114,16 @@ class Generator:
             sys.stdout.flush()
 
         save_synced_data_file_list(synced_files)
+
+        self.session.commit()
+
+    def sync_from_kml_track(self, track):
+        created = update_or_create_activity(self.session, track.to_namedtuple())
+        if created:
+            sys.stdout.write("+")
+        else:
+            sys.stdout.write(".")
+        sys.stdout.flush()
 
         self.session.commit()
 
@@ -128,37 +144,6 @@ class Generator:
             sys.stdout.flush()
 
         self.session.commit()
-
-    def loadForMapping(self):
-        activities = (
-            self.session.query(Activity)
-            .filter(Activity.type.in_(MAPPING_TYPE))
-            .order_by(Activity.start_date_local)
-        )
-        activity_list = []
-
-        streak = 0
-        last_date = None
-        for activity in activities:
-            # Determine running streak.
-            # if activity.type == "Run" or activity.type == "Walk":
-            date = datetime.datetime.strptime(
-                activity.start_date_local, "%Y-%m-%d %H:%M:%S"
-            ).date()
-            if last_date is None:
-                streak = 1
-            elif date == last_date:
-                pass
-            elif date == last_date + datetime.timedelta(days=1):
-                streak += 1
-            else:
-                assert date > last_date
-                streak = 1
-            activity.streak = streak
-            last_date = date
-            activity_list.append(activity.to_dict())
-
-        return activity_list
 
     def load(self):
         activities = (
@@ -190,6 +175,37 @@ class Generator:
             last_date = date
             if not IGNORE_BEFORE_SAVING:
                 activity.summary_polyline = filter_out(activity.summary_polyline)
+            activity_list.append(activity.to_dict())
+
+        return activity_list
+
+    def loadForMapping(self):
+        activities = (
+            self.session.query(Activity)
+            .filter(Activity.type.in_(MAPPING_TYPE))
+            .order_by(Activity.start_date_local)
+        )
+        activity_list = []
+
+        streak = 0
+        last_date = None
+        for activity in activities:
+            # Determine running streak.
+            # if activity.type == "Run" or activity.type == "Walk":
+            date = datetime.datetime.strptime(
+                activity.start_date_local, "%Y-%m-%d %H:%M:%S"
+            ).date()
+            if last_date is None:
+                streak = 1
+            elif date == last_date:
+                pass
+            elif date == last_date + datetime.timedelta(days=1):
+                streak += 1
+            else:
+                assert date > last_date
+                streak = 1
+            activity.streak = streak
+            last_date = date
             activity_list.append(activity.to_dict())
 
         return activity_list

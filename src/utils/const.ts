@@ -28,9 +28,9 @@ const USE_GOOGLE_ANALYTICS = false;
 const GOOGLE_ANALYTICS_TRACKING_ID = '';
 
 // styling: set to `true` if you want dash-line route
-const USE_DASH_LINE = true;
+const USE_DASH_LINE = false;
 // styling: route line opacity: [0, 1]
-const LINE_OPACITY = 0.4;
+const LINE_OPACITY = 0.6;
 // styling: map height
 const MAP_HEIGHT = 600;
 //set to `false` if you want to hide the road label characters
@@ -41,6 +41,8 @@ const PRIVACY_MODE = false;
 // update for now 2024/11/17 the lights on default is false
 //set to `false` if you want to make light off as default, only effect when `PRIVACY_MODE` = false
 const LIGHTS_ON =false;
+// richer title for the activity types (like garmin style)
+const RICH_TITLE = true;
 
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
@@ -128,25 +130,25 @@ export {
   MAP_HEIGHT,
   PRIVACY_MODE,
   LIGHTS_ON,
+  RICH_TITLE,
 };
 
-const nike = 'rgb(224,237,94)'; // if you want change the main color change here src/styles/variables.scss
+const nike = 'rgb(224,237,94)';
 const yellow = 'rgb(224,237,94)';
 const green = 'rgb(0,237,94)';
 const pink = 'rgb(237,85,219)';
 const cyan = 'rgb(112,243,255)';
 const IKB = 'rgb(0,47,167)';
 const wpink = 'rgb(228,212,220)';
+const dark_vanilla = 'rgb(228,212,220)';
 const gold = 'rgb(242,190,69)';
 const purple = 'rgb(154,118,252)';
 const veryPeri = 'rgb(105,106,173)';//长春花蓝
 const red = 'rgb(255,0,0)';//大红色
-const dark_vanilla = 'rgb(228,212,220)';
 
 // If your map has an offset please change this line
 // issues #92 and #198
 export const NEED_FIX_MAP = false;
-export const PROVINCE_FILL_COLOR = '#47b8e0';
 export const MAIN_COLOR = green;
 export const RUN_COLOR = yellow;
 export const RIDE_COLOR = green;
@@ -155,9 +157,10 @@ export const HIKE_COLOR = pink;
 export const SWIM_COLOR = gold;
 export const ROWING_COLOR = cyan;
 export const ROAD_TRIP_COLOR = purple;
-export const FLIGHT_COLOR = wpink;
-export const COUNTRY_FILL_COLOR = wpink;
+export const FLIGHT_COLOR = dark_vanilla;
+export const PROVINCE_FILL_COLOR = '#47b8e0';
+export const COUNTRY_FILL_COLOR = dark_vanilla;
 export const KAYAKING_COLOR = red;
-export const SNOWBOARD_COLOR = wpink;
+export const SNOWBOARD_COLOR = dark_vanilla;
 export const TRAIL_RUN_COLOR = IKB;
 export const WORKOUT_COLOR = veryPeri;

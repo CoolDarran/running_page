@@ -3,12 +3,12 @@ import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
 import { formatPace, colorFromType } from '@/utils/utils';
-import styles from './style.module.scss';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
 
-const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) => void }) => {
+const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick: (_year: string) => void ,
+    onClickTypeInYear: (_year: string, _type: string) => void }) => {
   let { activities: runs, years } = useActivities();
   // for hover
   const [hovered, eventHandlers] = useHover();
@@ -20,17 +20,22 @@ const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) =>
   }
   let sumDistance = 0;
   let streak = 0;
+  let pace = 0; // eslint-disable-line no-unused-vars
+  let paceNullCount = 0; // eslint-disable-line no-unused-vars
+  let sumElevationGain = 0;
   let heartRate = 0;
   let heartRateNullCount = 0;
   let totalMetersAvail = 0;
   let totalSecondsAvail = 0;
   const workoutsCounts: { [key: string]: [number, number, number] } = {};
+
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
+    sumElevationGain += run.elevation_gain || 0;
     if (run.average_speed) {
-      totalMetersAvail += run.distance || 0;
-      totalSecondsAvail += (run.distance || 0) / run.average_speed;
       if(workoutsCounts[run.type]){
+        totalMetersAvail += run.distance || 0;
+        totalSecondsAvail += (run.distance || 0) / run.average_speed;
         var [oriCount, oriSecondsAvail, oriMetersAvail] = workoutsCounts[run.type]
         workoutsCounts[run.type] = [oriCount + 1, oriSecondsAvail + (run.distance || 0) / run.average_speed, oriMetersAvail + (run.distance || 0)]
       }else{
@@ -82,13 +87,24 @@ const YearStat = ({ year, onClick }: { year: string, onClick: (_year: string) =>
             pace={formatPace(count[2] / count[1])}
             distance={(count[2] / 1000.0).toFixed(0)}
             // color={colorFromType(type)}
+            onClick={(e: Event) => {
+              onClickTypeInYear(year, type);
+              e.stopPropagation();
+            }}
           />
         ))}
         {hasPace && (<Stat value={avgPace} description=" Avg Pace" />)}
+        { sumElevationGain > 0 &&
+          <Stat
+            value={`${(sumElevationGain).toFixed(0)} `}
+            description="M Elevation Gain"
+            className="pb-2"
+          />
+        }
         <Stat
           value={`${streak} day`}
           description=" Streak"
-          className="mb0 pb0"
+          className="pb-2"
         />
         {hasHeartRate && (
           <Stat value={avgHeartRate} description=" Avg Heart Rate" />

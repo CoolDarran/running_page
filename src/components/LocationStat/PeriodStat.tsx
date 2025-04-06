@@ -5,7 +5,6 @@ import { titleForType } from '@/utils/utils';
 
 const PeriodStat = ({ onClick }: { onClick: (_period: string) => void }) => {
   const { runPeriod } = useActivities();
-
   const periodArr = Object.entries(runPeriod);
   periodArr.sort((a, b) => b[1] - a[1]);
   return (

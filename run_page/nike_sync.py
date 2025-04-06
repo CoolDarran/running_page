@@ -19,6 +19,7 @@ from config import (
     run_map,
 )
 from generator import Generator
+
 from utils import adjust_time, make_activities_file
 
 # logging.basicConfig(level=logging.INFO)
@@ -38,22 +39,6 @@ NIKE_HEADERS = {
 class Nike:
     def __init__(self, access_token):
         self.client = httpx.Client()
-
-        # HINT: if you have old nrc refresh_token un comments this lines it still works
-
-        # response = self.client.post(
-        #     TOKEN_REFRESH_URL,
-        #     headers=NIKE_HEADERS,
-        #     json={
-        #         "refresh_token": access_token,  # its refresh_token for tesy here
-        #         "client_id": b64decode(NIKE_CLIENT_ID).decode(),
-        #         "grant_type": "refresh_token",
-        #         "ux_id": b64decode(NIKE_UX_ID).decode(),
-        #     },
-        #     timeout=60,
-        # )
-        # response.raise_for_status()
-        # access_token = response.json()["access_token"]
 
         self.client.headers.update({"Authorization": f"Bearer {access_token}"})
 
@@ -143,7 +128,7 @@ def save_activity(activity):
     path = os.path.join(OUTPUT_DIR, f"{activity_time}.json")
     try:
         with open(path, "w") as f:
-            json.dump(activity, f, indent=4)
+            json.dump(activity, f, indent=0)
     except Exception:
         os.unlink(path)
         raise
@@ -361,6 +346,7 @@ def parse_no_gpx_data(activity):
         "id": int(nike_id),
         "name": "run from nike",
         "type": "Run",
+        "subtype": "Run",
         "start_date": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S"),
         "end": datetime.strftime(end_date, "%Y-%m-%d %H:%M:%S"),
         "start_date_local": datetime.strftime(start_date_local, "%Y-%m-%d %H:%M:%S"),
@@ -373,6 +359,7 @@ def parse_no_gpx_data(activity):
         "moving_time": moving_time,
         "elapsed_time": elapsed_time,
         "average_speed": distance / int(activity["active_duration_ms"] / 1000),
+        "elevation_gain": 0,
         "location_country": "",
     }
     return namedtuple("x", d.keys())(*d.values())
@@ -388,7 +375,7 @@ def make_new_gpxs(files):
     gpx_files = []
     tracks_list = []
     for file in files:
-        with open(file, "r") as f:
+        with open(file, "rb") as f:
             try:
                 json_data = json.loads(f.read())
             except:

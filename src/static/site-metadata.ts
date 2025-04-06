@@ -2,6 +2,7 @@ interface ISiteMetadataResult {
   siteTitle: string;
   siteUrl: string;
   description: string;
+  keywords: string;
   logo: string;
   navLinks: {
     name: string;
@@ -14,6 +15,7 @@ const data: ISiteMetadataResult = {
   siteUrl: 'https://workouts.danran.one',
   logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTtc69JxHNcmN1ETpMUX4dozAgAN6iPjWalQ&usqp=CAU',
   description: 'Personal site and blog',
+  keywords: 'workouts, running, hiking, swimming',
   navLinks: [
     {
       name: 'Blog',
