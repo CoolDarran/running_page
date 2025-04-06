@@ -155,7 +155,9 @@ def update_or_create_activity(session, run_activity):
             activity.calories = float(run_activity.calories)
             activity.elevation_gain = float(run_activity.elevation_gain)
             activity.summary_polyline = (
-                run_activity.map and (run_activity.map.summary_polyline or run_activity.map.polyline) or ""
+                run_activity.map
+                and (run_activity.map.summary_polyline or run_activity.map.polyline)
+                or ""
             )
             activity.source = source
     except Exception as e:
