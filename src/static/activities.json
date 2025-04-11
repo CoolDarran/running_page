@@ -2788,5 +2788,23 @@
 "elevation_gain": 13.2,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 14132377998,
+"name": "Apple Fitness+ HIIT",
+"distance": 0.0,
+"moving_time": "0:08:07",
+"type": "Workout",
+"start_date": "2025-04-09 22:42:33+00:00",
+"start_date_local": "2025-04-10 06:42:33",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 134.9,
+"max_heartrate": 147.0,
+"average_speed": 0.0,
+"calories": 76.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
