@@ -10,6 +10,11 @@ interface ISiteMetadataResult {
   }[];
 }
 
+const getBasePath = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+  return baseUrl === '/' ? '' : baseUrl;
+};
+
 const data: ISiteMetadataResult = {
   siteTitle: 'Workouts Page',
   siteUrl: 'https://workouts.danran.one',
@@ -17,6 +22,10 @@ const data: ISiteMetadataResult = {
   description: 'Personal site and blog',
   keywords: 'workouts, running, hiking, swimming',
   navLinks: [
+    {
+      name: 'Summary',
+      url: `${getBasePath()}/summary`,
+    },
     {
       name: 'Blog',
       url: 'https://github.com/CoolDarran',

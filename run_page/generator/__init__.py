@@ -78,6 +78,7 @@ class Generator:
             activity.source = "strava"
             #  strava use total_elevation_gain as elevation_gain
             activity.elevation_gain = activity.total_elevation_gain
+            activity.subtype = activity.type
             created = update_or_create_activity(self.session, activity)
             if created:
                 sys.stdout.write("+")
@@ -140,6 +141,7 @@ class Generator:
         self.session.commit()
 
     def load(self):
+        # if sub_type is not in the db, just add an empty string to it
         activities = (
             self.session.query(Activity)
             .filter(Activity.distance > 0.1)
