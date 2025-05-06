@@ -135,9 +135,9 @@ def update_or_create_activity(session, run_activity):
                 average_speed=float(run_activity.average_speed),
                 calories=float(run_activity.calories),
                 elevation_gain=(
-                  float(run_activity.elevation_gain)
-                  if run_activity.elevation_gain is not None
-                  else None
+                    float(run_activity.elevation_gain)
+                    if run_activity.elevation_gain is not None
+                    else None
                 ),
                 summary_polyline=(
                     run_activity.map and run_activity.map.summary_polyline or ""
