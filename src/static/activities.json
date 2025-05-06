@@ -2878,5 +2878,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 2
+},
+{
+"run_id": 14374839461,
+"name": "\u6668\u95f4\u8fdc\u8db3",
+"distance": 6370.6,
+"moving_time": "2:35:59",
+"type": "Hike",
+"start_date": "2025-05-02 02:40:54+00:00",
+"start_date_local": "2025-05-02 10:40:54",
+"location_country": "\u5357\u6b66\u5f53\u5c71, G105, \u6a2a\u5c97\u6751, \u9f99\u5357\u5e02, \u8d63\u5dde\u5e02, \u6c5f\u897f\u7701, \u4e2d\u56fd",
+"summary_polyline": "kuguC{od{T`AJDEAQTgAP[VODBADHIr@Md@WHs@FGDKCOBE@YGSBWL]@w@BM^_@P_@pAc@h@c@nBaCNw@VC\\BXZ`@FLJXMn@INK^IPFG?PFRA@FDADFFEEDP?CAHDPAA@?CF@`@IPS@KEBBDHEEAD??Q?HJ?NYPGh@m@R]DWGyAbAm@p@OHKDSGYBEEg@EGLIK@GI?HELG?CEK@O[DDCSFCLN@IGONGBDBKHEG?BKVFCMKKDQF@FJJA@L@GGAAGBURLLKAe@BQL_@@]DQZs@Vc@G]DUJ[V]PI@SDD@CSGNDGJMIX?k@KIBt@A[NmABTGELTBRIEIF]{@Kn@Wd@F\\LEK@IXBDO@NEF?IEA\\DMb@MBEHAPBJCJBND@?JFHI@INIl@At@Yx@Bh@LTFXCNHHFAL@EEA`AHPI?D@I@GRER@`@EABBGR@CBBI?F@CDBDI??LCAB@?DBCC\\Lr@F@HNTFl@\\^?VQDK?iA]g@PUDOGk@BQIa@XDLIDM?]M[BCR@@BG@XFAFFEBDCFBGPNTQl@\\TK\\BXYZ?BJWx@FZIX?NBHFAj@r@d@RDDC?D??ECJZI~@GPHP?HDh@t@ZZn@Bn@SDHBCBJLH?HA?CH_@Jo@f@Ul@Aj@]VOTAFTNDNY^K^d@XAECADFCCpAYj@Yd@[HOf@YTRBHKBAF]NIR[XQ^GTW`@O~@M^ADBAGNI@@FMJICAJIGQPMEOFBBBCEG@FAEADIBJ@AGSNUXCTIPk@ZQVCVJN_@Z?DQRUt@_@XS`AMR?FEFAr@Dp@Rf@ZVj@HQt@BTJJ`A@HEBSDCXHP?BGEm@b@h@Zp@F?E?@AGEGQTTBLn@o@b@FPCLNLAIB?ECDB?BMEDD@KFAGJCKB?EF@IK?IJTTLI[RLGOBELT@TCSFWHQ?MV_@@u@C^DXGA@DKVNXLHCHPLMJRJo@?QRKDBRSJLN@THPOUa@EBA?MBLDCPVYC@BVESEa@D@LZf@Oj@GKOXGOIBBLRTENKFC?EMDNBIGBDDCFFJOG[JS?BDCGKNOz@Uh@?PQR@HEXLRHp@K^KfAGJCXU^GFqAb@c@\\S`@Of@GDKGDAAFBJI\\HU@UCOGG_@Kq@?}@@MD?n@WLBJAbADN?GE?CHFAMDDk@?u@LMLCPJK?DNCl@ABUFCRIJBVAZFr@Sh@WZ",
+"average_heartrate": 134.9,
+"max_heartrate": 170.0,
+"average_speed": 0.681,
+"calories": 823.0,
+"elevation_gain": 652.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 14382986842,
+"name": "\u5348\u540e\u7fbd\u6bdb\u7403",
+"distance": 0.0,
+"moving_time": "1:03:47",
+"type": "Workout",
+"start_date": "2025-05-05 09:03:33+00:00",
+"start_date_local": "2025-05-05 17:03:33",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 131.6,
+"max_heartrate": 150.0,
+"average_speed": 0.0,
+"calories": 529.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
