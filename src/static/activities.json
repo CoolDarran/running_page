@@ -3130,5 +3130,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 14678348046,
+"name": "\u6668\u95f4\u6e38\u6cf3",
+"distance": 825.0,
+"moving_time": "0:32:37",
+"type": "Swim",
+"start_date": "2025-06-03 00:39:30+00:00",
+"start_date_local": "2025-06-03 08:39:30",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 118.3,
+"max_heartrate": 133.0,
+"average_speed": 0.422,
+"calories": 232.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
