@@ -3382,5 +3382,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 14906476742,
+"name": "\u6668\u95f4\u8dd1\u6b65",
+"distance": 4033.7,
+"moving_time": "0:36:43",
+"type": "Run",
+"start_date": "2025-06-24 23:27:38+00:00",
+"start_date_local": "2025-06-25 07:27:38",
+"location_country": "\u590d\u5174\u4e1c\u8def, \u8001\u897f\u95e8, \u8c6b\u56ed\u8857\u9053, \u4e0a\u6d77\u5e02, \u9ec4\u6d66\u533a, \u4e0a\u6d77\u5e02, 200010, \u4e2d\u56fd",
+"summary_polyline": "mmq}Da`odVE}@Sy@C{@E[?gAKcD@[H_@@gAHgA@q@LYDSLuBJc@LeAViAHk@N[L]x@iDHaACOCCCBACBWBGPGBGHY@WYyBMk@c@kAGCK@Ow@Ma@[o@WwAa@oAG]QSSq@a@c@Oa@AQJUBOASGSKSMOi@UOF]Xs@VUBe@d@a@TiE|DmCbD_A~@{BpCU^Od@i@~@a@~@o@p@cAnA_A|@_A`AW`@w@bBy@rA[^Yp@c@\\u@z@o@d@iA`Bu@~@mAjBk@t@}@~@}@hAcBzAuAzAw@`@qBtAiAl@_C`A_@Ja@TyAp@s@TUBgBb@{Fr@wADcC@]BgAMsBM_Da@c@QcBg@[M_@Mc@KM?UJe@h@QJQFa@BOF[p@Kn@@ZDQ",
+"average_heartrate": 145.5,
+"max_heartrate": 174.0,
+"average_speed": 1.831,
+"calories": 315.0,
+"elevation_gain": 47.0,
+"source": "strava",
+"streak": 1
 }
 ]
