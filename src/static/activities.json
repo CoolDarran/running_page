@@ -3490,5 +3490,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 4
+},
+{
+"run_id": 14983034084,
+"name": "\u665a\u95f4\u7fbd\u6bdb\u7403",
+"distance": 0.0,
+"moving_time": "0:59:38",
+"type": "Workout",
+"start_date": "2025-07-02 11:06:28+00:00",
+"start_date_local": "2025-07-02 19:06:28",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 138.6,
+"max_heartrate": 166.0,
+"average_speed": 0.0,
+"calories": 593.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 5
 }
 ]
