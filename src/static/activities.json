@@ -3706,5 +3706,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 15216059371,
+"name": "Morning Swim",
+"distance": 0.0,
+"moving_time": "0:31:09",
+"type": "Swim",
+"start_date": "2025-07-24 00:34:07+00:00",
+"start_date_local": "2025-07-24 08:34:07",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 132.4,
+"max_heartrate": 148.0,
+"average_speed": 0.0,
+"calories": 324.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 15220171039,
+"name": "\u665a\u95f4\u7fbd\u6bdb\u7403",
+"distance": 0.0,
+"moving_time": "0:56:30",
+"type": "Workout",
+"start_date": "2025-07-24 11:10:56+00:00",
+"start_date_local": "2025-07-24 19:10:56",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 135.7,
+"max_heartrate": 153.0,
+"average_speed": 0.0,
+"calories": 471.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
