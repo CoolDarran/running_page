@@ -3868,5 +3868,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 15351071398,
+"name": "Evening Swim",
+"distance": 0.0,
+"moving_time": "0:40:39",
+"type": "Swim",
+"start_date": "2025-08-05 10:31:38+00:00",
+"start_date_local": "2025-08-05 18:31:38",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 126.0,
+"max_heartrate": 144.0,
+"average_speed": 0.0,
+"calories": 390.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
