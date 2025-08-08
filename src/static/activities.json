@@ -3886,5 +3886,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 15371497418,
+"name": "Morning Swim",
+"distance": 0.0,
+"moving_time": "0:31:05",
+"type": "Swim",
+"start_date": "2025-08-07 00:34:38+00:00",
+"start_date_local": "2025-08-07 08:34:38",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 126.4,
+"max_heartrate": 139.0,
+"average_speed": 0.0,
+"calories": 298.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 15376952270,
+"name": "Evening Badminton",
+"distance": 0.0,
+"moving_time": "2:02:28",
+"type": "Workout",
+"start_date": "2025-08-07 11:55:22+00:00",
+"start_date_local": "2025-08-07 19:55:22",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 149.7,
+"max_heartrate": 187.0,
+"average_speed": 0.0,
+"calories": 1613.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
