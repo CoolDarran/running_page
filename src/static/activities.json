@@ -4156,5 +4156,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 15797649146,
+"name": "Night Badminton",
+"distance": 0.0,
+"moving_time": "1:03:48",
+"type": "Workout",
+"start_date": "2025-09-13 13:06:24+00:00",
+"start_date_local": "2025-09-13 21:06:24",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 126.5,
+"max_heartrate": 149.0,
+"average_speed": 0.0,
+"calories": 621.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
