@@ -2,14 +2,22 @@ import { lazy, Suspense } from 'react';
 import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
+// eslint-disable-next-line no-unused-vars
 import { formatPace, colorFromType } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
-import { SHOW_ELEVATION_GAIN } from "@/utils/const";
+import { SHOW_ELEVATION_GAIN } from '@/utils/const';
 
-const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick: (_year: string) => void ,
-    onClickTypeInYear: (_year: string, _type: string) => void }) => {
+const YearStat = ({
+  year,
+  onClick,
+  onClickTypeInYear,
+}: {
+  year: string;
+  onClick: (_year: string) => void;
+  onClickTypeInYear: (_year: string, _type: string) => void;
+}) => {
   let { activities: runs, years } = useActivities();
   // for hover
   const [hovered, eventHandlers] = useHover();
@@ -34,13 +42,22 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
     sumDistance += run.distance || 0;
     sumElevationGain += run.elevation_gain || 0;
     if (run.average_speed) {
-      if(workoutsCounts[run.type]){
+      if (workoutsCounts[run.type]) {
         totalMetersAvail += run.distance || 0;
         totalSecondsAvail += (run.distance || 0) / run.average_speed;
-        var [oriCount, oriSecondsAvail, oriMetersAvail] = workoutsCounts[run.type]
-        workoutsCounts[run.type] = [oriCount + 1, oriSecondsAvail + (run.distance || 0) / run.average_speed, oriMetersAvail + (run.distance || 0)]
-      }else{
-        workoutsCounts[run.type] = [1, (run.distance || 0) / run.average_speed, run.distance]
+        var [oriCount, oriSecondsAvail, oriMetersAvail] =
+          workoutsCounts[run.type];
+        workoutsCounts[run.type] = [
+          oriCount + 1,
+          oriSecondsAvail + (run.distance || 0) / run.average_speed,
+          oriMetersAvail + (run.distance || 0),
+        ];
+      } else {
+        workoutsCounts[run.type] = [
+          1,
+          (run.distance || 0) / run.average_speed,
+          run.distance,
+        ];
       }
     }
     if (run.average_heartrate) {
@@ -52,6 +69,7 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
       streak = Math.max(streak, run.streak);
     }
   });
+  const sumElevationGainStr = sumElevationGain.toFixed(0);
   sumDistance = parseFloat((sumDistance / 1000.0).toFixed(1));
   const hasPace = totalSecondsAvail > 0;
   const avgPace = formatPace(totalMetersAvail / totalSecondsAvail);
@@ -62,29 +80,25 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
 
   const workoutsArr = Object.entries(workoutsCounts);
   workoutsArr.sort((a, b) => {
-    return b[1][0] - a[1][0]
+    return b[1][0] - a[1][0];
   });
   return (
-    <div
-      className="cursor-pointer"
-      onClick={() => onClick(year)}
-      {...eventHandlers}
-    >
-      <section>
+    <div className="cursor-pointer" onClick={() => onClick(year)}>
+      <section {...eventHandlers}>
         <Stat value={year} description=" Journey" />
-        { sumDistance > 0 &&
+        {sumDistance > 0 && (
           <WorkoutStat
-            key='total'
-            value={`${runs.length}`}
-            description={" Total"}
+            key="total"
+            value={runs.length}
+            description={' Total'}
             distance={(sumDistance / 1000.0).toFixed(0)}
           />
-        }
-        { workoutsArr.map(([type, count]) => (
+        )}
+        {workoutsArr.map(([type, count]) => (
           <WorkoutStat
             key={type}
-            value={`${count[0]}`}
-            description={` ${type}`+"s"}
+            value={count[0]}
+            description={` ${type}` + 's'}
             pace={formatPace(count[2] / count[1])}
             distance={(count[2] / 1000.0).toFixed(0)}
             // color={colorFromType(type)}
@@ -95,28 +109,24 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
           />
         ))}
         {hasPace && (<Stat value={avgPace} description=" Avg Pace" />)}
-        { SHOW_ELEVATION_GAIN && sumElevationGain > 0 &&
+        {SHOW_ELEVATION_GAIN && sumElevationGain > 0 && (
           <Stat
-            value={`${(sumElevationGain).toFixed(0)} `}
-            description="M Elevation Gain"
+            value={`${sumElevationGainStr} `}
+            description="M Elev Gain"
             className="pb-2"
           />
-        }
-        <Stat
-          value={`${streak} day`}
-          description=" Streak"
-          className="pb-2"
-        />
+        )}
+        <Stat value={`${streak} day`} description=" Streak" className="pb-2" />
         {hasHeartRate && (
           <Stat value={avgHeartRate} description=" Avg Heart Rate" />
         )}
       </section>
       {year !== 'Total' && hovered && (
         <Suspense fallback="loading...">
-          <YearSVG className="my-4 h-4/6 w-4/6 border-0 p-0" />
+          <YearSVG className="year-svg my-4 h-4/6 w-4/6 border-0 p-0" />
         </Suspense>
       )}
-      <hr color="red" />
+      <hr />
     </div>
   );
 };

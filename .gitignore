@@ -162,3 +162,8 @@ cython_debug/
 .idea/
 node_modules
 .vscode
+
+route.png
+route.svg
+
+.env
