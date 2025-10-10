@@ -72,13 +72,21 @@ const Header = () => {
             </picture>
           </Link>
         </div>
-        <div className="flex w-3/4 justify-end items-end">
-          <a href="https://developers.strava.com/" rel="noopener noreferrer" target="_blank">
-            <picture><StravaSvg className={styles.stravaSVG} /></picture>
+        <div className="flex w-3/4 items-end justify-end">
+          <a
+            href="https://developers.strava.com/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <picture>
+              <StravaSvg className={styles.stravaSVG} />
+            </picture>
           </a>
-          <picture><WatchSvg className={styles.watchSVG} /></picture>
+          <picture>
+            <WatchSvg className={styles.watchSVG} />
+          </picture>
         </div>
-        <div className="flex items-center justify-end text-right pl-6">
+        <div className="flex items-center justify-end pl-6 text-right">
           {navLinks.map((n, i) => (
             <a
               key={i}

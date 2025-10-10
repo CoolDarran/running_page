@@ -108,7 +108,7 @@ const YearStat = ({
             }}
           />
         ))}
-        {hasPace && (<Stat value={avgPace} description=" Avg Pace" />)}
+        {hasPace && <Stat value={avgPace} description=" Avg Pace" />}
         {SHOW_ELEVATION_GAIN && sumElevationGain > 0 && (
           <Stat
             value={`${sumElevationGainStr} `}

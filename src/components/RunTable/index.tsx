@@ -56,7 +56,9 @@ const RunTable = ({
         : (b.average_heartrate ?? 0) - (a.average_heartrate ?? 0);
     };
     const sortCaloriesFunc: SortFunc = (a, b) =>
-      sortFuncInfo === 'Calories' ? a.calories - b.calories : b.calories - a.calories;
+      sortFuncInfo === 'Calories'
+        ? a.calories - b.calories
+        : b.calories - a.calories;
     const sortRunTimeFunc: SortFunc = (a, b) => {
       const aTotalSeconds = convertMovingTime2Sec(a.moving_time);
       const bTotalSeconds = convertMovingTime2Sec(b.moving_time);
