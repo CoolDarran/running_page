@@ -147,7 +147,7 @@ def update_or_create_activity(session, run_activity):
                 average_heartrate=run_activity.average_heartrate,
                 max_heartrate=run_activity.max_heartrate,
                 average_speed=float(run_activity.average_speed),
-              elevation_gain=current_elevation_gain,
+                elevation_gain=current_elevation_gain,
                 calories=float(run_activity.calories),
                 summary_polyline=(
                     run_activity.map and run_activity.map.summary_polyline or ""
