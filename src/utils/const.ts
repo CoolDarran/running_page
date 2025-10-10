@@ -255,10 +255,7 @@ export const SNOWBOARD_COLOR = [dark_vanilla, dark_vanilla];
 export const TRAIL_RUN_COLOR = [IKB, IKB];
 export const PROVINCE_FILL_COLOR = '#47b8e0';
 export const COUNTRY_FILL_COLOR = dark_vanilla;
-export const KAYAKING_COLOR = red;
-export const SNOWBOARD_COLOR = dark_vanilla;
-export const TRAIL_RUN_COLOR = IKB;
-export const WORKOUT_COLOR = veryPeri;
+export const WORKOUT_COLOR = [veryPeri, veryPeri];
 
 // map tiles vendor, maptiler or mapbox or stadiamaps
 // if you want to use maptiler, set the access token in MAP_TILE_ACCESS_TOKEN
@@ -316,6 +313,9 @@ export const MAP_TILE_STYLES = {
     'light-v11': 'mapbox://styles/mapbox/light-v11',
     'navigation-night': 'mapbox://styles/mapbox/navigation-night-v1',
     'satellite-streets-v12': 'mapbox://styles/mapbox/satellite-streets-v12',
+    'outdoors-v12': 'mapbox://styles/mapbox/outdoors-v12',
+    'camouflage': 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
+    'runner': 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json',
   },
-  default: 'mapbox://styles/mapbox/dark-v10',
+  default: 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
 };

@@ -18,7 +18,7 @@ const getBasePath = () => {
 const data: ISiteMetadataResult = {
   siteTitle: 'Workouts Page',
   siteUrl: 'https://workouts.danran.one',
-  logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTtc69JxHNcmN1ETpMUX4dozAgAN6iPjWalQ&usqp=CAU',
+  logo: '/images/logo.svg',
   description: 'Personal site and blog',
   keywords: 'workouts, running, hiking, swimming',
   navLinks: [

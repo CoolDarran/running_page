@@ -72,7 +72,13 @@ const Header = () => {
             </picture>
           </Link>
         </div>
-        <div className="flex w-3/4 items-center justify-end text-right">
+        <div className="flex w-3/4 justify-end items-end">
+          <a href="https://developers.strava.com/" rel="noopener noreferrer" target="_blank">
+            <picture><StravaSvg className={styles.stravaSVG} /></picture>
+          </a>
+          <picture><WatchSvg className={styles.watchSVG} /></picture>
+        </div>
+        <div className="flex items-center justify-end text-right pl-6">
           {navLinks.map((n, i) => (
             <a
               key={i}
@@ -82,12 +88,6 @@ const Header = () => {
               {n.name}
             </a>
           ))}
-        </div>
-        <div className={styles.appsWrapper}>
-          <a href="https://developers.strava.com/" rel="noopener noreferrer" target="_blank">
-            <picture><StravaSvg className={styles.stravaSVG} /></picture>
-          </a>
-          <picture><WatchSvg className={styles.watchSVG} /></picture>
         </div>
         <div className="ml-4 flex items-center space-x-2">
           <button

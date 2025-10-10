@@ -29,6 +29,7 @@ const HikingSvg = MonthOfLifeSvg('hiking');
 const CyclingSvg = MonthOfLifeSvg('cycling');
 const SwimmingSvg = MonthOfLifeSvg('swimming');
 const SkiingSvg = MonthOfLifeSvg('skiing');
+const WorkoutSvg = MonthOfLifeSvg('workout');
 const AllSvg = MonthOfLifeSvg('all');
 
 interface ActivitySummary {
@@ -436,6 +437,7 @@ const ActivityList: React.FC = () => {
             {sportType === 'Ride' && <CyclingSvg />}
             {sportType === 'Swim' && <SwimmingSvg />}
             {sportType === 'Ski' && <SkiingSvg />}
+            {sportType === 'Workout' && <WorkoutSvg />}
             {sportType === 'all' && <AllSvg />}
           </Suspense>
         </div>

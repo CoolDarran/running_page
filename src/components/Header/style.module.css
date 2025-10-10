@@ -25,3 +25,14 @@
   width: 100%;
   height: 100%;
 }
+
+.stravaSVG {
+  height: 1.2rem;
+  fill: rgb(224, 237, 94);
+  margin-right: .5rem;
+}
+
+.watchSVG {
+  height: 2rem;
+  fill: rgb(224, 237, 94);
+}

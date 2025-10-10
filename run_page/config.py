@@ -67,7 +67,7 @@ TYPE_DICT = {
     "Ski": "Ski",
     "WeightTraining": "Workout",  # strava
     "Workout": "Workout",
-    "Crossfit": "Workout",
+    "Crossfit": "Workout",  # strava
 }
 
 MAPPING_TYPE = [
