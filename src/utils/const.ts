@@ -314,8 +314,11 @@ export const MAP_TILE_STYLES = {
     'navigation-night': 'mapbox://styles/mapbox/navigation-night-v1',
     'satellite-streets-v12': 'mapbox://styles/mapbox/satellite-streets-v12',
     'outdoors-v12': 'mapbox://styles/mapbox/outdoors-v12',
-    'camouflage': 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
-    'runner': 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json',
+    camouflage:
+      'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
+    runner:
+      'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json',
   },
-  default: 'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
+  default:
+    'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
 };
