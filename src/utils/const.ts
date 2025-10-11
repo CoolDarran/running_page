@@ -41,7 +41,7 @@ const ROAD_LABEL_DISPLAY = true;
 const PRIVACY_MODE = false;
 // updated on 2024/11/17: lights are turned off by default
 //set to `false` if you want to make light off as default, only effect when `PRIVACY_MODE` = false
-const LIGHTS_ON = false;
+const LIGHTS_ON = true;
 //set to `true` if you want to show the 'Elevation Gain' column
 const SHOW_ELEVATION_GAIN = true;
 // richer title for the activity types (like garmin style)
@@ -263,7 +263,7 @@ export const MAP_TILE_VENDOR = 'mapbox';
 
 // map tiles style name, see MAP_TILE_STYLES for more details
 export const MAP_TILE_STYLE_LIGHT = 'light-v10';
-export const MAP_TILE_STYLE_DARK = 'dark-v10';
+export const MAP_TILE_STYLE_DARK = 'camouflage';
 
 // access token. you can apply a new one, it's free.
 // maptiler: Gt5R0jT8tuIYxW6sNrAg | sign up at https://cloud.maptiler.com/auth/widget
@@ -320,5 +320,5 @@ export const MAP_TILE_STYLES = {
       'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json',
   },
   default:
-    'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Camouflage.json',
+    'mapbox://styles/mapbox/dark-v10',
 };

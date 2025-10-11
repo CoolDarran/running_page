@@ -26,14 +26,14 @@ const data: ISiteMetadataResult = {
       name: 'Summary',
       url: `${getBasePath()}/summary`,
     },
-    {
-      name: 'Blog',
-      url: 'https://github.com/CoolDarran',
-    },
-    {
-      name: 'About',
-      url: 'https://github.com/CoolDarran/running_page/blob/master/README-CN.md',
-    },
+    // {
+    //   name: 'Blog',
+    //   url: 'https://github.com/CoolDarran',
+    // },
+    // {
+    //   name: 'About',
+    //   url: 'https://github.com/CoolDarran/running_page/blob/master/README-CN.md',
+    // },
   ],
 };
 
