@@ -319,6 +319,5 @@ export const MAP_TILE_STYLES = {
     runner:
       'https://raw.githubusercontent.com/jingsam/mapbox-gl-styles/master/Runner.json',
   },
-  default:
-    'mapbox://styles/mapbox/dark-v10',
+  default: 'mapbox://styles/mapbox/dark-v10',
 };
