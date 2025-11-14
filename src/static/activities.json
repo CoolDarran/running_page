@@ -4843,7 +4843,7 @@
 },
 {
 "run_id": 16440978250,
-"name": "\u6668\u95f4\u9ad8\u5f3a\u5ea6\u95f4\u6b47\u8bad\u7ec3",
+"name": "\u6668\u95f4\u529b\u91cf\u8bad\u7ec3",
 "distance": 0.0,
 "moving_time": "0:12:50",
 "type": "Workout",
@@ -4858,5 +4858,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 16442531525,
+"name": "\u6668\u95f4\u529b\u91cf\u8bad\u7ec3",
+"distance": 0.0,
+"moving_time": "0:51:23",
+"type": "Workout",
+"start_date": "2025-11-12 23:17:53+00:00",
+"start_date_local": "2025-11-13 07:17:53",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 130.2,
+"max_heartrate": 160.0,
+"average_speed": 0.0,
+"calories": 402.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 16451022864,
+"name": "\u6668\u95f4Crossfit",
+"distance": 0.0,
+"moving_time": "0:55:34",
+"type": "Workout",
+"start_date": "2025-11-13 23:08:41+00:00",
+"start_date_local": "2025-11-14 07:08:41",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 121.5,
+"max_heartrate": 174.0,
+"average_speed": 0.0,
+"calories": 444.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
