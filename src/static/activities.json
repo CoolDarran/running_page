@@ -4948,5 +4948,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 16514586664,
+"name": "Evening Badminton",
+"distance": 0.0,
+"moving_time": "1:30:37",
+"type": "Workout",
+"start_date": "2025-11-20 11:44:16+00:00",
+"start_date_local": "2025-11-20 19:44:16",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 137.5,
+"max_heartrate": 175.0,
+"average_speed": 0.0,
+"calories": 1023.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
