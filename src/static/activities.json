@@ -5020,5 +5020,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 16577580490,
+"name": "\u91cd\u91cf\u8bad\u7ec3\uff08\u4e0a\u5348\uff09",
+"distance": 0.0,
+"moving_time": "1:11:23",
+"type": "Workout",
+"start_date": "2025-11-26 23:04:44+00:00",
+"start_date_local": "2025-11-27 07:04:44",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 124.7,
+"max_heartrate": 149.0,
+"average_speed": 0.0,
+"calories": 421.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 16587356266,
+"name": "\u6668\u95f4\u9ad8\u5f3a\u5ea6\u95f4\u6b47\u8bad\u7ec3",
+"distance": 0.0,
+"moving_time": "1:05:50",
+"type": "Workout",
+"start_date": "2025-11-27 23:01:58+00:00",
+"start_date_local": "2025-11-28 07:01:58",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 142.2,
+"max_heartrate": 180.0,
+"average_speed": 0.0,
+"calories": 665.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
