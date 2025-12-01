@@ -5056,5 +5056,41 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 2
+},
+{
+"run_id": 16605122809,
+"name": "\u6668\u95f4Crossfit",
+"distance": 0.0,
+"moving_time": "0:57:05",
+"type": "Workout",
+"start_date": "2025-11-29 23:42:05+00:00",
+"start_date_local": "2025-11-30 07:42:05",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 149.3,
+"max_heartrate": 177.0,
+"average_speed": 0.0,
+"calories": 619.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 16614842223,
+"name": "Morning Crossfit",
+"distance": 0.0,
+"moving_time": "1:01:02",
+"type": "Workout",
+"start_date": "2025-11-30 23:01:06+00:00",
+"start_date_local": "2025-12-01 07:01:06",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 128.4,
+"max_heartrate": 173.0,
+"average_speed": 0.0,
+"calories": 608.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
