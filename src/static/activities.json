@@ -5491,7 +5491,7 @@
 },
 {
 "run_id": 16940450215,
-"name": "\u6668\u95f4\u9ad8\u5f3a\u5ea6\u95f4\u6b47\u8bad\u7ec3",
+"name": "\u6668\u95f4Crossfit",
 "distance": 0.0,
 "moving_time": "1:11:40",
 "type": "Workout",
@@ -5506,5 +5506,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 2
+},
+{
+"run_id": 16950934586,
+"name": "\u6668\u95f4Crossfit",
+"distance": 0.0,
+"moving_time": "1:03:49",
+"type": "Workout",
+"start_date": "2026-01-05 23:02:44+00:00",
+"start_date_local": "2026-01-06 07:02:44",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 135.3,
+"max_heartrate": 180.0,
+"average_speed": 0.0,
+"calories": 599.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 3
 }
 ]
