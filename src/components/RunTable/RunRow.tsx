@@ -26,7 +26,6 @@ const RunRow = ({
   setRunIndex,
 }: IRunRowProperties) => {
   const distance = (run.distance / M_TO_DIST).toFixed(2);
-  const elevation_gain = run.elevation_gain?.toFixed(0);
   const paceParts = run.average_speed ? formatPace(run.average_speed) : null;
   const heartRate = run.average_heartrate;
   const calories = run.calories;
@@ -53,9 +52,9 @@ const RunRow = ({
       <td>{type}</td>
       <td>{distance}</td>
       {SHOW_ELEVATION_GAIN && (
-        <td>{((elevation_gain ?? 0) * M_TO_ELEV).toFixed(1)}</td>
+        <td>{((run.elevation_gain ?? 0) * M_TO_ELEV).toFixed(1)}</td>
       )}
-      {paceParts && <td>{paceParts}</td>}
+      <td>{paceParts}</td>
       <td>{heartRate && heartRate.toFixed(0)}</td>
       <td>{calories}</td>
       <td>{runTime}</td>
