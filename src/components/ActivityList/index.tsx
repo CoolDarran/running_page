@@ -155,8 +155,6 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
     return [];
   };
 
-
-
   const formatTime = (seconds: number): string => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -185,18 +183,18 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
   };
 
   // Determine chart metric: 0 = Distance (default), 1 = Time, 2 = Calories
-  // Strategy: 
+  // Strategy:
   // - If activityType is 'Workout', prefer Calories (if available) or Time
   // - If totalDistance is 0, prefer Calories (if available) or Time
   // - Otherwise default to Distance
   let chartMetric = 0; // 0: Distance, 1: Time, 2: Calories
-  
+
   if (activityType.toLowerCase() === 'workout' || summary.totalDistance === 0) {
-      if (summary.totalCalories && summary.totalCalories > 0) {
-          chartMetric = 2;
-      } else {
-          chartMetric = 1;
-      }
+    if (summary.totalCalories && summary.totalCalories > 0) {
+      chartMetric = 2;
+    } else {
+      chartMetric = 1;
+    }
   }
 
   const data: ChartData[] = generateLabels().map((day) => {
@@ -230,14 +228,15 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
 
   // Calculate Y-axis maximum value and ticks
   const yAxisMax = Math.ceil(
-    Math.max(...data.map((d) => parseFloat(d.value))) + (chartMetric === 2 ? 100 : 1)
+    Math.max(...data.map((d) => parseFloat(d.value))) +
+      (chartMetric === 2 ? 100 : 1)
   ); // Round up and add buffer
-  
+
   const tickCount = 5;
   const yAxisTicks = Array.from(
     { length: tickCount + 1 },
     (_, i) => (yAxisMax / tickCount) * i
-  ); 
+  );
 
   return (
     <div
@@ -280,12 +279,13 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                 {summary.averageHeartRate.toFixed(0)} bpm
               </p>
             )}
-            {summary.totalCalories !== undefined && summary.totalCalories > 0 && (
-              <p>
-                <strong>{ACTIVITY_TOTAL.TOTAL_CALORIES_TITLE}:</strong>{' '}
-                {Math.round(summary.totalCalories).toLocaleString()} KCAL
-              </p>
-            )}
+            {summary.totalCalories !== undefined &&
+              summary.totalCalories > 0 && (
+                <p>
+                  <strong>{ACTIVITY_TOTAL.TOTAL_CALORIES_TITLE}:</strong>{' '}
+                  {Math.round(summary.totalCalories).toLocaleString()} KCAL
+                </p>
+              )}
             {interval !== 'day' && (
               <>
                 <p>

@@ -93,7 +93,7 @@ const YearStat = ({
 
   return (
     <div
-      className="cursor-pointer p-2 transition-all hover:bg-zinc-800/30 rounded"
+      className="cursor-pointer rounded p-2 transition-all hover:bg-zinc-800/30"
       onClick={() => onClick(year)}
       {...eventHandlers}
     >
@@ -104,7 +104,7 @@ const YearStat = ({
 
         <div className="grid grid-cols-2 gap-4">
           {sumDistance > 0 && (
-            <div className="col-span-2 grid grid-cols-2 gap-4 border-b border-zinc-700 pb-4 mb-2">
+            <div className="col-span-2 mb-2 grid grid-cols-2 gap-4 border-b border-zinc-700 pb-4">
               <div className="flex flex-col">
                 <span className="text-3xl font-bold italic">{runs.length}</span>
                 <span className="text-sm opacity-70">Total Activities</span>
@@ -118,22 +118,22 @@ const YearStat = ({
                   <span className="text-3xl font-bold italic">
                     {sumElevationGainStr}
                   </span>
-                  <span className="text-sm opacity-70">{ELEV_UNIT} Elev Gain</span>
+                  <span className="text-sm opacity-70">
+                    {ELEV_UNIT} Elev Gain
+                  </span>
                 </div>
               )}
-               <div className="flex flex-col">
-                  <span className="text-3xl font-bold italic">
-                    {streak}
-                  </span>
-                  <span className="text-sm opacity-70">Day Swipe</span>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold italic">{streak}</span>
+                <span className="text-sm opacity-70">Day Swipe</span>
+              </div>
             </div>
           )}
 
           {workoutsArr.map(([type, count]) => (
             <div
               key={type}
-              className="flex flex-col hover:opacity-80 transition-opacity"
+              className="flex flex-col transition-opacity hover:opacity-80"
               onClick={(e) => {
                 onClickTypeInYear(year, type);
                 e.stopPropagation();
@@ -144,36 +144,33 @@ const YearStat = ({
                 <span className="text-xs font-semibold uppercase opacity-70">
                   {type}s
                 </span>
-                
               </div>
               <div className="text-xs opacity-50">
-               {count[2] > 0 ? (
-                  <>
-                  {(count[2] / 1000.0).toFixed(0)} KM
-                  </>
-               ) : (
-                  <>
-                  {count[3].toFixed(0)} KCAL
-                  </>
-               )}
+                {count[2] > 0 ? (
+                  <>{(count[2] / 1000.0).toFixed(0)} KM</>
+                ) : (
+                  <>{count[3].toFixed(0)} KCAL</>
+                )}
               </div>
             </div>
           ))}
         </div>
-        
+
         {hasPace && (
-            <div className = "mt-4 pt-4 border-t border-zinc-700 grid grid-cols-2 gap-4">
-                 <div className="flex flex-col">
-                    <span className="text-2xl font-bold italic">{avgPace}</span>
-                    <span className="text-sm opacity-70">Avg Pace</span>
-                </div>
-                 {hasHeartRate && (
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-bold italic">{avgHeartRate}</span>
-                        <span className="text-sm opacity-70">Avg Heart Rate</span>
-                    </div>
-                )}
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-zinc-700 pt-4">
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold italic">{avgPace}</span>
+              <span className="text-sm opacity-70">Avg Pace</span>
             </div>
+            {hasHeartRate && (
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold italic">
+                  {avgHeartRate}
+                </span>
+                <span className="text-sm opacity-70">Avg Heart Rate</span>
+              </div>
+            )}
+          </div>
         )}
       </section>
       {year !== 'Total' && hovered && (
