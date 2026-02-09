@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import Stat from '@/components/Stat';
-import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
 
 import { formatPace, colorFromType } from '@/utils/utils';
@@ -37,29 +36,37 @@ const YearStat = ({
   let heartRateNullCount = 0;
   let totalMetersAvail = 0;
   let totalSecondsAvail = 0;
-  const workoutsCounts: { [key: string]: [number, number, number] } = {};
+  const workoutsCounts: { [key: string]: [number, number, number, number] } =
+    {};
 
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
     sumElevationGain += run.elevation_gain || 0;
-    if (run.average_speed) {
-      if (workoutsCounts[run.type]) {
-        totalMetersAvail += run.distance || 0;
-        totalSecondsAvail += (run.distance || 0) / run.average_speed;
-        var [oriCount, oriSecondsAvail, oriMetersAvail] =
-          workoutsCounts[run.type];
-        workoutsCounts[run.type] = [
-          oriCount + 1,
-          oriSecondsAvail + (run.distance || 0) / run.average_speed,
-          oriMetersAvail + (run.distance || 0),
-        ];
-      } else {
-        workoutsCounts[run.type] = [
-          1,
-          (run.distance || 0) / run.average_speed,
-          run.distance,
-        ];
-      }
+    // calculate seconds to get pace
+    const runDistance = run.distance || 0;
+    const runSeconds =
+      run.average_speed && runDistance > 0 && run.average_speed > 0
+        ? runDistance / run.average_speed
+        : 0;
+
+    if (workoutsCounts[run.type]) {
+      totalMetersAvail += runDistance;
+      totalSecondsAvail += runSeconds;
+      var [oriCount, oriSecondsAvail, oriMetersAvail, oriCalories] =
+        workoutsCounts[run.type];
+      workoutsCounts[run.type] = [
+        oriCount + 1,
+        oriSecondsAvail + runSeconds,
+        oriMetersAvail + runDistance,
+        oriCalories + (run.calories || 0),
+      ];
+    } else {
+      workoutsCounts[run.type] = [
+        1,
+        runSeconds,
+        runDistance,
+        run.calories || 0,
+      ];
     }
     if (run.average_heartrate) {
       heartRate += run.average_heartrate;
@@ -83,43 +90,90 @@ const YearStat = ({
   workoutsArr.sort((a, b) => {
     return b[1][0] - a[1][0];
   });
+
   return (
-    <div className="cursor-pointer" onClick={() => onClick(year)}>
-      <section {...eventHandlers}>
-        <Stat value={year} description=" Journey" />
-        {sumDistance > 0 && (
-          <WorkoutStat
-            key="total"
-            value={runs.length}
-            description={' Total'}
-            distance={sumDistance}
-          />
-        )}
-        {workoutsArr.map(([type, count]) => (
-          <WorkoutStat
-            key={type}
-            value={count[0]}
-            description={` ${type}` + 's'}
-            pace={formatPace(count[2] / count[1])}
-            distance={(count[2] / 1000.0).toFixed(0)}
-            // color={colorFromType(type)}
-            onClick={(e: Event) => {
-              onClickTypeInYear(year, type);
-              e.stopPropagation();
-            }}
-          />
-        ))}
-        {hasPace && <Stat value={avgPace} description=" Avg Pace" />}
-        {SHOW_ELEVATION_GAIN && sumElevationGain > 0 && (
-          <Stat
-            value={`${sumElevationGainStr} `}
-            description={`${ELEV_UNIT} Elev Gain`}
-            className="pb-2"
-          />
-        )}
-        <Stat value={`${streak} day`} description=" Streak" className="pb-2" />
-        {hasHeartRate && (
-          <Stat value={avgHeartRate} description=" Avg Heart Rate" />
+    <div
+      className="cursor-pointer p-2 transition-all hover:bg-zinc-800/30 rounded"
+      onClick={() => onClick(year)}
+      {...eventHandlers}
+    >
+      <section>
+        <div className="mb-4">
+          <Stat value={year} description=" Journey" className="text-4xl" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {sumDistance > 0 && (
+            <div className="col-span-2 grid grid-cols-2 gap-4 border-b border-zinc-700 pb-4 mb-2">
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold italic">{runs.length}</span>
+                <span className="text-sm opacity-70">Total Activities</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold italic">{sumDistance}</span>
+                <span className="text-sm opacity-70">Total KM</span>
+              </div>
+              {SHOW_ELEVATION_GAIN && sumElevationGain > 0 && (
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold italic">
+                    {sumElevationGainStr}
+                  </span>
+                  <span className="text-sm opacity-70">{ELEV_UNIT} Elev Gain</span>
+                </div>
+              )}
+               <div className="flex flex-col">
+                  <span className="text-3xl font-bold italic">
+                    {streak}
+                  </span>
+                  <span className="text-sm opacity-70">Day Swipe</span>
+                </div>
+            </div>
+          )}
+
+          {workoutsArr.map(([type, count]) => (
+            <div
+              key={type}
+              className="flex flex-col hover:opacity-80 transition-opacity"
+              onClick={(e) => {
+                onClickTypeInYear(year, type);
+                e.stopPropagation();
+              }}
+            >
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold italic">{count[0]}</span>
+                <span className="text-xs font-semibold uppercase opacity-70">
+                  {type}s
+                </span>
+                
+              </div>
+              <div className="text-xs opacity-50">
+               {count[2] > 0 ? (
+                  <>
+                  {(count[2] / 1000.0).toFixed(0)} KM
+                  </>
+               ) : (
+                  <>
+                  {count[3].toFixed(0)} KCAL
+                  </>
+               )}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {hasPace && (
+            <div className = "mt-4 pt-4 border-t border-zinc-700 grid grid-cols-2 gap-4">
+                 <div className="flex flex-col">
+                    <span className="text-2xl font-bold italic">{avgPace}</span>
+                    <span className="text-sm opacity-70">Avg Pace</span>
+                </div>
+                 {hasHeartRate && (
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-bold italic">{avgHeartRate}</span>
+                        <span className="text-sm opacity-70">Avg Heart Rate</span>
+                    </div>
+                )}
+            </div>
         )}
       </section>
       {year !== 'Total' && hovered && (
@@ -127,7 +181,7 @@ const YearStat = ({
           <YearSVG className="year-svg my-4 h-4/6 w-4/6 border-0 p-0" />
         </Suspense>
       )}
-      <hr />
+      <hr className="mt-4 border-zinc-700" />
     </div>
   );
 };
