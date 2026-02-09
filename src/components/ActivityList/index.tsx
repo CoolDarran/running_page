@@ -77,11 +77,14 @@ interface ActivitySummary {
   totalElevationGain: number;
   count: number;
   dailyDistances: number[];
+  dailyTime: number[]; // Add daily time
+  dailyCalories: number[]; // Add daily calories
   maxDistance: number;
   maxSpeed: number;
   location: string;
   totalHeartRate: number; // Add heart rate statistics
   heartRateCount: number;
+  totalCalories: number;
   activities: Activity[]; // Add activities array for day interval
 }
 
@@ -95,17 +98,20 @@ interface DisplaySummary {
   location: string;
   totalElevationGain?: number;
   averageHeartRate?: number; // Add heart rate display
+  totalCalories?: number;
 }
 
 interface ChartData {
   day: number;
-  distance: string;
+  value: string; // Changed from distance to generic value
 }
 
 interface ActivityCardProps {
   period: string;
   summary: DisplaySummary;
   dailyDistances: number[];
+  dailyTime: number[];
+  dailyCalories: number[];
   interval: string;
   activityType: string;
   activities?: Activity[]; // Add activities for day interval
@@ -124,6 +130,8 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
   period,
   summary,
   dailyDistances,
+  dailyTime,
+  dailyCalories,
   interval,
   activityType,
   activities = [],
@@ -147,10 +155,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
     return [];
   };
 
-  const data: ChartData[] = generateLabels().map((day) => ({
-    day,
-    distance: (dailyDistances[day - 1] || 0).toFixed(2), // Keep two decimal places
-  }));
+
 
   const formatTime = (seconds: number): string => {
     const h = Math.floor(seconds / 3600);
@@ -178,14 +183,61 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
         return false;
     }
   };
+
+  // Determine chart metric: 0 = Distance (default), 1 = Time, 2 = Calories
+  // Strategy: 
+  // - If activityType is 'Workout', prefer Calories (if available) or Time
+  // - If totalDistance is 0, prefer Calories (if available) or Time
+  // - Otherwise default to Distance
+  let chartMetric = 0; // 0: Distance, 1: Time, 2: Calories
+  
+  if (activityType.toLowerCase() === 'workout' || summary.totalDistance === 0) {
+      if (summary.totalCalories && summary.totalCalories > 0) {
+          chartMetric = 2;
+      } else {
+          chartMetric = 1;
+      }
+  }
+
+  const data: ChartData[] = generateLabels().map((day) => {
+    let value = 0;
+    if (chartMetric === 0) {
+      value = dailyDistances[day - 1] || 0;
+    } else if (chartMetric === 1) {
+      value = (dailyTime[day - 1] || 0) / 3600; // Convert seconds to hours
+    } else if (chartMetric === 2) {
+      value = dailyCalories[day - 1] || 0;
+    }
+    return {
+      day,
+      value: value.toFixed(2),
+    };
+  });
+
+  const formatYAxis = (val: number) => {
+    if (chartMetric === 0) return val;
+    if (chartMetric === 1) return val; // Hours
+    if (chartMetric === 2) return val; // Calories
+    return val;
+  };
+
+  const getUnit = () => {
+    if (chartMetric === 0) return DIST_UNIT;
+    if (chartMetric === 1) return 'h';
+    if (chartMetric === 2) return 'KCAL';
+    return '';
+  };
+
   // Calculate Y-axis maximum value and ticks
   const yAxisMax = Math.ceil(
-    Math.max(...data.map((d) => parseFloat(d.distance))) + 10
+    Math.max(...data.map((d) => parseFloat(d.value))) + (chartMetric === 2 ? 100 : 1)
   ); // Round up and add buffer
+  
+  const tickCount = 5;
   const yAxisTicks = Array.from(
-    { length: Math.ceil(yAxisMax / 5) + 1 },
-    (_, i) => i * 5
-  ); // Generate arithmetic sequence
+    { length: tickCount + 1 },
+    (_, i) => (yAxisMax / tickCount) * i
+  ); 
 
   return (
     <div
@@ -228,27 +280,37 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                 {summary.averageHeartRate.toFixed(0)} bpm
               </p>
             )}
+            {summary.totalCalories !== undefined && summary.totalCalories > 0 && (
+              <p>
+                <strong>{ACTIVITY_TOTAL.TOTAL_CALORIES_TITLE}:</strong>{' '}
+                {Math.round(summary.totalCalories).toLocaleString()} KCAL
+              </p>
+            )}
             {interval !== 'day' && (
               <>
                 <p>
                   <strong>{ACTIVITY_TOTAL.ACTIVITY_COUNT_TITLE}:</strong>{' '}
                   {summary.count}
                 </p>
-                <p>
-                  <strong>{ACTIVITY_TOTAL.MAX_DISTANCE_TITLE}:</strong>{' '}
-                  {summary.maxDistance.toFixed(2)} {DIST_UNIT}
-                </p>
-                <p>
-                  <strong>{ACTIVITY_TOTAL.MAX_SPEED_TITLE}:</strong>{' '}
-                  {isFastType(activityType)
-                    ? `${summary.maxSpeed.toFixed(2)} ${DIST_UNIT}/h`
-                    : formatPace(summary.maxSpeed)}
-                </p>
-                <p>
-                  <strong>{ACTIVITY_TOTAL.AVERAGE_DISTANCE_TITLE}:</strong>{' '}
-                  {(summary.totalDistance / summary.count).toFixed(2)}{' '}
-                  {DIST_UNIT}
-                </p>
+                {summary.totalDistance > 0 && (
+                  <>
+                    <p>
+                      <strong>{ACTIVITY_TOTAL.MAX_DISTANCE_TITLE}:</strong>{' '}
+                      {summary.maxDistance.toFixed(2)} {DIST_UNIT}
+                    </p>
+                    <p>
+                      <strong>{ACTIVITY_TOTAL.MAX_SPEED_TITLE}:</strong>{' '}
+                      {isFastType(activityType)
+                        ? `${summary.maxSpeed.toFixed(2)} ${DIST_UNIT}/h`
+                        : formatPace(summary.maxSpeed)}
+                    </p>
+                    <p>
+                      <strong>{ACTIVITY_TOTAL.AVERAGE_DISTANCE_TITLE}:</strong>{' '}
+                      {(summary.totalDistance / summary.count).toFixed(2)}{' '}
+                      {DIST_UNIT}
+                    </p>
+                  </>
+                )}
               </>
             )}
             {['month', 'week', 'year'].includes(interval) && (
@@ -268,17 +330,21 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                     />
                     <YAxis
                       label={{
-                        value: DIST_UNIT,
+                        value: getUnit(),
                         angle: -90,
                         position: 'insideLeft',
+                        offset: 10,
                         fill: 'var(--color-run-table-thead)',
+                        style: { textAnchor: 'middle' },
                       }}
                       domain={[0, yAxisMax]}
                       ticks={yAxisTicks}
+                      tickFormatter={(val) => Math.round(val).toString()}
                       tick={{ fill: 'var(--color-run-table-thead)' }}
+                      width={40}
                     />
                     <Tooltip
-                      formatter={(value) => `${value} ${DIST_UNIT}`}
+                      formatter={(value) => `${value} ${getUnit()}`}
                       contentStyle={{
                         backgroundColor:
                           'var(--color-run-row-hover-background)',
@@ -288,7 +354,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                       }}
                       labelStyle={{ color: 'var(--color-primary)' }}
                     />
-                    <Bar dataKey="distance" fill="var(--color-primary)" />
+                    <Bar dataKey="value" fill="var(--color-primary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -500,6 +566,9 @@ const ActivityList: React.FC = () => {
             location: '',
             totalHeartRate: 0,
             heartRateCount: 0,
+            totalCalories: 0,
+            dailyTime: [],
+            dailyCalories: [],
             activities: [],
           };
 
@@ -518,10 +587,19 @@ const ActivityList: React.FC = () => {
           acc[key].heartRateCount += 1;
         }
 
+        if (activity.calories) {
+          acc[key].totalCalories += activity.calories;
+        }
+
         acc[key].count += 1;
         if (intervalArg === 'day') acc[key].activities.push(activity);
         acc[key].dailyDistances[index] =
           (acc[key].dailyDistances[index] || 0) + distance;
+        acc[key].dailyTime[index] =
+          (acc[key].dailyTime[index] || 0) + timeInSeconds;
+        acc[key].dailyCalories[index] =
+          (acc[key].dailyCalories[index] || 0) + (activity.calories || 0);
+
         if (distance > acc[key].maxDistance) acc[key].maxDistance = distance;
         if (speed > acc[key].maxSpeed) acc[key].maxSpeed = speed;
         if (intervalArg === 'day')
@@ -800,17 +878,18 @@ const ActivityList: React.FC = () => {
                   maxDistance: dataList[0].summary.maxDistance,
                   maxSpeed: dataList[0].summary.maxSpeed,
                   location: dataList[0].summary.location,
-                  totalElevationGain: SHOW_ELEVATION_GAIN
-                    ? dataList[0].summary.totalElevationGain
+                  totalElevationGain: dataList[0].summary.totalElevationGain,
+                  averageHeartRate: dataList[0].summary.heartRateCount
+                    ? dataList[0].summary.totalHeartRate /
+                      dataList[0].summary.heartRateCount
                     : undefined,
-                  averageHeartRate:
-                    dataList[0].summary.heartRateCount > 0
-                      ? dataList[0].summary.totalHeartRate /
-                        dataList[0].summary.heartRateCount
-                      : undefined,
+                  totalCalories: dataList[0].summary.totalCalories,
                 }}
                 dailyDistances={dataList[0].summary.dailyDistances}
+                dailyTime={dataList[0].summary.dailyTime}
+                dailyCalories={dataList[0].summary.dailyCalories}
                 interval={interval}
+                activityType={sportType}
                 activities={
                   interval === 'day'
                     ? dataList[0].summary.activities
@@ -884,9 +963,13 @@ const ActivityList: React.FC = () => {
                                   ? cardData.summary.totalHeartRate /
                                     cardData.summary.heartRateCount
                                   : undefined,
+                              totalCalories: cardData.summary.totalCalories,
                             }}
                             dailyDistances={cardData.summary.dailyDistances}
+                            dailyTime={cardData.summary.dailyTime}
+                            dailyCalories={cardData.summary.dailyCalories}
                             interval={interval}
+                            activityType={sportType}
                             activities={
                               interval === 'day'
                                 ? cardData.summary.activities
