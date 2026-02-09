@@ -65,6 +65,7 @@ TYPE_DICT = {
     "resort_skiing_snowboarding_ws": "Ski",  # garmin
     "AlpineSki": "Ski",  # strava
     "Ski": "Ski",
+    "BackcountrySki": "BackcountrySki",
     "WeightTraining": "Workout",  # strava
     "Workout": "Workout",
     "Crossfit": "Workout",  # strava
@@ -83,6 +84,7 @@ MAPPING_TYPE = [
     "Snowboard",
     "Ski",
     "Workout",
+    "BackcountrySki",
 ]
 
 STRAVA_GARMIN_TYPE_DICT = {
