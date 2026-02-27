@@ -5956,5 +5956,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 17536214654,
+"name": "\u6668\u95f4Crossfit",
+"distance": 0.0,
+"moving_time": "0:51:47",
+"type": "Workout",
+"start_date": "2026-02-26 23:09:39+00:00",
+"start_date_local": "2026-02-27 07:09:39",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 113.9,
+"max_heartrate": 162.0,
+"average_speed": 0.0,
+"calories": 372.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
