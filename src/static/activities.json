@@ -6193,7 +6193,7 @@
 },
 {
 "run_id": 17737573374,
-"name": "\u6668\u95f4\u9ad8\u5f3a\u5ea6\u95f4\u6b47\u8bad\u7ec3",
+"name": "\u6668\u95f4Crossfit",
 "distance": 0.0,
 "moving_time": "1:03:45",
 "type": "Workout",
@@ -6208,5 +6208,23 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 1
+},
+{
+"run_id": 17748467410,
+"name": "\u6668\u95f4Hyrox",
+"distance": 0.0,
+"moving_time": "1:06:32",
+"type": "Workout",
+"start_date": "2026-03-16 23:01:18+00:00",
+"start_date_local": "2026-03-17 07:01:18",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 129.4,
+"max_heartrate": 184.0,
+"average_speed": 0.0,
+"calories": 584.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 2
 }
 ]
