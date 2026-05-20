@@ -1,13 +1,26 @@
 import { lazy, Suspense } from 'react';
 import Stat from '@/components/Stat';
 import useActivities from '@/hooks/useActivities';
-
-import { formatPace, colorFromType } from '@/utils/utils';
+import { formatPace } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
-import { yearStats } from '@assets/index';
+import { yearStats, githubYearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
 import { SHOW_ELEVATION_GAIN } from '@/utils/const';
-import { DIST_UNIT, M_TO_DIST, M_TO_ELEV, ELEV_UNIT } from '@/utils/utils';
+import { M_TO_DIST, M_TO_ELEV, ELEV_UNIT } from '@/utils/utils';
+
+const yearSvgs = Object.fromEntries(
+  Object.keys(yearStats).map((path) => [
+    path,
+    lazy(() => loadSvgComponent(yearStats, path)),
+  ])
+);
+
+const githubYearSvgs = Object.fromEntries(
+  Object.keys(githubYearStats).map((path) => [
+    path,
+    lazy(() => loadSvgComponent(githubYearStats, path)),
+  ])
+);
 
 const YearStat = ({
   year,
@@ -22,7 +35,8 @@ const YearStat = ({
   // for hover
   const [hovered, eventHandlers] = useHover();
   // lazy Component
-  const YearSVG = lazy(() => loadSvgComponent(yearStats, `./year_${year}.svg`));
+  const YearSVG = yearSvgs[`./year_${year}.svg`];
+  const GithubYearSVG = githubYearSvgs[`./github_${year}.svg`];
 
   if (years.includes(year)) {
     runs = runs.filter((run) => run.start_date_local.slice(0, 4) === year);
@@ -173,9 +187,10 @@ const YearStat = ({
           </div>
         )}
       </section>
-      {year !== 'Total' && hovered && (
+      {year !== 'Total' && hovered && YearSVG && GithubYearSVG && (
         <Suspense fallback="loading...">
           <YearSVG className="year-svg my-4 h-4/6 w-4/6 border-0 p-0" />
+          <GithubYearSVG className="github-year-svg my-4 h-auto w-full border-0 p-0" />
         </Suspense>
       )}
       <hr className="mt-4 border-zinc-700" />
