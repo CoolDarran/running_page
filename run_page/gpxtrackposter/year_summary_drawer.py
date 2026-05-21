@@ -394,9 +394,7 @@ class YearSummaryDrawer(TracksDrawer):
                 except (TypeError, ValueError):
                     seconds = 0
         if seconds <= 0 and t.end_time and t.start_time_local:
-            seconds = max(
-                0, (t.end_time - t.start_time_local).total_seconds()
-            )
+            seconds = max(0, (t.end_time - t.start_time_local).total_seconds())
         return seconds
 
     def _draw_monthly_grid_vertical(
@@ -439,9 +437,7 @@ class YearSummaryDrawer(TracksDrawer):
                 else:
                     # Treat each zero-distance session as ~1 distance unit so
                     # it lights up but does not dominate longer outings.
-                    month_data[month][day] += max(
-                        0.5, self._track_seconds(t) / 1800.0
-                    )
+                    month_data[month][day] += max(0.5, self._track_seconds(t) / 1800.0)
             else:
                 month_data[month][day] += self.poster.m2u(t.length)
 
@@ -465,9 +461,7 @@ class YearSummaryDrawer(TracksDrawer):
             special_threshold = 60.0
             unit_label = "min"
         else:
-            special_threshold = self.poster.special_distance.get(
-                "special_distance", 10
-            )
+            special_threshold = self.poster.special_distance.get("special_distance", 10)
             unit_label = self.poster.u()
 
         # Draw dots - each column is a month, each row is a day

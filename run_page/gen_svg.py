@@ -313,15 +313,15 @@ def main():
         years = p.years.all()[:]
         output_dir = os.path.dirname(args.output) or "assets"
         sport_suffix = (
-            f"_{args.sport_type}" if args.sport_type and args.sport_type != "all" else ""
+            f"_{args.sport_type}"
+            if args.sport_type and args.sport_type != "all"
+            else ""
         )
         for y in years:
             drawers[args.type].year = y
             p.draw(
                 drawers[args.type],
-                os.path.join(
-                    output_dir, f"year_summary{sport_suffix}_{str(y)}.svg"
-                ),
+                os.path.join(output_dir, f"year_summary{sport_suffix}_{str(y)}.svg"),
             )
     elif is_github and args.year == "all" and args.generate_all_years:
         # Generate GitHub heat map for all years when --generate-all-years flag is set
