@@ -55,6 +55,9 @@ run_page = "run_page.tui.app:main"
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[tool.black]
+target-version = ["py312"]
+
 
 [tool.pdm]
 distribution = true
