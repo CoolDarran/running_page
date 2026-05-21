@@ -307,14 +307,21 @@ def main():
             p.set_tracks(tracks)
             p.draw(drawers[args.type], os.path.join(output_dir, f"year_{str(y)}.svg"))
     elif is_year_summary and args.summary_year is None:
-        # Generate year summary for all years when --summary-year is not specified
+        # Generate year summary for all years when --summary-year is not specified.
+        # When a specific --sport-type is given (other than "all"), suffix the
+        # filename so per-sport summaries don't overwrite each other.
         years = p.years.all()[:]
         output_dir = os.path.dirname(args.output) or "assets"
+        sport_suffix = (
+            f"_{args.sport_type}" if args.sport_type and args.sport_type != "all" else ""
+        )
         for y in years:
             drawers[args.type].year = y
             p.draw(
                 drawers[args.type],
-                os.path.join(output_dir, f"year_summary_{str(y)}.svg"),
+                os.path.join(
+                    output_dir, f"year_summary{sport_suffix}_{str(y)}.svg"
+                ),
             )
     elif is_github and args.year == "all" and args.generate_all_years:
         # Generate GitHub heat map for all years when --generate-all-years flag is set

@@ -5,7 +5,8 @@ import svgwrite
 
 from .exceptions import PosterError
 from .tracks_drawer import TracksDrawer
-from .utils import format_float
+from .utils import format_float, interpolate_color
+from .value_range import ValueRange
 from .xy import XY
 
 
@@ -47,6 +48,9 @@ class MonthOfLifeDrawer(TracksDrawer):
     def draw(self, dr: svgwrite.Drawing, size: XY, offset: XY):
         if self.poster.tracks is None:
             raise PosterError("No tracks to draw")
+        # If all tracks have zero distance (e.g. Workout), fall back to duration
+        # (in seconds) as the per-month metric so circles get colored.
+        use_duration = all(tr.length == 0 for tr in self.poster.tracks)
         total_months = 1200
         # calculate grid: columns and rows
         cols = max(1, int(size.x / size.y * math.sqrt(total_months)))
@@ -54,20 +58,32 @@ class MonthOfLifeDrawer(TracksDrawer):
         spacing_x = size.x / cols
         spacing_y = size.y / rows
         radius = min(spacing_x, spacing_y) / 2 * 0.85
-        # prepare distance data by month
-        month_distances = []  # in meters
+        # prepare per-month metric (distance in meters, or duration in seconds)
+        month_values = []
         for idx in range(total_months):
             y = self.birth_year + (self.birth_month - 1 + idx) // 12
             m = (self.birth_month - 1 + idx) % 12 + 1
-            # sum distances for this month
-            dist = 0
+            value = 0
             for tr in self.poster.tracks:
                 dt = tr.start_time_local
                 if dt.year == y and dt.month == m:
-                    dist += tr.length
-            month_distances.append((y, m, dist))
+                    if use_duration:
+                        if tr.end_time and tr.start_time_local:
+                            value += max(
+                                0,
+                                (tr.end_time - tr.start_time_local).total_seconds(),
+                            )
+                    else:
+                        value += tr.length
+            month_values.append((y, m, value))
+        # determine value range for color scaling when using duration
+        if use_duration:
+            positives = [v for _, _, v in month_values if v > 0]
+            value_min = min(positives) if positives else 0
+            value_max = max(positives) if positives else 0
+            duration_range = ValueRange.from_pair(value_min, value_max)
         # draw circles
-        for idx, (y, m, dist) in enumerate(month_distances):
+        for idx, (y, m, value) in enumerate(month_values):
             x_idx = idx % cols
             y_idx = idx // cols
             cx = offset.x + spacing_x * x_idx + spacing_x / 2
@@ -80,21 +96,40 @@ class MonthOfLifeDrawer(TracksDrawer):
             color = "gray" if is_past else "#444444"
             age = (y - self.birth_year) + ((m - self.birth_month) / 12)
             title = f"{y}-{m:02d} ({int(age)} years old)"
-            if dist > 0:
-                # Set color based on special distance ranges and generate gradients or use special colors
-                sd1 = self.poster.special_distance["special_distance"]
-                sd2 = self.poster.special_distance["special_distance2"]
-                dist_units = self.poster.m2u(dist)
-                if sd1 < dist_units < sd2:
-                    color = self.color(self.poster.length_range_by_date, dist, True)
-                elif dist_units >= sd2:
-                    color = self.poster.colors.get(
-                        "special2"
-                    ) or self.poster.colors.get("special")
+            if value > 0:
+                if use_duration:
+                    # Interpolate between track and track2 colors based on
+                    # this month's total duration vs the observed range.
+                    color1 = self.poster.colors["track"]
+                    color2 = self.poster.colors["track2"]
+                    diff = duration_range.diameter()
+                    if diff == 0:
+                        color = color1
+                    else:
+                        ratio = (value - duration_range.lower()) / diff
+                        color = interpolate_color(color1, color2, ratio)
+                    hours = value / 3600.0
+                    title = f"{title} {hours:.1f} h"
                 else:
-                    color = self.color(self.poster.length_range_by_date, dist, False)
-                val = format_float(dist_units)
-                title = f"{title} {val} {self.poster.u()}"
+                    # Set color based on special distance ranges and generate
+                    # gradients or use special colors
+                    sd1 = self.poster.special_distance["special_distance"]
+                    sd2 = self.poster.special_distance["special_distance2"]
+                    dist_units = self.poster.m2u(value)
+                    if sd1 < dist_units < sd2:
+                        color = self.color(
+                            self.poster.length_range_by_date, value, True
+                        )
+                    elif dist_units >= sd2:
+                        color = self.poster.colors.get(
+                            "special2"
+                        ) or self.poster.colors.get("special")
+                    else:
+                        color = self.color(
+                            self.poster.length_range_by_date, value, False
+                        )
+                    val = format_float(dist_units)
+                    title = f"{title} {val} {self.poster.u()}"
             circle = dr.circle(center=(cx, cy), r=radius, fill=color)
             circle.set_desc(title=title)
             dr.add(circle)

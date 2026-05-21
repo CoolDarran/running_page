@@ -140,11 +140,13 @@ def parse_datetime_to_local(start_time, end_time, point):
 
 
 def get_normalized_sport_type(sport_type):
-    if sport_type == "Run":
-        return "running"
-    elif sport_type == "Walk":
-        return "walking"
-    elif sport_type == "Ride":
-        return "cycling"
-    else:
-        return sport_type
+    mapping = {
+        "Run": "running",
+        "Walk": "walking",
+        "Ride": "cycling",
+        "Hike": "hiking",
+        "Swim": "swimming",
+        "Ski": "skiing",
+        "Workout": "workout",
+    }
+    return mapping.get(sport_type, sport_type)
