@@ -8,7 +8,6 @@ import svgwrite
 from .tracks_drawer import TracksDrawer
 from .xy import XY
 
-
 _SPORT_LABELS = {
     "running": ("Running", "Runs", "Runner"),
     "walking": ("Walking", "Walks", "Walker"),
