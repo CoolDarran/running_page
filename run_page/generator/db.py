@@ -47,6 +47,7 @@ ACTIVITY_KEYS = [
     "calories",
     "elevation_gain",
     "source",
+    "subtype",
 ]
 
 
@@ -70,6 +71,7 @@ class Activity(Base):
     elevation_gain = Column(Float)
     streak = None
     source = Column(String)
+    subtype = Column(String)
 
     def to_dict(self):
         out = {}
