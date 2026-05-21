@@ -15,6 +15,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -33,6 +34,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -51,6 +53,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -69,6 +72,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -87,6 +91,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -105,6 +110,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -123,6 +129,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -141,6 +148,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -159,6 +167,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -177,6 +186,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -195,6 +205,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -213,6 +224,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -231,6 +243,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -249,6 +262,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -267,6 +281,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -285,6 +300,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -303,6 +319,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -321,6 +338,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -339,6 +357,7 @@
 "calories": 0.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -357,6 +376,7 @@
 "calories": 378.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -375,6 +395,7 @@
 "calories": 379.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -393,6 +414,7 @@
 "calories": 337.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -411,6 +433,7 @@
 "calories": 331.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -429,6 +452,7 @@
 "calories": 381.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -447,6 +471,7 @@
 "calories": 401.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -465,6 +490,7 @@
 "calories": 401.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -483,6 +509,7 @@
 "calories": 315.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -501,6 +528,7 @@
 "calories": 275.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -519,6 +547,7 @@
 "calories": 375.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -537,6 +566,7 @@
 "calories": 496.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -555,6 +585,7 @@
 "calories": 235.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -573,6 +604,7 @@
 "calories": 440.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -591,6 +623,7 @@
 "calories": 603.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -609,6 +642,7 @@
 "calories": 466.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -627,6 +661,7 @@
 "calories": 757.0,
 "elevation_gain": null,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -645,6 +680,7 @@
 "calories": 254.0,
 "elevation_gain": 28.3,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -663,6 +699,7 @@
 "calories": 285.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -681,6 +718,7 @@
 "calories": 275.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -699,6 +737,7 @@
 "calories": 278.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -717,6 +756,7 @@
 "calories": 334.0,
 "elevation_gain": 47.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -735,6 +775,7 @@
 "calories": 279.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -753,6 +794,7 @@
 "calories": 285.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -771,6 +813,7 @@
 "calories": 3128.0,
 "elevation_gain": 2238.5,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -789,6 +832,7 @@
 "calories": 197.0,
 "elevation_gain": 27.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -807,6 +851,7 @@
 "calories": 153.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -825,6 +870,7 @@
 "calories": 101.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -843,6 +889,7 @@
 "calories": 56.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -861,6 +908,7 @@
 "calories": 199.0,
 "elevation_gain": 19.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -879,6 +927,7 @@
 "calories": 84.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -897,6 +946,7 @@
 "calories": 191.0,
 "elevation_gain": 13.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -915,6 +965,7 @@
 "calories": 47.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -933,6 +984,7 @@
 "calories": 283.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -951,6 +1003,7 @@
 "calories": 284.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -969,6 +1022,7 @@
 "calories": 124.0,
 "elevation_gain": 19.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -987,6 +1041,7 @@
 "calories": 311.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1005,6 +1060,7 @@
 "calories": 89.0,
 "elevation_gain": 12.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1023,6 +1079,7 @@
 "calories": 284.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1041,6 +1098,7 @@
 "calories": 333.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1059,6 +1117,7 @@
 "calories": 138.0,
 "elevation_gain": 19.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1077,6 +1136,7 @@
 "calories": 305.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1095,6 +1155,7 @@
 "calories": 116.0,
 "elevation_gain": 6.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1113,6 +1174,7 @@
 "calories": 241.0,
 "elevation_gain": 15.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1131,6 +1193,7 @@
 "calories": 246.0,
 "elevation_gain": 11.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1149,6 +1212,7 @@
 "calories": 275.0,
 "elevation_gain": 24.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1167,6 +1231,7 @@
 "calories": 229.0,
 "elevation_gain": 15.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1185,6 +1250,7 @@
 "calories": 2127.0,
 "elevation_gain": 1453.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1203,6 +1269,7 @@
 "calories": 383.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1221,6 +1288,7 @@
 "calories": 236.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1239,6 +1307,7 @@
 "calories": 104.0,
 "elevation_gain": 13.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1257,6 +1326,7 @@
 "calories": 47.0,
 "elevation_gain": 12.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1275,6 +1345,7 @@
 "calories": 225.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1293,6 +1364,7 @@
 "calories": 21.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1311,6 +1383,7 @@
 "calories": 104.0,
 "elevation_gain": 9.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1329,6 +1402,7 @@
 "calories": 256.0,
 "elevation_gain": 18.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1347,6 +1421,7 @@
 "calories": 55.0,
 "elevation_gain": 3.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1365,6 +1440,7 @@
 "calories": 396.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1383,6 +1459,7 @@
 "calories": 85.0,
 "elevation_gain": 2.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1401,6 +1478,7 @@
 "calories": 82.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1419,6 +1497,7 @@
 "calories": 279.0,
 "elevation_gain": 6.8,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1437,6 +1516,7 @@
 "calories": 65.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1455,6 +1535,7 @@
 "calories": 341.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -1473,6 +1554,7 @@
 "calories": 352.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -1491,6 +1573,7 @@
 "calories": 82.0,
 "elevation_gain": 17.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -1509,6 +1592,7 @@
 "calories": 322.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1527,6 +1611,7 @@
 "calories": 241.0,
 "elevation_gain": 18.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1545,6 +1630,7 @@
 "calories": 226.0,
 "elevation_gain": 17.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1563,6 +1649,7 @@
 "calories": 298.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1581,6 +1668,7 @@
 "calories": 327.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1599,6 +1687,7 @@
 "calories": 211.0,
 "elevation_gain": 18.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1617,6 +1706,7 @@
 "calories": 294.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1635,6 +1725,7 @@
 "calories": 264.0,
 "elevation_gain": 24.6,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1653,6 +1744,7 @@
 "calories": 270.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1671,6 +1763,7 @@
 "calories": 1021.0,
 "elevation_gain": 851.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1689,6 +1782,7 @@
 "calories": 2388.0,
 "elevation_gain": 1687.6,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1707,6 +1801,7 @@
 "calories": 1678.0,
 "elevation_gain": 1776.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -1725,6 +1820,7 @@
 "calories": 1622.0,
 "elevation_gain": 431.8,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -1743,6 +1839,7 @@
 "calories": 1593.0,
 "elevation_gain": 858.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -1761,6 +1858,7 @@
 "calories": 302.0,
 "elevation_gain": 21.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1779,6 +1877,7 @@
 "calories": 172.0,
 "elevation_gain": 56.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1797,6 +1896,7 @@
 "calories": 253.0,
 "elevation_gain": 159.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1815,6 +1915,7 @@
 "calories": 118.0,
 "elevation_gain": 33.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1833,6 +1934,7 @@
 "calories": 234.0,
 "elevation_gain": 48.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1851,6 +1953,7 @@
 "calories": 25.0,
 "elevation_gain": 29.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1869,6 +1972,7 @@
 "calories": 265.0,
 "elevation_gain": 18.2,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1887,6 +1991,7 @@
 "calories": 340.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1905,6 +2010,7 @@
 "calories": 53.0,
 "elevation_gain": 5.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -1923,6 +2029,7 @@
 "calories": 372.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1941,6 +2048,7 @@
 "calories": 44.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1959,6 +2067,7 @@
 "calories": 140.0,
 "elevation_gain": 26.8,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -1977,6 +2086,7 @@
 "calories": 298.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -1995,6 +2105,7 @@
 "calories": 44.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -2013,6 +2124,7 @@
 "calories": 235.0,
 "elevation_gain": 41.2,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -2031,6 +2143,7 @@
 "calories": 88.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2049,6 +2162,7 @@
 "calories": 390.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2067,6 +2181,7 @@
 "calories": 44.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2085,6 +2200,7 @@
 "calories": 91.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2103,6 +2219,7 @@
 "calories": 109.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2121,6 +2238,7 @@
 "calories": 282.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2139,6 +2257,7 @@
 "calories": 44.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2157,6 +2276,7 @@
 "calories": 103.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2175,6 +2295,7 @@
 "calories": 273.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2193,6 +2314,7 @@
 "calories": 43.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2211,6 +2333,7 @@
 "calories": 44.0,
 "elevation_gain": 59.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2229,6 +2352,7 @@
 "calories": 141.0,
 "elevation_gain": 63.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2247,6 +2371,7 @@
 "calories": 185.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2265,6 +2390,7 @@
 "calories": 277.0,
 "elevation_gain": 18.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2283,6 +2409,7 @@
 "calories": 70.0,
 "elevation_gain": 12.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2301,6 +2428,7 @@
 "calories": 180.0,
 "elevation_gain": 11.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2319,6 +2447,7 @@
 "calories": 7.0,
 "elevation_gain": 2.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2337,6 +2466,7 @@
 "calories": 49.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2355,6 +2485,7 @@
 "calories": 169.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2373,6 +2504,7 @@
 "calories": 40.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2391,6 +2523,7 @@
 "calories": 154.0,
 "elevation_gain": 11.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2409,6 +2542,7 @@
 "calories": 208.0,
 "elevation_gain": 23.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2427,6 +2561,7 @@
 "calories": 185.0,
 "elevation_gain": 2.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2445,6 +2580,7 @@
 "calories": 244.0,
 "elevation_gain": 125.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2463,6 +2599,7 @@
 "calories": 554.0,
 "elevation_gain": 556.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2481,6 +2618,7 @@
 "calories": 242.0,
 "elevation_gain": 65.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2499,6 +2637,7 @@
 "calories": 250.0,
 "elevation_gain": 93.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2517,6 +2656,7 @@
 "calories": 19.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2535,6 +2675,7 @@
 "calories": 236.0,
 "elevation_gain": 15.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -2553,6 +2694,7 @@
 "calories": 482.0,
 "elevation_gain": 145.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2571,6 +2713,7 @@
 "calories": 127.0,
 "elevation_gain": 22.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2589,6 +2732,7 @@
 "calories": 215.0,
 "elevation_gain": 186.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2607,6 +2751,7 @@
 "calories": 91.0,
 "elevation_gain": 26.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2625,6 +2770,7 @@
 "calories": 180.0,
 "elevation_gain": 13.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2643,6 +2789,7 @@
 "calories": 95.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2661,6 +2808,7 @@
 "calories": 153.0,
 "elevation_gain": 8.4,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2679,6 +2827,7 @@
 "calories": 102.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2697,6 +2846,7 @@
 "calories": 82.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2715,6 +2865,7 @@
 "calories": 984.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2733,6 +2884,7 @@
 "calories": 453.0,
 "elevation_gain": 204.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2751,6 +2903,7 @@
 "calories": 88.0,
 "elevation_gain": 30.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2769,6 +2922,7 @@
 "calories": 235.0,
 "elevation_gain": 176.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2787,6 +2941,7 @@
 "calories": 203.0,
 "elevation_gain": 13.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2805,6 +2960,7 @@
 "calories": 76.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2823,6 +2979,7 @@
 "calories": 646.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2841,6 +2998,7 @@
 "calories": 512.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2859,6 +3017,7 @@
 "calories": 753.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2877,6 +3036,7 @@
 "calories": 774.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -2895,6 +3055,7 @@
 "calories": 823.0,
 "elevation_gain": 652.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2913,6 +3074,7 @@
 "calories": 529.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2931,6 +3093,7 @@
 "calories": 510.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2949,6 +3112,7 @@
 "calories": 543.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2967,6 +3131,7 @@
 "calories": 1084.0,
 "elevation_gain": 537.2,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -2985,6 +3150,7 @@
 "calories": 748.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3003,6 +3169,7 @@
 "calories": 524.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3021,6 +3188,7 @@
 "calories": 710.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3039,6 +3207,7 @@
 "calories": 882.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3057,6 +3226,7 @@
 "calories": 1407.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3075,6 +3245,7 @@
 "calories": 1310.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3093,6 +3264,7 @@
 "calories": 292.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3111,6 +3283,7 @@
 "calories": 321.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -3129,6 +3302,7 @@
 "calories": 279.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3147,6 +3321,7 @@
 "calories": 232.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3165,6 +3340,7 @@
 "calories": 421.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3183,6 +3359,7 @@
 "calories": 585.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3201,6 +3378,7 @@
 "calories": 345.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3219,6 +3397,7 @@
 "calories": 340.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -3237,6 +3416,7 @@
 "calories": 354.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -3255,6 +3435,7 @@
 "calories": 331.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3273,6 +3454,7 @@
 "calories": 660.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3291,6 +3473,7 @@
 "calories": 603.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3309,6 +3492,7 @@
 "calories": 29.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3327,6 +3511,7 @@
 "calories": 293.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3345,6 +3530,7 @@
 "calories": 302.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3363,6 +3549,7 @@
 "calories": 767.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3381,6 +3568,7 @@
 "calories": 328.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3399,6 +3587,7 @@
 "calories": 315.0,
 "elevation_gain": 47.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3417,6 +3606,7 @@
 "calories": 382.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3435,6 +3625,7 @@
 "calories": 663.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3453,6 +3644,7 @@
 "calories": 718.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -3471,6 +3663,7 @@
 "calories": 325.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -3489,6 +3682,7 @@
 "calories": 1610.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -3507,6 +3701,7 @@
 "calories": 593.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -3525,6 +3720,7 @@
 "calories": 280.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 6
 },
 {
@@ -3543,6 +3739,7 @@
 "calories": 325.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3561,6 +3758,7 @@
 "calories": 744.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3579,6 +3777,7 @@
 "calories": 866.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3597,6 +3796,7 @@
 "calories": 732.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3615,6 +3815,7 @@
 "calories": 642.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3633,6 +3834,7 @@
 "calories": 758.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3651,6 +3853,7 @@
 "calories": 726.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3669,6 +3872,7 @@
 "calories": 612.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3687,6 +3891,7 @@
 "calories": 296.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3705,6 +3910,7 @@
 "calories": 472.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3723,6 +3929,7 @@
 "calories": 324.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3741,6 +3948,7 @@
 "calories": 471.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3759,6 +3967,7 @@
 "calories": 362.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3777,6 +3986,7 @@
 "calories": 528.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3795,6 +4005,7 @@
 "calories": 285.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3813,6 +4024,7 @@
 "calories": 550.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3831,6 +4043,7 @@
 "calories": 617.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3849,6 +4062,7 @@
 "calories": 318.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3867,6 +4081,7 @@
 "calories": 482.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3885,6 +4100,7 @@
 "calories": 390.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3903,6 +4119,7 @@
 "calories": 298.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3921,6 +4138,7 @@
 "calories": 1613.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3939,6 +4157,7 @@
 "calories": 736.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3957,6 +4176,7 @@
 "calories": 196.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3975,6 +4195,7 @@
 "calories": 599.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -3993,6 +4214,7 @@
 "calories": 422.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4011,6 +4233,7 @@
 "calories": 371.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4029,6 +4252,7 @@
 "calories": 346.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4047,6 +4271,7 @@
 "calories": 402.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4065,6 +4290,7 @@
 "calories": 1483.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4083,6 +4309,7 @@
 "calories": 441.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4101,6 +4328,7 @@
 "calories": 1075.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4119,6 +4347,7 @@
 "calories": 363.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -4137,6 +4366,7 @@
 "calories": 1722.0,
 "elevation_gain": 1176.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4155,6 +4385,7 @@
 "calories": 235.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4173,6 +4404,7 @@
 "calories": 621.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4191,6 +4423,7 @@
 "calories": 380.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4209,6 +4442,7 @@
 "calories": 398.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4227,6 +4461,7 @@
 "calories": 407.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4245,6 +4480,7 @@
 "calories": 724.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4263,6 +4499,7 @@
 "calories": 432.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4281,6 +4518,7 @@
 "calories": 645.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4299,6 +4537,7 @@
 "calories": 374.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4317,6 +4556,7 @@
 "calories": 589.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4335,6 +4575,7 @@
 "calories": 572.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -4353,6 +4594,7 @@
 "calories": 569.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -4371,6 +4613,7 @@
 "calories": 303.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 6
 },
 {
@@ -4389,6 +4632,7 @@
 "calories": 1172.0,
 "elevation_gain": 956.2,
 "source": "strava",
+"subtype": null,
 "streak": 7
 },
 {
@@ -4407,6 +4651,7 @@
 "calories": 340.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4425,6 +4670,7 @@
 "calories": 446.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4443,6 +4689,7 @@
 "calories": 443.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4461,6 +4708,7 @@
 "calories": 550.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4479,6 +4727,7 @@
 "calories": 263.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4497,6 +4746,7 @@
 "calories": 341.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4515,6 +4765,7 @@
 "calories": 338.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4533,6 +4784,7 @@
 "calories": 319.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4551,6 +4803,7 @@
 "calories": 594.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4569,6 +4822,7 @@
 "calories": 510.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4587,6 +4841,7 @@
 "calories": 342.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4605,6 +4860,7 @@
 "calories": 321.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -4623,6 +4879,7 @@
 "calories": 480.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4641,6 +4898,7 @@
 "calories": 594.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4659,6 +4917,7 @@
 "calories": 452.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4677,6 +4936,7 @@
 "calories": 684.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4695,6 +4955,7 @@
 "calories": 534.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4713,6 +4974,7 @@
 "calories": 261.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4731,6 +4993,7 @@
 "calories": 583.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4749,6 +5012,7 @@
 "calories": 220.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -4767,6 +5031,7 @@
 "calories": 319.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4785,6 +5050,7 @@
 "calories": 491.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4803,6 +5069,7 @@
 "calories": 543.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -4821,6 +5088,7 @@
 "calories": 505.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -4839,6 +5107,7 @@
 "calories": 479.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -4857,6 +5126,7 @@
 "calories": 90.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4875,6 +5145,7 @@
 "calories": 402.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4893,6 +5164,7 @@
 "calories": 444.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4911,6 +5183,7 @@
 "calories": 247.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4929,6 +5202,7 @@
 "calories": 556.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4947,6 +5221,7 @@
 "calories": 437.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -4965,6 +5240,7 @@
 "calories": 1023.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -4983,6 +5259,7 @@
 "calories": 511.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5001,6 +5278,7 @@
 "calories": 421.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5019,6 +5297,7 @@
 "calories": 556.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5037,6 +5316,7 @@
 "calories": 421.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5055,6 +5335,7 @@
 "calories": 665.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5073,6 +5354,7 @@
 "calories": 619.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5091,6 +5373,7 @@
 "calories": 608.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5109,6 +5392,7 @@
 "calories": 623.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5127,6 +5411,7 @@
 "calories": 430.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5145,6 +5430,7 @@
 "calories": 547.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5163,6 +5449,7 @@
 "calories": 525.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5181,6 +5468,7 @@
 "calories": 644.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5199,6 +5487,7 @@
 "calories": 529.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5217,6 +5506,7 @@
 "calories": 365.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5235,6 +5525,7 @@
 "calories": 573.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5253,6 +5544,7 @@
 "calories": 364.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5271,6 +5563,7 @@
 "calories": 303.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5289,6 +5582,7 @@
 "calories": 555.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5307,6 +5601,7 @@
 "calories": 526.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5325,6 +5620,7 @@
 "calories": 669.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5343,6 +5639,7 @@
 "calories": 534.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5361,6 +5658,7 @@
 "calories": 204.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5379,6 +5677,7 @@
 "calories": 248.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5397,6 +5696,7 @@
 "calories": 526.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5415,6 +5715,7 @@
 "calories": 592.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5433,6 +5734,7 @@
 "calories": 625.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5451,6 +5753,7 @@
 "calories": 632.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5469,6 +5772,7 @@
 "calories": 737.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -5487,6 +5791,7 @@
 "calories": 577.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5505,6 +5810,7 @@
 "calories": 568.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5523,6 +5829,7 @@
 "calories": 599.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5541,6 +5848,7 @@
 "calories": 587.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5559,6 +5867,7 @@
 "calories": 551.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5577,6 +5886,7 @@
 "calories": 1278.0,
 "elevation_gain": 899.8,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5595,6 +5905,7 @@
 "calories": 479.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5613,6 +5924,7 @@
 "calories": 545.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5631,6 +5943,7 @@
 "calories": 108.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5649,6 +5962,7 @@
 "calories": 482.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5667,6 +5981,7 @@
 "calories": 615.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5685,6 +6000,7 @@
 "calories": 649.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5703,6 +6019,7 @@
 "calories": 483.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5721,6 +6038,7 @@
 "calories": 547.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -5739,6 +6057,7 @@
 "calories": 561.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5757,6 +6076,7 @@
 "calories": 646.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5775,6 +6095,7 @@
 "calories": 596.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5793,6 +6114,7 @@
 "calories": 699.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5811,6 +6133,7 @@
 "calories": 719.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5829,6 +6152,7 @@
 "calories": 420.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -5847,6 +6171,7 @@
 "calories": 455.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5865,6 +6190,7 @@
 "calories": 314.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -5883,6 +6209,7 @@
 "calories": 688.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5901,6 +6228,7 @@
 "calories": 605.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5919,6 +6247,7 @@
 "calories": 585.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5937,6 +6266,7 @@
 "calories": 765.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5955,6 +6285,7 @@
 "calories": 573.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -5973,6 +6304,7 @@
 "calories": 372.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -5991,6 +6323,7 @@
 "calories": 597.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6009,6 +6342,7 @@
 "calories": 493.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6027,6 +6361,7 @@
 "calories": 565.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6045,6 +6380,7 @@
 "calories": 369.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6063,6 +6399,7 @@
 "calories": 441.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6081,6 +6418,7 @@
 "calories": 572.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -6099,6 +6437,7 @@
 "calories": 385.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -6117,6 +6456,7 @@
 "calories": 553.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6135,6 +6475,7 @@
 "calories": 452.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6153,6 +6494,7 @@
 "calories": 371.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6171,6 +6513,7 @@
 "calories": 569.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -6189,6 +6532,7 @@
 "calories": 624.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -6207,6 +6551,7 @@
 "calories": 576.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6225,6 +6570,7 @@
 "calories": 584.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6243,6 +6589,7 @@
 "calories": 637.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6261,6 +6608,7 @@
 "calories": 558.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6279,6 +6627,7 @@
 "calories": 344.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6297,6 +6646,7 @@
 "calories": 640.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6315,6 +6665,7 @@
 "calories": 554.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6333,6 +6684,7 @@
 "calories": 492.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6351,6 +6703,7 @@
 "calories": 588.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6369,6 +6722,7 @@
 "calories": 601.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6387,6 +6741,7 @@
 "calories": 635.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6405,6 +6760,7 @@
 "calories": 549.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6423,6 +6779,7 @@
 "calories": 570.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6441,6 +6798,7 @@
 "calories": 536.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -6459,6 +6817,7 @@
 "calories": 678.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6477,6 +6836,7 @@
 "calories": 412.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6495,6 +6855,7 @@
 "calories": 312.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6513,6 +6874,7 @@
 "calories": 420.0,
 "elevation_gain": 218.6,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6531,6 +6893,7 @@
 "calories": 653.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6549,6 +6912,7 @@
 "calories": 607.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6567,6 +6931,7 @@
 "calories": 456.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6585,6 +6950,7 @@
 "calories": 594.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 },
 {
@@ -6603,6 +6969,7 @@
 "calories": 581.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 3
 },
 {
@@ -6621,6 +6988,7 @@
 "calories": 559.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 4
 },
 {
@@ -6639,6 +7007,7 @@
 "calories": 646.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 5
 },
 {
@@ -6657,6 +7026,7 @@
 "calories": 427.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 6
 },
 {
@@ -6675,6 +7045,7 @@
 "calories": 626.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 7
 },
 {
@@ -6693,6 +7064,7 @@
 "calories": 352.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 8
 },
 {
@@ -6711,6 +7083,7 @@
 "calories": 554.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 9
 },
 {
@@ -6729,6 +7102,7 @@
 "calories": 586.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 1
 },
 {
@@ -6747,6 +7121,7 @@
 "calories": 475.0,
 "elevation_gain": 0.0,
 "source": "strava",
+"subtype": null,
 "streak": 2
 }
 ]
