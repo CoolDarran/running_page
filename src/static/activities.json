@@ -7180,5 +7180,43 @@
 "source": "strava",
 "subtype": null,
 "streak": 2
+},
+{
+"run_id": 18727289339,
+"name": "Evening Badminton",
+"distance": 0.0,
+"moving_time": "0:59:45",
+"type": "Workout",
+"start_date": "2026-05-31 10:06:56+00:00",
+"start_date_local": "2026-05-31 18:06:56",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 105.3,
+"max_heartrate": 125.0,
+"average_speed": 0.0,
+"calories": 304.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 3
+},
+{
+"run_id": 18736025570,
+"name": "Morning CrossFit",
+"distance": 0.0,
+"moving_time": "1:09:39",
+"type": "Workout",
+"start_date": "2026-05-31 23:02:54+00:00",
+"start_date_local": "2026-06-01 07:02:54",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 132.7,
+"max_heartrate": 178.0,
+"average_speed": 0.0,
+"calories": 631.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 4
 }
 ]
