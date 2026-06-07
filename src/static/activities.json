@@ -7237,5 +7237,43 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 18782288156,
+"name": "Evening CrossFit",
+"distance": 0.0,
+"moving_time": "0:58:10",
+"type": "Workout",
+"start_date": "2026-06-04 10:32:01+00:00",
+"start_date_local": "2026-06-04 18:32:01",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 140.8,
+"max_heartrate": 180.0,
+"average_speed": 0.0,
+"calories": 545.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 2
+},
+{
+"run_id": 18790752260,
+"name": "Morning CrossFit",
+"distance": 0.0,
+"moving_time": "0:59:52",
+"type": "Workout",
+"start_date": "2026-06-04 23:04:48+00:00",
+"start_date_local": "2026-06-05 07:04:48",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 131.7,
+"max_heartrate": 174.0,
+"average_speed": 0.0,
+"calories": 505.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 3
 }
 ]
