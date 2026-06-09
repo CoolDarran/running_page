@@ -7294,5 +7294,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 18844140585,
+"name": "Morning Hyrox",
+"distance": 0.0,
+"moving_time": "1:03:48",
+"type": "Workout",
+"start_date": "2026-06-08 23:08:00+00:00",
+"start_date_local": "2026-06-09 07:08:00",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 146.0,
+"max_heartrate": 183.0,
+"average_speed": 0.0,
+"calories": 631.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 1
 }
 ]
