@@ -7427,5 +7427,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 5
+},
+{
+"run_id": 18970710582,
+"name": "Evening Crossfit",
+"distance": 0.0,
+"moving_time": "0:28:12",
+"type": "Workout",
+"start_date": "2026-06-18 11:50:13+00:00",
+"start_date_local": "2026-06-18 19:50:13",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 114.3,
+"max_heartrate": 158.0,
+"average_speed": 0.0,
+"calories": 217.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 6
 }
 ]
