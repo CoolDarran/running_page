@@ -7465,5 +7465,43 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 19092112911,
+"name": "Morning CrossFit",
+"distance": 0.0,
+"moving_time": "1:05:44",
+"type": "Workout",
+"start_date": "2026-06-27 23:42:05+00:00",
+"start_date_local": "2026-06-28 07:42:05",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 147.0,
+"max_heartrate": 186.0,
+"average_speed": 0.0,
+"calories": 693.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 2
+},
+{
+"run_id": 19104828573,
+"name": "Morning HIIT",
+"distance": 0.0,
+"moving_time": "1:02:46",
+"type": "Workout",
+"start_date": "2026-06-28 23:04:47+00:00",
+"start_date_local": "2026-06-29 07:04:47",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 141.3,
+"max_heartrate": 181.0,
+"average_speed": 0.0,
+"calories": 589.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 3
 }
 ]
