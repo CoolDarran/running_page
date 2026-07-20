@@ -7617,5 +7617,43 @@
 "source": "strava",
 "subtype": null,
 "streak": 3
+},
+{
+"run_id": 19371525624,
+"name": "Afternoon Badminton",
+"distance": 0.0,
+"moving_time": "1:04:24",
+"type": "Workout",
+"start_date": "2026-07-18 09:00:21+00:00",
+"start_date_local": "2026-07-18 17:00:21",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 119.2,
+"max_heartrate": 139.0,
+"average_speed": 0.0,
+"calories": 385.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 1
+},
+{
+"run_id": 19371525588,
+"name": "Morning HIIT",
+"distance": 0.0,
+"moving_time": "1:19:49",
+"type": "Workout",
+"start_date": "2026-07-18 23:33:35+00:00",
+"start_date_local": "2026-07-19 07:33:35",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 136.8,
+"max_heartrate": 177.0,
+"average_speed": 0.0,
+"calories": 639.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 2
 }
 ]
