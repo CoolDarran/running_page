@@ -7978,5 +7978,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 4
+},
+{
+"run_id": 19773521850,
+"name": "Morning CrossFit",
+"distance": 0.0,
+"moving_time": "1:07:14",
+"type": "Workout",
+"start_date": "2026-08-16 23:01:46+00:00",
+"start_date_local": "2026-08-17 07:01:46",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 118.3,
+"max_heartrate": 158.0,
+"average_speed": 0.0,
+"calories": 512.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 5
 }
 ]
