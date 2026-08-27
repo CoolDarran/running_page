@@ -8054,5 +8054,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 19915976225,
+"name": "Morning Weight Training",
+"distance": 0.0,
+"moving_time": "1:05:57",
+"type": "Workout",
+"start_date": "2026-08-26 23:05:25+00:00",
+"start_date_local": "2026-08-27 07:05:25",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 120.7,
+"max_heartrate": 157.0,
+"average_speed": 0.0,
+"calories": 334.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 1
 }
 ]
