@@ -8206,5 +8206,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 20275147922,
+"name": "Morning HIIT",
+"distance": 0.0,
+"moving_time": "1:02:48",
+"type": "Workout",
+"start_date": "2026-09-21 23:07:45+00:00",
+"start_date_local": "2026-09-22 07:07:45",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 126.0,
+"max_heartrate": 164.0,
+"average_speed": 0.0,
+"calories": 495.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 1
 }
 ]
