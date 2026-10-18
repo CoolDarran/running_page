@@ -8434,5 +8434,43 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 20620807694,
+"name": "Afternoon Hike",
+"distance": 5772.7,
+"moving_time": "1:38:21",
+"type": "Hike",
+"start_date": "2026-10-17 07:11:29+00:00",
+"start_date_local": "2026-10-17 15:11:29",
+"location_country": "\u5927\u91d1\u949f\u8def, \u67ef\u5b50\u5cad, \u666f\u6cf0\u8857\u9053, \u767d\u4e91\u533a, \u5e7f\u5dde\u5e02, \u5e7f\u4e1c\u7701, 510405, \u4e2d\u56fd",
+"summary_polyline": "igllCqnjrT]AUEGQAQ@SAAAM[MIDEHUAW[c@UMYMOCA@CEEUMa@WAQ?ORq@AK\\_ALq@?OEMKMGAOBmBv@M@?ADBKPMH[Dg@KW_@EQ@k@AKmBp@UPUHGDAHFdAA`@QVu@l@EHAR@Hl@x@PZJVBPAHOJM@GCXMFI@KEKUYEQ[a@I[DQt@e@JODa@EmABa@MFALDLJp@FNATSP]DWHKJGPD`@l@fAPTHP@PGRMFOBo@?KAOGk@Eu@S_@WYg@AUDSHU?Ik@c@Wa@B_@EI[]i@MEGEYKU?WDUd@c@\\m@TSEUFQBCAIWOOCIDOXKNYPcAjAYf@ENARJn@JLJFLPN`ACP?h@IVEVB`@G`@Qf@[b@YPa@r@MLc@Je@Ac@OOOWs@A_@EQYSOYCu@BQC_@@UDQXUJOHSBSCc@Le@Bc@JUJINIDMJIB@I]?]E]@OFc@Xe@D{@HQHMPIB?DHHDLLRANJHTJLT?h@YP]`@Wv@ULKTExAc@NGZ[VCPKXKLMHEPYd@MT[l@i@R[Ha@FBDP?p@CFMJb@k@DAMCGOOAEKC}A@g@G{AE]BMFEp@KFC@QHUBe@?a@Cm@Wi@XGJGHFZ`@DH@PBdADLPVtA|@c@b@i@ZEV@`AHLZD`@b@N`AKf@MP?HRLHZZf@NPJZDj@I^R^?\\DJJJh@RZXJXLhA@PC`@DvAC\\Ud@i@|AURMAABK@GLBRV\\@NJZg@YDOH@?BPALBVLJPl@j@XZNDNCPBRGFLNDBLHL",
+"average_heartrate": 99.0,
+"max_heartrate": 149.0,
+"average_speed": 0.978,
+"calories": 472.0,
+"elevation_gain": 361.8,
+"source": "strava",
+"subtype": null,
+"streak": 2
+},
+{
+"run_id": 20628845899,
+"name": "Morning HIIT",
+"distance": 0.0,
+"moving_time": "1:17:40",
+"type": "Workout",
+"start_date": "2026-10-17 23:30:33+00:00",
+"start_date_local": "2026-10-18 07:30:33",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 127.8,
+"max_heartrate": 175.0,
+"average_speed": 0.0,
+"calories": 665.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 3
 }
 ]
