@@ -8456,7 +8456,7 @@
 },
 {
 "run_id": 20628845899,
-"name": "Morning HIIT",
+"name": "Morning CrossFit",
 "distance": 0.0,
 "moving_time": "1:17:40",
 "type": "Workout",
@@ -8475,7 +8475,7 @@
 },
 {
 "run_id": 20641784892,
-"name": "Morning HIIT",
+"name": "Morning Crossfit",
 "distance": 0.0,
 "moving_time": "0:59:44",
 "type": "Workout",
@@ -8491,5 +8491,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 4
+},
+{
+"run_id": 20654410274,
+"name": "Morning Hyrox",
+"distance": 0.0,
+"moving_time": "0:59:21",
+"type": "Workout",
+"start_date": "2026-10-19 23:05:12+00:00",
+"start_date_local": "2026-10-20 07:05:12",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 136.0,
+"max_heartrate": 185.0,
+"average_speed": 0.0,
+"calories": 560.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 5
 }
 ]
