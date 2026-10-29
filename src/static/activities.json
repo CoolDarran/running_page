@@ -8532,7 +8532,7 @@
 },
 {
 "run_id": 20758875014,
-"name": "Morning HIIT",
+"name": "Morning CrossFit",
 "distance": 0.0,
 "moving_time": "0:59:26",
 "type": "Workout",
@@ -8548,5 +8548,24 @@
 "source": "strava",
 "subtype": null,
 "streak": 1
+},
+{
+"run_id": 20772539953,
+"name": "Morning Weight Training",
+"distance": 0.0,
+"moving_time": "0:56:21",
+"type": "Workout",
+"start_date": "2026-10-28 23:10:42+00:00",
+"start_date_local": "2026-10-29 07:10:42",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 109.4,
+"max_heartrate": 139.0,
+"average_speed": 0.0,
+"calories": 245.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": null,
+"streak": 2
 }
 ]
