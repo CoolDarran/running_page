@@ -7,7 +7,7 @@ import { ReactComponent as StravaSvg } from '@assets/strava.svg';
 import { ReactComponent as WatchSvg } from '@assets/watch.svg';
 
 const Header = () => {
-  const { logo, siteUrl, navLinks } = getSiteMetadata();
+  const { logo, navLinks } = getSiteMetadata();
   const { theme, setTheme } = useTheme();
 
   const icons: Record<Theme, ReactElement> = {
@@ -55,15 +55,19 @@ const Header = () => {
 
   return (
     <>
-      <nav className="mx-auto mt-12 flex w-full min-w-max items-center justify-between pl-6 lg:px-16">
-        <div className="w-1/4">
-          <Link to={siteUrl}>
+      <nav className="mx-auto mt-8 flex w-full items-center justify-between gap-3 px-4 lg:mt-10 lg:px-16">
+        <div className="shrink-0">
+          <Link to="/" aria-label="Home">
             <picture>
-              <img className="h-16 w-16 rounded-full" alt="logo" src={logo} />
+              <img
+                className="h-12 w-12 rounded-full lg:h-14 lg:w-14"
+                alt="logo"
+                src={logo}
+              />
             </picture>
           </Link>
         </div>
-        <div className="flex w-3/4 items-end justify-end">
+        <div className="hidden flex-1 items-end justify-end sm:flex">
           <a
             href="https://developers.strava.com/"
             rel="noopener noreferrer"
@@ -77,17 +81,27 @@ const Header = () => {
             <WatchSvg className={styles.watchSVG} />
           </picture>
         </div>
-        <div className="flex items-center justify-end pl-6 text-right">
-          {navLinks.map((n) => (
-            <a
-              key={n.url}
-              href={n.url}
-              className="mr-3 text-lg lg:mr-4 lg:text-base"
-            >
-              {n.name}
-            </a>
-          ))}
-          <div className="ml-4 flex items-center space-x-2">
+        <div className="flex items-center justify-end gap-3 text-right">
+          {navLinks.map((n) =>
+            n.url.startsWith('http') ? (
+              <a
+                key={n.url}
+                href={n.url}
+                className="text-sm font-medium transition-opacity hover:opacity-80 lg:text-base"
+              >
+                {n.name}
+              </a>
+            ) : (
+              <Link
+                key={n.url}
+                to={n.url}
+                className="text-sm font-medium transition-opacity hover:opacity-80 lg:text-base"
+              >
+                {n.name}
+              </Link>
+            )
+          )}
+          <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={handleToggle}

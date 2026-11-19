@@ -13,6 +13,12 @@
   --color-text-primary: var(--color-tx);
   --color-hr-primary: var(--color-hr);
   --color-selected: var(--color-selected);
+  /* dashboard surfaces & neutral text hierarchy */
+  --color-surface: var(--color-surface);
+  --color-surface-subtle: var(--color-surface-subtle);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
   /* table */
   --color-run-date: var(--color-run-date);
   --color-run-table-thead: var(--color-run-table-thead);
@@ -29,17 +35,22 @@
 /* 1. System Theme (Base) */
 @media (prefers-color-scheme: light) {
   :root {
-    --color-brand: var(--color-violet-600);
-    --color-secondary: var(--color-violet-600);
-    --color-bg: var(--color-neutral-100);
-    --color-tx: var(--color-violet-500);
-    --color-hr: var(--color-neutral-300);
-    --color-selected: var(--color-violet-500);
-    --color-run-date: var(--color-neutral-800);
-    --color-run-table-thead: var(--color-neutral-800);
-    --color-run-row-hover-background: var(--color-neutral-200);
-    --color-activity-card: var(--color-neutral-300);
-    --svg-color-active-cell: var(--color-neutral-400);
+    --color-brand: #059669;
+    --color-secondary: #10b981;
+    --color-bg: #f4f4f5;
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f4f4f5;
+    --color-border: #e4e4e7;
+    --color-text: #18181b;
+    --color-text-muted: #71717a;
+    --color-tx: #059669;
+    --color-hr: #e4e4e7;
+    --color-selected: #059669;
+    --color-run-date: #27272a;
+    --color-run-table-thead: #52525b;
+    --color-run-row-hover-background: #f4f4f5;
+    --color-activity-card: #e4e4e7;
+    --svg-color-active-cell: #a1a1aa;
     --svg-special-color: #d4a574;
     --svg-special-color2: #c5756b;
     --font-sans: 'IBM Plex Sans', sans-serif;
@@ -49,17 +60,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* const nike = 'rgb(224,237,94)'; */
-    --color-brand: #00ed5e;
-    --color-secondary: #00ff00;
-    --color-bg: var(--color-neutral-900);
-    --color-tx: var(--color-brand);
-    --color-hr: var(--color-red-500);
-    --color-selected: var(--color-brand);
-    --color-run-date: var(--color-neutral-300);
-    --color-run-table-thead: var(--color-zinc-300);
-    --color-run-row-hover-background: var(--color-neutral-800);
-    --color-activity-card: var(--color-neutral-700);
+    --color-brand: #10b981;
+    --color-secondary: #34d399;
+    --color-bg: #0f1115;
+    --color-surface: #171a21;
+    --color-surface-subtle: #111318;
+    --color-border: #272b36;
+    --color-text: #f4f4f5;
+    --color-text-muted: #9ca3af;
+    --color-tx: #34d399;
+    --color-hr: #272b36;
+    --color-selected: #10b981;
+    --color-run-date: #d4d4d8;
+    --color-run-table-thead: #a1a1aa;
+    --color-run-row-hover-background: #1f2430;
+    --color-activity-card: #272b36;
     --svg-color-active-cell: #4dd2ff;
     --svg-special-color: #f7d02c;
     --svg-special-color2: #f56c6c;
@@ -70,18 +85,23 @@
 
 /* 2. Manual Override (Higher Priority) */
 [data-theme='light'] {
-  --color-brand: var(--color-violet-600);
-  --color-secondary: var(--color-violet-500);
-  --color-bg: var(--color-neutral-100);
-  --color-tx: var(--color-violet-500);
-  --color-hr: var(--color-neutral-300);
-  --color-selected: var(--color-violet-500);
-  --color-run-date: var(--color-neutral-800);
-  --color-run-table-thead: var(--color-neutral-800);
-  --color-run-row-hover-background: var(--color-neutral-200);
-  --color-activity-card: var(--color-neutral-300);
-  --svg-color-inactive-cell: var(--color-neutral-600);
-  --svg-color-active-cell: var(--color-neutral-400);
+  --color-brand: #059669;
+  --color-secondary: #10b981;
+  --color-bg: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-text: #18181b;
+  --color-text-muted: #71717a;
+  --color-tx: #059669;
+  --color-hr: #e4e4e7;
+  --color-selected: #059669;
+  --color-run-date: #27272a;
+  --color-run-table-thead: #52525b;
+  --color-run-row-hover-background: #f4f4f5;
+  --color-activity-card: #e4e4e7;
+  --svg-color-inactive-cell: #d4d4d8;
+  --svg-color-active-cell: #a1a1aa;
   --svg-special-color: #d4a574;
   --svg-special-color2: #c5756b;
   --font-sans: 'IBM Plex Sans', sans-serif;
@@ -89,17 +109,21 @@
 }
 
 [data-theme='dark'] {
-  /* const nike = 'rgb(224,237,94)'; */
-  --color-brand: #00ed5e;
-  --color-secondary: #00ff00;
-  --color-bg: var(--color-neutral-900);
-  --color-tx: var(--color-brand);
-  --color-hr: var(--color-red-500);
-  --color-selected: var(--color-brand);
-  --color-run-date: var(--color-neutral-300);
-  --color-run-table-thead: var(--color-zinc-300);
-  --color-run-row-hover-background: var(--color-neutral-800);
-  --color-activity-card: var(--color-neutral-700);
+  --color-brand: #10b981;
+  --color-secondary: #34d399;
+  --color-bg: #0f1115;
+  --color-surface: #171a21;
+  --color-surface-subtle: #111318;
+  --color-border: #272b36;
+  --color-text: #f4f4f5;
+  --color-text-muted: #9ca3af;
+  --color-tx: #34d399;
+  --color-hr: #272b36;
+  --color-selected: #10b981;
+  --color-run-date: #d4d4d8;
+  --color-run-table-thead: #a1a1aa;
+  --color-run-row-hover-background: #1f2430;
+  --color-activity-card: #272b36;
   --svg-color-active-cell: #4dd2ff;
   --svg-special-color: #f7d02c;
   --svg-special-color2: #f56c6c;
@@ -111,10 +135,10 @@
   html,
   body {
     background-color: var(--color-background);
-    color: var(--color-brand);
+    color: var(--color-text);
     transition:
-      background-color 0.1s ease,
-      color 0.1s ease;
+      background-color 0.15s ease,
+      color 0.15s ease;
     font-family: var(--font-sans);
   }
 }

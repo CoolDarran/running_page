@@ -720,23 +720,28 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
         <div className={styles.cardFront}>
           <h2 className={styles.activityName}>{period}</h2>
           <div className={styles.activityDetails}>
-            <p>
-              <strong>{ACTIVITY_TOTAL.TOTAL_DISTANCE_TITLE}:</strong>{' '}
-              {summary.totalDistance.toFixed(2)} {DIST_UNIT}
-            </p>
+            {summary.totalDistance > 0 && (
+              <p>
+                <strong>{ACTIVITY_TOTAL.TOTAL_DISTANCE_TITLE}:</strong>{' '}
+                {summary.totalDistance.toFixed(2)} {DIST_UNIT}
+              </p>
+            )}
             {SHOW_ELEVATION_GAIN &&
-              summary.totalElevationGain !== undefined && (
+              summary.totalElevationGain !== undefined &&
+              summary.totalElevationGain > 0 && (
                 <p>
                   <strong>{ACTIVITY_TOTAL.TOTAL_ELEVATION_GAIN_TITLE}:</strong>{' '}
                   {summary.totalElevationGain.toFixed(0)} m
                 </p>
               )}
-            <p>
-              <strong>{ACTIVITY_TOTAL.AVERAGE_SPEED_TITLE}:</strong>{' '}
-              {isFastType(activityType)
-                ? `${summary.averageSpeed.toFixed(2)} ${DIST_UNIT}/h`
-                : formatPace(summary.averageSpeed)}
-            </p>
+            {summary.totalDistance > 0 && summary.averageSpeed > 0 && (
+              <p>
+                <strong>{ACTIVITY_TOTAL.AVERAGE_SPEED_TITLE}:</strong>{' '}
+                {isFastType(activityType)
+                  ? `${summary.averageSpeed.toFixed(2)} ${DIST_UNIT}/h`
+                  : formatPace(summary.averageSpeed)}
+              </p>
+            )}
             <p>
               <strong>{ACTIVITY_TOTAL.TOTAL_TIME_TITLE}:</strong>{' '}
               {formatTime(summary.totalTime)}

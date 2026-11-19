@@ -16,11 +16,12 @@ const getBasePath = () => {
 };
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Workouts Page',
+  siteTitle: 'danran workouts',
   siteUrl: 'https://workouts.danran.one',
   logo: '/images/logo.svg',
-  description: 'Personal site and blog',
-  keywords: 'workouts, running, hiking, swimming',
+  description:
+    'CrossFit, Hyrox, Badminton, Swimming & Outdoor Workouts Dashboard',
+  keywords: 'workouts, crossfit, hyrox, badminton, swimming, running, hiking',
   navLinks: [
     {
       name: 'Summary',
