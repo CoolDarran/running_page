@@ -36,6 +36,7 @@ ACTIVITY_KEYS = [
     "name",
     "distance",
     "moving_time",
+    "elapsed_time",
     "type",
     "start_date",
     "start_date_local",
@@ -48,7 +49,18 @@ ACTIVITY_KEYS = [
     "elevation_gain",
     "source",
     "subtype",
+    "suffer_score",
+    "device_name",
+    "description",
+    "hr_zones",
 ]
+
+OPTIONAL_OMIT_NONE_KEYS = {
+    "suffer_score",
+    "device_name",
+    "description",
+    "hr_zones",
+}
 
 
 class Activity(Base):
@@ -72,11 +84,17 @@ class Activity(Base):
     streak = None
     source = Column(String)
     subtype = Column(String)
+    suffer_score = Column(Float)
+    device_name = Column(String)
+    description = Column(String)
+    hr_zones = Column(String)
 
     def to_dict(self):
         out = {}
         for key in ACTIVITY_KEYS:
-            attr = getattr(self, key)
+            attr = getattr(self, key, None)
+            if attr is None and key in OPTIONAL_OMIT_NONE_KEYS:
+                continue
             if isinstance(attr, (datetime.timedelta, datetime.datetime)):
                 out[key] = str(attr)
             else:
@@ -113,6 +131,13 @@ def update_or_create_activity(session, run_activity):
         ):
             current_elevation_gain = float(run_activity.elevation_gain)
 
+        subtype = getattr(run_activity, "subtype", None)
+        suffer_score_raw = getattr(run_activity, "suffer_score", None)
+        suffer_score = float(suffer_score_raw) if suffer_score_raw is not None else None
+        device_name = getattr(run_activity, "device_name", None)
+        description = getattr(run_activity, "description", None)
+        hr_zones = getattr(run_activity, "hr_zones", None)
+
         if not activity:
             start_point = run_activity.start_latlng
             location_country = getattr(run_activity, "location_country", "")
@@ -146,6 +171,7 @@ def update_or_create_activity(session, run_activity):
                 moving_time=run_activity.moving_time,
                 elapsed_time=run_activity.elapsed_time,
                 type=type,
+                subtype=subtype,
                 start_date=run_activity.start_date,
                 start_date_local=run_activity.start_date_local,
                 location_country=location_country,
@@ -158,6 +184,10 @@ def update_or_create_activity(session, run_activity):
                     run_activity.map and run_activity.map.summary_polyline or ""
                 ),
                 source=source,
+                suffer_score=suffer_score,
+                device_name=device_name,
+                description=description,
+                hr_zones=hr_zones,
             )
             session.add(activity)
             created = True
@@ -167,6 +197,8 @@ def update_or_create_activity(session, run_activity):
             activity.moving_time = run_activity.moving_time
             activity.elapsed_time = run_activity.elapsed_time
             activity.type = type
+            if subtype is not None:
+                activity.subtype = subtype
             activity.average_heartrate = run_activity.average_heartrate
             activity.max_heartrate = run_activity.max_heartrate
             activity.average_speed = float(run_activity.average_speed)
@@ -178,6 +210,14 @@ def update_or_create_activity(session, run_activity):
                 or ""
             )
             activity.source = source
+            if suffer_score is not None:
+                activity.suffer_score = suffer_score
+            if device_name is not None:
+                activity.device_name = device_name
+            if description is not None:
+                activity.description = description
+            if hr_zones is not None:
+                activity.hr_zones = hr_zones
     except Exception as e:
         print(f"something wrong with {run_activity.id}")
         print(str(e))
