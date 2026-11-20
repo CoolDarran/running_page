@@ -144,60 +144,48 @@ const ActivityHeatmap = ({
 
   return (
     <section
-      className="relative rounded-xl border p-4"
-      style={{
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
-      }}
+      className="relative border-b pb-6"
+      style={{ borderColor: 'var(--color-border)' }}
     >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold">
-            {year === 'Total'
-              ? '近 52 周训练打卡热力图'
-              : `${year} 年度训练打卡热力图`}
-          </h3>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            悬停查看当日明细，点击任意有记录的格子可筛选下方表格
-          </p>
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-sm font-semibold tracking-tight">
+            {year === 'Total' ? '近 52 周打卡' : `${year} 打卡日历`}
+          </h2>
+          <span
+            className="font-mono-num text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {activeDays} 活跃日
+          </span>
         </div>
-        <div
-          className="inline-flex rounded-lg border p-0.5 text-xs"
-          style={{
-            borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-surface-subtle)',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setColorMode('sport')}
-            className="rounded-md px-2.5 py-1 font-medium transition-colors"
-            style={
-              colorMode === 'sport'
-                ? {
-                    backgroundColor: 'var(--color-brand)',
-                    color: '#ffffff',
-                  }
-                : { color: 'var(--color-text-muted)' }
-            }
-          >
-            按项目着色
-          </button>
-          <button
-            type="button"
-            onClick={() => setColorMode('kcal')}
-            className="rounded-md px-2.5 py-1 font-medium transition-colors"
-            style={
-              colorMode === 'kcal'
-                ? {
-                    backgroundColor: 'var(--color-brand)',
-                    color: '#ffffff',
-                  }
-                : { color: 'var(--color-text-muted)' }
-            }
-          >
-            按消耗强度
-          </button>
+
+        <div className="flex items-center gap-3 text-xs">
+          {(
+            [
+              ['sport', '按项目'],
+              ['kcal', '按消耗'],
+            ] as const
+          ).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setColorMode(mode)}
+              className="pb-0.5 transition-colors"
+              style={{
+                color:
+                  colorMode === mode
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-muted)',
+                borderBottom:
+                  colorMode === mode
+                    ? '1.5px solid var(--color-brand)'
+                    : '1.5px solid transparent',
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -249,7 +237,7 @@ const ActivityHeatmap = ({
                     y={y}
                     width={cell}
                     height={cell}
-                    rx={2.5}
+                    rx={2}
                     fill="var(--color-border)"
                     fillOpacity={0.55}
                   />
@@ -267,7 +255,9 @@ const ActivityHeatmap = ({
                 0
               );
               const fill =
-                colorMode === 'sport' ? getSportMeta(sport).color : '#10b981';
+                colorMode === 'sport'
+                  ? getSportMeta(sport).color
+                  : 'var(--color-brand)';
               const opacity =
                 colorMode === 'sport'
                   ? 0.92
@@ -276,8 +266,8 @@ const ActivityHeatmap = ({
                     : totKcal >= 500
                       ? 0.78
                       : totKcal >= 300
-                        ? 0.55
-                        : 0.35;
+                        ? 0.52
+                        : 0.32;
 
               return (
                 <rect
@@ -286,7 +276,7 @@ const ActivityHeatmap = ({
                   y={y}
                   width={cell}
                   height={cell}
-                  rx={2.5}
+                  rx={2}
                   fill={fill}
                   fillOpacity={opacity}
                   stroke={isSelected ? 'var(--color-text)' : 'none'}
@@ -314,78 +304,66 @@ const ActivityHeatmap = ({
       </div>
 
       <div
-        className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-xs"
-        style={{
-          borderColor: 'var(--color-border)',
-          color: 'var(--color-text-muted)',
-        }}
+        className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs"
+        style={{ color: 'var(--color-text-muted)' }}
       >
         {colorMode === 'sport' ? (
-          <div className="flex flex-wrap items-center gap-3">
-            {activeSports.length ? (
-              activeSports.map((s) => {
-                const m = getSportMeta(s);
-                return (
-                  <span key={s} className="inline-flex items-center gap-1">
-                    <span
-                      className="h-2.5 w-2.5 rounded-sm"
-                      style={{ backgroundColor: m.color }}
-                    />
-                    {m.shortLabel}
-                  </span>
-                );
-              })
-            ) : (
-              <span>无活跃记录</span>
-            )}
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1">
+            {activeSports.map((s) => {
+              const m = getSportMeta(s);
+              return (
+                <span key={s} className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-xs"
+                    style={{ backgroundColor: m.color }}
+                  />
+                  {m.shortLabel}
+                </span>
+              );
+            })}
           </div>
         ) : (
           <div className="flex items-center gap-1.5">
             <span>低</span>
-            {[0.35, 0.55, 0.78, 1].map((op) => (
+            {[0.32, 0.52, 0.78, 1].map((op) => (
               <span
                 key={op}
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: '#10b981', opacity: op }}
+                className="h-2.5 w-2.5 rounded-xs"
+                style={{ backgroundColor: 'var(--color-brand)', opacity: op }}
               />
             ))}
-            <span>高 (≥700 kcal)</span>
+            <span>≥700 kcal</span>
           </div>
         )}
-        <div className="tabular-nums">
-          共{' '}
-          <strong style={{ color: 'var(--color-text)' }}>{activeDays}</strong>{' '}
-          个活跃训练日
-        </div>
       </div>
 
       {hovered && (
         <div
-          className="pointer-events-none fixed z-50 max-w-xs rounded-xl border px-3 py-2 text-xs shadow-xl"
+          className="pointer-events-none fixed z-50 max-w-xs rounded-lg border px-3 py-2 text-xs shadow-lg"
           style={{
-            left: Math.min(hovered.x + 14, window.innerWidth - 270),
+            left: Math.min(hovered.x + 14, window.innerWidth - 260),
             top: Math.max(12, hovered.y + 14),
             backgroundColor: 'var(--color-surface)',
             borderColor: 'var(--color-border)',
             color: 'var(--color-text)',
           }}
         >
-          <div className="font-semibold tabular-nums">
-            {hovered.date}（{hovered.items.length} 次训练）
-          </div>
+          <div className="font-mono-num font-semibold">{hovered.date}</div>
           {hovered.items.map((a) => {
             const m = getSportMeta(getActivityCategory(a, taxonomyMode));
             const km = (a.distance || 0) / 1000;
             return (
-              <div key={a.run_id} className="mt-1.5 flex items-start gap-1.5">
+              <div key={a.run_id} className="mt-1 flex items-start gap-1.5">
                 <span
+                  aria-hidden="true"
                   className="mt-1 h-2 w-2 shrink-0 rounded-full"
                   style={{ backgroundColor: m.color }}
                 />
                 <div>
                   <div className="font-medium">{a.name}</div>
                   <div
-                    className="tabular-nums"
+                    className="font-mono-num"
                     style={{ color: 'var(--color-text-muted)' }}
                   >
                     {formatDurationShort(getActivityMinutes(a))}

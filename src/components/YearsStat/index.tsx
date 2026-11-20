@@ -29,7 +29,7 @@ const YearsStat = ({
   }, [years, year]);
 
   return (
-    <div className="w-full space-y-2.5 pb-10">
+    <div className="w-full pb-8">
       {yearsArrayUpdate.map((yearItem) => (
         <YearStat
           key={yearItem}

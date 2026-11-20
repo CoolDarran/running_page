@@ -32,7 +32,6 @@ interface IRunRowProperties {
   setRunIndex: (_index: number) => void;
   columns: ColumnDef[];
   taxonomyMode: TaxonomyMode;
-  showDistanceCols: boolean;
 }
 
 const ZONE_COLORS = ['#94a3b8', '#38bdf8', '#10b981', '#f59e0b', '#ef4444'];
@@ -74,31 +73,34 @@ const RunRow = ({
 
   const dash = <span style={{ color: 'var(--color-text-muted)' }}>—</span>;
 
-  const renderCell = (colKey: string) => {
-    switch (colKey) {
+  const renderCell = (col: ColumnDef) => {
+    const borderStyle = { borderColor: 'var(--color-border)' };
+    switch (col.key) {
       case 'Type':
         return (
-          <td key={colKey} className="px-2.5 py-2.5 whitespace-nowrap">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
-              style={{
-                backgroundColor: `${meta.color}1f`,
-                color: meta.color,
-              }}
-            >
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="border-b px-2 py-2.5 whitespace-nowrap"
+            style={borderStyle}
+          >
+            <span className="inline-flex items-center gap-1.5">
               <span
-                className="h-1.5 w-1.5 rounded-full"
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: meta.color }}
               />
-              {meta.shortLabel}
+              <span>{meta.shortLabel}</span>
             </span>
           </td>
         );
       case 'Time':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
           >
             {formatDurationShort(minutes)}
           </td>
@@ -106,8 +108,10 @@ const RunRow = ({
       case 'Kcal':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right font-medium whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right font-medium whitespace-nowrap"
+            style={borderStyle}
           >
             {run.calories && run.calories > 0 ? Math.round(run.calories) : dash}
           </td>
@@ -115,8 +119,10 @@ const RunRow = ({
       case 'BPM':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
           >
             {run.average_heartrate ? Math.round(run.average_heartrate) : dash}
           </td>
@@ -124,32 +130,29 @@ const RunRow = ({
       case 'MaxHR':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{
+              ...borderStyle,
+              color:
+                run.max_heartrate && run.max_heartrate >= 175
+                  ? '#ea580c'
+                  : 'var(--color-text)',
+              fontWeight:
+                run.max_heartrate && run.max_heartrate >= 175 ? 600 : 400,
+            }}
           >
-            {run.max_heartrate && run.max_heartrate >= 175 ? (
-              <span
-                className="rounded px-1.5 py-0.5 font-semibold"
-                style={{
-                  backgroundColor: 'rgba(249,115,22,0.16)',
-                  color: '#f97316',
-                }}
-              >
-                {Math.round(run.max_heartrate)}
-              </span>
-            ) : run.max_heartrate ? (
-              Math.round(run.max_heartrate)
-            ) : (
-              dash
-            )}
+            {run.max_heartrate ? Math.round(run.max_heartrate) : dash}
           </td>
         );
       case 'TRIMP':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
-            style={{ color: 'var(--color-text-muted)' }}
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{ ...borderStyle, color: 'var(--color-text-muted)' }}
           >
             {trimp > 0 ? trimp : dash}
           </td>
@@ -157,8 +160,10 @@ const RunRow = ({
       case 'KM':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
           >
             {km > 0 ? km.toFixed(2) : dash}
           </td>
@@ -166,8 +171,10 @@ const RunRow = ({
       case 'Elev':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
           >
             {elev > 0 ? elev.toFixed(0) : dash}
           </td>
@@ -175,8 +182,10 @@ const RunRow = ({
       case 'Pace':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
           >
             {paceParts ?? dash}
           </td>
@@ -184,85 +193,82 @@ const RunRow = ({
       case 'Date':
         return (
           <td
-            key={colKey}
-            className="px-2.5 py-2.5 text-right whitespace-nowrap tabular-nums"
-            style={{ color: 'var(--color-text-muted)' }}
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{ ...borderStyle, color: 'var(--color-text-muted)' }}
           >
             {run.start_date_local.slice(0, 16)}
           </td>
         );
       default:
-        return <td key={colKey} />;
+        return <td key={col.key} />;
     }
   };
 
   return (
     <>
       <tr
-        className="cursor-pointer border-b transition-colors"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: isSelected
-            ? 'var(--color-run-row-hover-background)'
-            : 'transparent',
-        }}
+        data-selected={isSelected ? 'true' : undefined}
+        className="cursor-pointer"
         onClick={handleClick}
       >
-        <td
-          className="max-w-[260px] truncate px-2.5 py-2.5 font-medium"
+        <th
+          scope="row"
+          className="max-w-[260px] truncate border-b px-2 py-2.5"
+          style={{ borderColor: 'var(--color-border)' }}
           title={run.name}
         >
           {titleForRun(run)}
-        </td>
-        {columns.map((c) => renderCell(c.key))}
+        </th>
+        {columns.map((c) => renderCell(c))}
       </tr>
 
       {isSelected && (
         <tr
-          className="border-b"
-          style={{
-            borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-surface-subtle)',
-          }}
+          data-detail-row="true"
+          style={{ backgroundColor: 'var(--color-surface-subtle)' }}
         >
-          <td colSpan={columns.length + 1} className="px-3 py-2.5 text-xs">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-              <span className="tabular-nums">
-                <strong style={{ color: 'var(--color-text-muted)' }}>
-                  训练负荷 TRIMP：
-                </strong>
+          <td
+            colSpan={columns.length + 1}
+            className="border-b px-3 py-2.5 text-xs"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+              <span className="font-mono-num">
+                <span style={{ color: 'var(--color-text-muted)' }}>TRIMP </span>
                 {trimp}
               </span>
               {elapsedMin > minutes + 0.5 && (
-                <span className="tabular-nums">
-                  <strong style={{ color: 'var(--color-text-muted)' }}>
-                    总耗时 / 密度：
-                  </strong>
-                  {formatDurationShort(elapsedMin)}（
+                <span className="font-mono-num">
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    总耗时{' '}
+                  </span>
+                  {formatDurationShort(elapsedMin)}（密度{' '}
                   {Math.round((minutes / elapsedMin) * 100)}%）
                 </span>
               )}
               {run.suffer_score ? (
-                <span className="tabular-nums">
-                  <strong style={{ color: 'var(--color-text-muted)' }}>
-                    Strava Relative Effort：
-                  </strong>
+                <span className="font-mono-num">
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    Relative Effort{' '}
+                  </span>
                   {Math.round(run.suffer_score)}
                 </span>
               ) : null}
               {run.device_name && (
                 <span>
-                  <strong style={{ color: 'var(--color-text-muted)' }}>
-                    设备：
-                  </strong>
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    设备{' '}
+                  </span>
                   {run.device_name}
                 </span>
               )}
               {run.location_country && (
                 <span className="truncate">
-                  <strong style={{ color: 'var(--color-text-muted)' }}>
-                    地点：
-                  </strong>
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    地点{' '}
+                  </span>
                   {run.location_country}
                 </span>
               )}
@@ -276,7 +282,7 @@ const RunRow = ({
               </p>
             )}
             {hrZones && (
-              <div className="mt-2 flex h-2 w-full max-w-md overflow-hidden rounded-full">
+              <div className="mt-2 flex h-1.5 w-full max-w-md overflow-hidden rounded-full">
                 {hrZones.map((sec, idx) => {
                   const total = hrZones.reduce((a, b) => a + b, 0) || 1;
                   return (

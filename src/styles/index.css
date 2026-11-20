@@ -1,134 +1,200 @@
 /* IBM Plex Sans and IBM Plex Mono fonts */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @import 'tailwindcss';
 @import './mobile.css';
 
+/* ==========================================================================
+   Design Tokens — Warm Obsidian (Dark) & Warm Paper (Light)
+   Follows modern-web-guidance: color-scheme, light-dark() with fallback,
+   color-mix(in oklab), scrollbar-color, forced-colors, and focus-visible.
+   ========================================================================== */
 :root {
-  /* global */
+  color-scheme: light dark;
+
+  /* Raw palette pairs */
+  --bg-light: #f6f5f0;
+  --bg-dark: #111210;
+  --surface-light: #ffffff;
+  --surface-dark: #181a17;
+  --surface-subtle-light: #efeee8;
+  --surface-subtle-dark: #1f221e;
+  --border-light: #dcdad0;
+  --border-dark: #2c302a;
+  --text-light: #181917;
+  --text-dark: #f2f2ee;
+  --text-muted-light: #5c5e58;
+  --text-muted-dark: #9c9f96;
+  --brand-light: #15803d;
+  --brand-dark: #4ade80;
+  --brand-ink-light: #ffffff;
+  --brand-ink-dark: #0c140e;
+  --scrollbar-thumb-light: #9c9a90;
+  --scrollbar-thumb-dark: #4a4e47;
+  --scrollbar-track-light: #efeee8;
+  --scrollbar-track-dark: #181a17;
+
+  /* Fallback defaults (light) for browsers without light-dark() */
+  --color-bg: var(--bg-light);
+  --color-surface: var(--surface-light);
+  --color-surface-subtle: var(--surface-subtle-light);
+  --color-border: var(--border-light);
+  --color-text: var(--text-light);
+  --color-text-muted: var(--text-muted-light);
+  --color-brand: var(--brand-light);
+  --color-brand-ink: var(--brand-ink-light);
+  --color-secondary: var(--brand-light);
+  --color-tx: var(--brand-light);
+  --color-hr: var(--border-light);
+  --color-selected: var(--brand-light);
+  --color-run-date: var(--text-light);
+  --color-run-table-thead: var(--text-muted-light);
+  --color-run-row-hover-background: var(--surface-subtle-light);
+  --color-activity-card: var(--surface-subtle-light);
+  --svg-color-inactive-cell: #d4d3cb;
+  --svg-color-active-cell: #8b8d85;
+  --svg-special-color: #c28740;
+  --svg-special-color2: #c9584d;
+  --scrollbar-thumb: var(--scrollbar-thumb-light);
+  --scrollbar-track: var(--scrollbar-track-light);
+
+  /* Aliases consumed by legacy components */
   --color-primary: var(--color-brand);
-  --color-secondary: var(--color-secondary);
   --color-background: var(--color-bg);
   --color-text-primary: var(--color-tx);
   --color-hr-primary: var(--color-hr);
-  --color-selected: var(--color-selected);
-  /* dashboard surfaces & neutral text hierarchy */
-  --color-surface: var(--color-surface);
-  --color-surface-subtle: var(--color-surface-subtle);
-  --color-border: var(--color-border);
-  --color-text: var(--color-text);
-  --color-text-muted: var(--color-text-muted);
-  /* table */
-  --color-run-date: var(--color-run-date);
-  --color-run-table-thead: var(--color-run-table-thead);
-  --color-run-row-hover-background: var(--color-run-row-hover-background);
-  /* activity-card */
-  --color-activity-card: var(--color-activity-card);
-  /* svg */
-  --svg-color-active-cell: var(--svg-color-inactive-cell);
-  /* fonts */
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-}
 
-/* 1. System Theme (Base) */
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-brand: #059669;
-    --color-secondary: #10b981;
-    --color-bg: #f4f4f5;
-    --color-surface: #ffffff;
-    --color-surface-subtle: #f4f4f5;
-    --color-border: #e4e4e7;
-    --color-text: #18181b;
-    --color-text-muted: #71717a;
-    --color-tx: #059669;
-    --color-hr: #e4e4e7;
-    --color-selected: #059669;
-    --color-run-date: #27272a;
-    --color-run-table-thead: #52525b;
-    --color-run-row-hover-background: #f4f4f5;
-    --color-activity-card: #e4e4e7;
-    --svg-color-active-cell: #a1a1aa;
-    --svg-special-color: #d4a574;
-    --svg-special-color2: #c5756b;
-    --font-sans: 'IBM Plex Sans', sans-serif;
-    --font-mono: 'IBM Plex Mono', monospace;
-  }
-}
+  /* Typography */
+  --font-sans:
+    'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'PingFang SC',
+    sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-brand: #10b981;
-    --color-secondary: #34d399;
-    --color-bg: #0f1115;
-    --color-surface: #171a21;
-    --color-surface-subtle: #111318;
-    --color-border: #272b36;
-    --color-text: #f4f4f5;
-    --color-text-muted: #9ca3af;
-    --color-tx: #34d399;
-    --color-hr: #272b36;
-    --color-selected: #10b981;
-    --color-run-date: #d4d4d8;
-    --color-run-table-thead: #a1a1aa;
-    --color-run-row-hover-background: #1f2430;
-    --color-activity-card: #272b36;
+  /* System dark fallback when light-dark() is unavailable */
+  @media (prefers-color-scheme: dark) {
+    --color-bg: var(--bg-dark);
+    --color-surface: var(--surface-dark);
+    --color-surface-subtle: var(--surface-subtle-dark);
+    --color-border: var(--border-dark);
+    --color-text: var(--text-dark);
+    --color-text-muted: var(--text-muted-dark);
+    --color-brand: var(--brand-dark);
+    --color-brand-ink: var(--brand-ink-dark);
+    --color-secondary: var(--brand-dark);
+    --color-tx: var(--brand-dark);
+    --color-hr: var(--border-dark);
+    --color-selected: var(--brand-dark);
+    --color-run-date: var(--text-dark);
+    --color-run-table-thead: var(--text-muted-dark);
+    --color-run-row-hover-background: var(--surface-subtle-dark);
+    --color-activity-card: var(--surface-subtle-dark);
+    --svg-color-inactive-cell: #2a2e28;
     --svg-color-active-cell: #4dd2ff;
     --svg-special-color: #f7d02c;
     --svg-special-color2: #f56c6c;
-    --font-sans: 'IBM Plex Sans', sans-serif;
-    --font-mono: 'IBM Plex Mono', monospace;
+    --scrollbar-thumb: var(--scrollbar-thumb-dark);
+    --scrollbar-track: var(--scrollbar-track-dark);
   }
+
+  /* Modern light-dark() tokens automatically follow computed color-scheme */
+  @supports (color: light-dark(white, black)) {
+    --color-bg: light-dark(var(--bg-light), var(--bg-dark));
+    --color-surface: light-dark(var(--surface-light), var(--surface-dark));
+    --color-surface-subtle: light-dark(
+      var(--surface-subtle-light),
+      var(--surface-subtle-dark)
+    );
+    --color-border: light-dark(var(--border-light), var(--border-dark));
+    --color-text: light-dark(var(--text-light), var(--text-dark));
+    --color-text-muted: light-dark(
+      var(--text-muted-light),
+      var(--text-muted-dark)
+    );
+    --color-brand: light-dark(var(--brand-light), var(--brand-dark));
+    --color-brand-ink: light-dark(
+      var(--brand-ink-light),
+      var(--brand-ink-dark)
+    );
+    --color-secondary: var(--color-brand);
+    --color-tx: var(--color-brand);
+    --color-hr: var(--color-border);
+    --color-selected: var(--color-brand);
+    --color-run-date: var(--color-text);
+    --color-run-table-thead: var(--color-text-muted);
+    --color-run-row-hover-background: var(--color-surface-subtle);
+    --color-activity-card: var(--color-surface-subtle);
+    --svg-color-inactive-cell: light-dark(#d4d3cb, #2a2e28);
+    --svg-color-active-cell: light-dark(#8b8d85, #4dd2ff);
+    --svg-special-color: light-dark(#c28740, #f7d02c);
+    --svg-special-color2: light-dark(#c9584d, #f56c6c);
+    --scrollbar-thumb: light-dark(
+      var(--scrollbar-thumb-light),
+      var(--scrollbar-thumb-dark)
+    );
+    --scrollbar-track: light-dark(
+      var(--scrollbar-track-light),
+      var(--scrollbar-track-dark)
+    );
+  }
+
+  accent-color: var(--color-brand);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-/* 2. Manual Override (Higher Priority) */
+/* Manual theme override drives color-scheme directly (light-dark() follows it) */
 [data-theme='light'] {
-  --color-brand: #059669;
-  --color-secondary: #10b981;
-  --color-bg: #f4f4f5;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f4f4f5;
-  --color-border: #e4e4e7;
-  --color-text: #18181b;
-  --color-text-muted: #71717a;
-  --color-tx: #059669;
-  --color-hr: #e4e4e7;
-  --color-selected: #059669;
-  --color-run-date: #27272a;
-  --color-run-table-thead: #52525b;
-  --color-run-row-hover-background: #f4f4f5;
-  --color-activity-card: #e4e4e7;
-  --svg-color-inactive-cell: #d4d4d8;
-  --svg-color-active-cell: #a1a1aa;
-  --svg-special-color: #d4a574;
-  --svg-special-color2: #c5756b;
-  --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  color-scheme: light;
+  --color-bg: var(--bg-light);
+  --color-surface: var(--surface-light);
+  --color-surface-subtle: var(--surface-subtle-light);
+  --color-border: var(--border-light);
+  --color-text: var(--text-light);
+  --color-text-muted: var(--text-muted-light);
+  --color-brand: var(--brand-light);
+  --color-brand-ink: var(--brand-ink-light);
+  --svg-color-inactive-cell: #d4d3cb;
+  --svg-color-active-cell: #8b8d85;
+  --svg-special-color: #c28740;
+  --svg-special-color2: #c9584d;
+  --scrollbar-thumb: var(--scrollbar-thumb-light);
+  --scrollbar-track: var(--scrollbar-track-light);
+  accent-color: var(--color-brand);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 [data-theme='dark'] {
-  --color-brand: #10b981;
-  --color-secondary: #34d399;
-  --color-bg: #0f1115;
-  --color-surface: #171a21;
-  --color-surface-subtle: #111318;
-  --color-border: #272b36;
-  --color-text: #f4f4f5;
-  --color-text-muted: #9ca3af;
-  --color-tx: #34d399;
-  --color-hr: #272b36;
-  --color-selected: #10b981;
-  --color-run-date: #d4d4d8;
-  --color-run-table-thead: #a1a1aa;
-  --color-run-row-hover-background: #1f2430;
-  --color-activity-card: #272b36;
+  color-scheme: dark;
+  --color-bg: var(--bg-dark);
+  --color-surface: var(--surface-dark);
+  --color-surface-subtle: var(--surface-subtle-dark);
+  --color-border: var(--border-dark);
+  --color-text: var(--text-dark);
+  --color-text-muted: var(--text-muted-dark);
+  --color-brand: var(--brand-dark);
+  --color-brand-ink: var(--brand-ink-dark);
+  --svg-color-inactive-cell: #2a2e28;
   --svg-color-active-cell: #4dd2ff;
   --svg-special-color: #f7d02c;
   --svg-special-color2: #f56c6c;
-  --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --scrollbar-thumb: var(--scrollbar-thumb-dark);
+  --scrollbar-track: var(--scrollbar-track-dark);
+  accent-color: var(--color-brand);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Forced Colors Mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  :root {
+    --color-bg: Canvas;
+    --color-surface: Canvas;
+    --color-surface-subtle: Canvas;
+    --color-border: CanvasText;
+    --color-text: CanvasText;
+    --color-text-muted: GrayText;
+    --color-brand: Highlight;
+    --color-brand-ink: HighlightText;
+  }
 }
 
 @layer base {
@@ -136,11 +202,270 @@
   body {
     background-color: var(--color-background);
     color: var(--color-text);
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
     font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* Accessible keyboard focus ring that contrasts in light, dark, and forced colors */
+  :where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]
+  ):focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+
+  /* Natural tactile press feedback on interactive buttons */
+  @media (prefers-reduced-motion: no-preference) {
+    :where(button) {
+      transition:
+        background-color 140ms ease-out,
+        border-color 140ms ease-out,
+        color 140ms ease-out,
+        opacity 140ms ease-out,
+        scale 120ms ease-out;
+    }
+
+    :where(button):active:not(:disabled) {
+      scale: 0.98;
+    }
+  }
+}
+
+/* Legacy scrollbar fallback only where scrollbar-color is unsupported */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+}
+
+/* ==========================================================================
+   Accessible Tabs (aria-selected underline — no layout shift, survives forced-colors)
+   ========================================================================== */
+.mwg-tablist {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scroll-snap-type: inline proximity;
+  border-block-end: 1px solid var(--color-border);
+  scrollbar-width: none;
+}
+
+.mwg-tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.mwg-tab {
+  position: relative;
+  flex: none;
+  scroll-snap-align: start;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mwg-tab:hover {
+  color: var(--color-text);
+}
+
+.mwg-tab[aria-selected='true'] {
+  color: var(--color-text);
+}
+
+.mwg-tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  border-block-end: 2px solid var(--color-brand);
+}
+
+/* ==========================================================================
+   Native Popover (top-layer entry/exit via @starting-style + allow-discrete)
+   ========================================================================== */
+.mwg-popover[popover] {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  width: min(20rem, calc(100vw - 2rem));
+  border-radius: 0.625rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  position-area: bottom span-left;
+  inset: auto;
+  margin-block-start: 0.375rem;
+  transform-origin: top right;
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mwg-popover[popover] {
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+.mwg-popover[popover]:is(:popover-open, .\:popover-open) {
+  opacity: 1;
+}
+
+@starting-style {
+  .mwg-popover[popover]:is(:popover-open, .\:popover-open) {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mwg-popover[popover]:is(:popover-open, .\:popover-open) {
+    transform: translateY(0) scale(1);
+  }
+
+  @starting-style {
+    .mwg-popover[popover]:is(:popover-open, .\:popover-open) {
+      transform: translateY(-4px) scale(0.97);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mwg-popover[popover] {
+    transition-duration: 0.08s;
+  }
+}
+
+/* ==========================================================================
+   Responsive Data Table (container-query stacked mobile + sticky headers)
+   ========================================================================== */
+.mwg-table-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  container-type: inline-size;
+}
+
+.mwg-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.mwg-table thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background-color: var(--color-bg);
+}
+
+.mwg-table tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  background-color: var(--color-bg);
+  text-align: left;
+  font-weight: 500;
+}
+
+.mwg-table tbody tr:hover th,
+.mwg-table tbody tr:hover td {
+  background-color: var(--color-surface-subtle);
+}
+
+.mwg-table tbody tr[data-selected='true'] th,
+.mwg-table tbody tr[data-selected='true'] td {
+  background-color: var(--color-surface-subtle);
+}
+
+@container (width < 560px) {
+  .mwg-table,
+  .mwg-table thead,
+  .mwg-table tbody,
+  .mwg-table tr,
+  .mwg-table th,
+  .mwg-table td {
+    display: block;
+  }
+
+  .mwg-table thead {
+    display: none;
+  }
+
+  .mwg-table tbody tr {
+    padding: 0.75rem 0;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .mwg-table tbody th {
+    position: static;
+    max-inline-size: none !important;
+    padding: 0 0 0.4rem 0 !important;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: transparent;
+  }
+
+  .mwg-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0 !important;
+    text-align: right;
+  }
+
+  .mwg-table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    font-weight: 400;
+    text-align: left;
+    margin-inline-end: 0.75rem;
+  }
+
+  .mwg-table tbody tr[data-detail-row='true'] td {
+    display: block;
+    text-align: left;
+  }
+
+  .mwg-table tbody tr[data-detail-row='true'] td::before {
+    content: none;
+  }
+}
+
+/* ==========================================================================
+   Editorial Utility & Legacy SVG Compatibility
+   ========================================================================== */
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.mwg-deferred-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 310px;
 }
 
 img::selection {
@@ -151,21 +476,14 @@ img::-moz-selection {
   background: transparent;
 }
 
-body {
-  text-rendering: optimizeLegibility;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-}
-
 iframe {
   border: none;
 }
 
 hr {
   border-top: none;
-  border-bottom: 1px solid;
-  border-color: var(--color-hr-primary);
-  margin: 2rem 0;
+  border-bottom: 1px solid var(--color-border);
+  margin: 1.5rem 0;
 }
 
 .github-svg text,
@@ -215,52 +533,49 @@ hr {
     margin-bottom: 1rem;
   }
 
-  /* Ensure mobile layout doesn't require min-width */
   body {
     overflow-x: hidden;
   }
 }
 
-/* Passive offline notice follows the active light/dark brand palette. */
+/* Passive offline notice follows the active light/dark palette */
 .offline-notice {
   position: fixed;
-  z-index: 100;
-  right: 1.5rem;
-  bottom: 1.5rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  max-width: 24rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--color-brand) 40%, transparent);
-  border-radius: 0.85rem;
-  background: color-mix(in srgb, var(--color-brand) 8%, var(--color-bg));
-  color: var(--color-brand);
-  box-shadow: 0 4px 20px #00000018;
+  max-width: min(22rem, calc(100vw - 2rem));
+  align-items: center;
+  gap: 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.4;
+  box-shadow: 0 10px 25px rgb(0 0 0 / 0.18);
   pointer-events: none;
 }
 
 .offline-notice-dot {
-  flex: 0 0 0.375rem;
-  height: 0.375rem;
-  margin-top: 0.45rem;
-  border-radius: 50%;
-  background: currentColor;
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: var(--color-brand);
 }
 
-@media (max-width: 640px) {
+.offline-notice p {
+  margin: 0;
+}
+
+@media only screen and (max-width: 768px) {
   .offline-notice {
-    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
-    right: auto;
-    bottom: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    width: max-content;
-    max-width: calc(100vw - 2rem);
-    padding: 0.6rem 0.8rem;
-    border-radius: 0.75rem;
-    font-size: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    max-width: none;
   }
 }

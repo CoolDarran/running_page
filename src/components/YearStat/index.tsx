@@ -115,7 +115,6 @@ const YearStat = ({
     );
     const maxSportCount = workoutsArr.length ? workoutsArr[0][1].count : 1;
 
-    // Optional YoY duration delta vs previous calendar year
     let yoyHoursPct: number | null = null;
     if (years.includes(year)) {
       const prevYear = String(Number(year) - 1);
@@ -149,50 +148,47 @@ const YearStat = ({
     };
   }, [allActivities, years, year, taxonomyMode]);
 
-  // Compact row for inactive years to keep the sidebar clean and scannable
+  // Flat hairline row for inactive years
   if (!isActiveYear) {
     return (
       <div
-        className="cursor-pointer rounded-xl border px-3.5 py-2.5 transition-colors"
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          borderColor: 'var(--color-border)',
-        }}
-        onClick={() => onClick(year)}
+        className="border-b py-2.5"
+        style={{ borderColor: 'var(--color-border)' }}
         {...eventHandlers}
       >
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base font-bold tabular-nums">
-              {year === 'Total' ? 'All Time' : year}
+        <button
+          type="button"
+          onClick={() => onClick(year)}
+          className="flex w-full items-baseline justify-between gap-2 text-left transition-opacity hover:opacity-75"
+        >
+          <span className="flex items-baseline gap-2">
+            <span className="font-mono-num text-sm font-semibold">
+              {year === 'Total' ? '全部年份' : year}
             </span>
             <span
-              className="text-xs tabular-nums"
+              className="font-mono-num text-xs"
               style={{ color: 'var(--color-text-muted)' }}
             >
-              {stats.count} 次
+              {stats.count}次
             </span>
-          </div>
-          <div
-            className="flex items-center gap-2.5 text-xs tabular-nums"
+          </span>
+          <span
+            className="font-mono-num text-xs"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            <span
-              className="font-semibold"
-              style={{ color: 'var(--color-text)' }}
-            >
+            <strong style={{ color: 'var(--color-text)' }}>
               {stats.totalHours.toFixed(1)}h
-            </span>
+            </strong>
             {stats.totalCalories > 0 && (
-              <span>
+              <span className="ml-2">
                 {stats.totalCalories >= 10000
                   ? `${(stats.totalCalories / 1000).toFixed(1)}k`
                   : stats.totalCalories.toLocaleString()}{' '}
                 kcal
               </span>
             )}
-          </div>
-        </div>
+          </span>
+        </button>
         {year !== 'Total' && hovered && YearSVG && GithubYearSVG && (
           <Suspense fallback={null}>
             <YearSVG className="year-svg my-3 h-4/6 w-4/6 border-0 p-0" />
@@ -204,40 +200,30 @@ const YearStat = ({
   }
 
   return (
-    <div
-      className="space-y-4 rounded-xl border p-4"
-      style={{
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
-      }}
+    <section
+      className="border-b pb-6"
+      style={{ borderColor: 'var(--color-border)' }}
       {...eventHandlers}
     >
-      {/* Header + YoY badge */}
-      <div
-        className="flex cursor-pointer items-baseline justify-between gap-2"
-        onClick={() => onClick(year)}
-      >
-        <div>
-          <div
-            className="text-xs tracking-wider uppercase"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            Selected Period
-          </div>
-          <h2 className="text-2xl font-extrabold tracking-tight tabular-nums">
-            {year === 'Total' ? 'All Time' : `${year} Journey`}
+      {/* Year Header */}
+      <div className="mb-4 flex items-baseline justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => onClick(year)}
+          className="text-left"
+        >
+          <h2 className="font-mono-num text-2xl font-bold tracking-tight">
+            {year === 'Total' ? '全部年份' : year}
           </h2>
-        </div>
+        </button>
         {stats.yoyHoursPct !== null && (
           <span
-            className="rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums"
+            className="font-mono-num text-xs font-medium"
             style={{
-              backgroundColor:
-                stats.yoyHoursPct >= 0
-                  ? 'rgba(16,185,129,0.14)'
-                  : 'rgba(148,163,184,0.16)',
               color:
-                stats.yoyHoursPct >= 0 ? '#10b981' : 'var(--color-text-muted)',
+                stats.yoyHoursPct >= 0
+                  ? 'var(--color-brand)'
+                  : 'var(--color-text-muted)',
             }}
           >
             {stats.yoyHoursPct >= 0 ? '+' : ''}
@@ -246,66 +232,29 @@ const YearStat = ({
         )}
       </div>
 
-      {/* 2x2 Duration & Calorie First Hero Grid */}
-      <div className="grid grid-cols-2 gap-2.5">
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: 'var(--color-surface-subtle)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            总次数
-          </div>
-          <div className="mt-0.5 text-2xl font-extrabold">
-            <RollingNumber value={stats.count} />
-          </div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            Sessions
-          </div>
-        </div>
-
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: 'var(--color-surface-subtle)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+      {/* Flat 2x2 Typographic KPI Grid (zero nested boxes) */}
+      <dl
+        className="grid grid-cols-2 gap-x-4 gap-y-4 border-b pb-4"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <div>
+          <dt className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
             总时长
-          </div>
-          <div
-            className="mt-0.5 text-2xl font-extrabold"
+          </dt>
+          <dd
+            className="mt-0.5 text-2xl font-bold tracking-tight"
             style={{ color: 'var(--color-brand)' }}
           >
             <RollingNumber value={stats.totalHours} decimals={1} />
-            <span className="ml-0.5 text-sm font-semibold">h</span>
-          </div>
-          <div
-            className="text-xs tabular-nums"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            均{' '}
-            {stats.count
-              ? Math.round((stats.totalHours * 60) / stats.count)
-              : 0}
-            m / 次
-          </div>
+            <span className="ml-0.5 text-xs font-medium">h</span>
+          </dd>
         </div>
 
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: 'var(--color-surface-subtle)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+        <div>
+          <dt className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
             总消耗
-          </div>
-          <div className="mt-0.5 text-2xl font-extrabold">
+          </dt>
+          <dd className="mt-0.5 text-2xl font-bold tracking-tight">
             <RollingNumber
               value={stats.totalCalories}
               format={(n) =>
@@ -314,147 +263,149 @@ const YearStat = ({
                   : Math.round(n).toLocaleString()
               }
             />
-          </div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            KCAL
-          </div>
+            <span
+              className="ml-1 text-xs font-normal"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              kcal
+            </span>
+          </dd>
         </div>
 
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: 'var(--color-surface-subtle)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+        <div>
+          <dt className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            训练次数
+          </dt>
+          <dd className="mt-0.5 text-xl font-semibold tracking-tight">
+            <RollingNumber value={stats.count} />
+            <span
+              className="ml-1 text-xs font-normal"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              均{' '}
+              {stats.count
+                ? Math.round((stats.totalHours * 60) / stats.count)
+                : 0}
+              m
+            </span>
+          </dd>
+        </div>
+
+        <div>
+          <dt className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
             最长连续
-          </div>
-          <div className="mt-0.5 text-2xl font-extrabold">
+          </dt>
+          <dd className="mt-0.5 text-xl font-semibold tracking-tight">
             <RollingNumber value={stats.streak} />
-            <span className="ml-0.5 text-sm font-semibold">天</span>
-          </div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            Day Streak
-          </div>
+            <span
+              className="ml-0.5 text-xs font-normal"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              天
+            </span>
+          </dd>
         </div>
-      </div>
+      </dl>
 
-      {/* Secondary Metrics Strip */}
-      <div
-        className="grid grid-cols-3 gap-2 border-t pt-3 text-center"
+      {/* Secondary Inline Stats */}
+      <dl
+        className="font-mono-num flex items-center justify-between gap-2 border-b py-3 text-xs"
         style={{ borderColor: 'var(--color-border)' }}
       >
         <div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            均心率
-          </div>
-          <div className="mt-0.5 text-sm font-bold tabular-nums">
-            {stats.avgHeartRate ? `${stats.avgHeartRate} bpm` : '—'}
-          </div>
+          <dt className="inline" style={{ color: 'var(--color-text-muted)' }}>
+            均心率{' '}
+          </dt>
+          <dd className="inline font-semibold">
+            {stats.avgHeartRate ? `${stats.avgHeartRate}` : '—'}
+          </dd>
         </div>
         <div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            峰值心率
-          </div>
-          <div
-            className="mt-0.5 text-sm font-bold tabular-nums"
+          <dt className="inline" style={{ color: 'var(--color-text-muted)' }}>
+            峰值{' '}
+          </dt>
+          <dd
+            className="inline font-semibold"
             style={{
               color:
-                stats.peakHeartRate >= 175 ? '#f97316' : 'var(--color-text)',
+                stats.peakHeartRate >= 175 ? '#ea580c' : 'var(--color-text)',
             }}
           >
-            {stats.peakHeartRate ? `${stats.peakHeartRate} bpm` : '—'}
-          </div>
+            {stats.peakHeartRate ? `${stats.peakHeartRate}` : '—'}
+          </dd>
         </div>
         <div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            户外距离
-          </div>
-          <div className="mt-0.5 text-sm font-bold tabular-nums">
-            {stats.totalDistance > 0 ? `${stats.totalDistance} km` : '—'}
-          </div>
+          <dt className="inline" style={{ color: 'var(--color-text-muted)' }}>
+            户外{' '}
+          </dt>
+          <dd className="inline font-semibold">
+            {stats.totalDistance > 0 ? `${stats.totalDistance}km` : '—'}
+          </dd>
         </div>
-      </div>
+      </dl>
 
       {SHOW_ELEVATION_GAIN && stats.hasElevation && stats.hasPace && (
         <div
-          className="flex items-center justify-between text-xs tabular-nums"
+          className="font-mono-num flex items-center justify-between pt-2.5 text-xs"
           style={{ color: 'var(--color-text-muted)' }}
         >
           <span>
-            累计爬升 {stats.totalElevationGain} {ELEV_UNIT}
+            爬升 {stats.totalElevationGain}
+            {ELEV_UNIT}
           </span>
-          <span>户外均配速 {stats.avgPace}</span>
+          <span>户外配速 {stats.avgPace}</span>
         </div>
       )}
 
-      {/* Sport Breakdown with Sub-type / Raw Toggle */}
-      <div
-        className="space-y-2.5 border-t pt-3"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <div className="flex items-center justify-between gap-2">
+      {/* Sport Breakdown List */}
+      <div className="mt-4 space-y-2.5">
+        <div className="flex items-baseline justify-between gap-2 text-xs">
           <span
-            className="text-xs font-semibold tracking-wider uppercase"
+            className="font-medium"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            运动项目分布
+            项目分布
           </span>
           {onTaxonomyChange && (
-            <div
-              className="inline-flex rounded-lg border p-0.5 text-xs"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-surface-subtle)',
-              }}
-            >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaxonomyChange('sub');
-                }}
-                className="rounded-md px-2 py-0.5 font-medium transition-colors"
-                style={
-                  taxonomyMode === 'sub'
-                    ? {
-                        backgroundColor: 'var(--color-brand)',
-                        color: '#ffffff',
-                      }
-                    : { color: 'var(--color-text-muted)' }
-                }
-              >
-                细分
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaxonomyChange('raw');
-                }}
-                className="rounded-md px-2 py-0.5 font-medium transition-colors"
-                style={
-                  taxonomyMode === 'raw'
-                    ? {
-                        backgroundColor: 'var(--color-brand)',
-                        color: '#ffffff',
-                      }
-                    : { color: 'var(--color-text-muted)' }
-                }
-              >
-                原始
-              </button>
+            <div className="flex items-center gap-2.5">
+              {(
+                [
+                  ['sub', '细分'],
+                  ['raw', '原始'],
+                ] as const
+              ).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTaxonomyChange(mode);
+                  }}
+                  className="pb-0.5 transition-colors"
+                  style={{
+                    color:
+                      taxonomyMode === mode
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-muted)',
+                    borderBottom:
+                      taxonomyMode === mode
+                        ? '1.5px solid var(--color-brand)'
+                        : '1.5px solid transparent',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           )}
         </div>
 
-        <div className="space-y-1.5">
+        <ul className="space-y-1">
           {stats.workoutsArr.map(([sport, item]) => {
             const meta = getSportMeta(sport);
             const isSelected = selectedSport === sport;
             const barPct = Math.max(
-              6,
+              4,
               Math.round((item.count / stats.maxSportCount) * 100)
             );
             const subMetric = meta.indoor
@@ -466,59 +417,65 @@ const YearStat = ({
               : `${(item.meters / M_TO_DIST).toFixed(1)} km · ${(item.minutes / 60).toFixed(1)}h`;
 
             return (
-              <button
-                key={sport}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClickTypeInYear(year, sport);
-                }}
-                className="w-full rounded-lg border px-3 py-2 text-left transition-all"
-                style={{
-                  backgroundColor: 'var(--color-surface-subtle)',
-                  borderColor: isSelected
-                    ? 'var(--color-brand)'
-                    : 'var(--color-border)',
-                  boxShadow: isSelected
-                    ? '0 0 0 1px var(--color-brand)'
-                    : 'none',
-                }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: meta.color }}
-                    />
-                    <span className="truncate text-xs font-medium">
-                      {meta.label}
+              <li key={sport}>
+                <button
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickTypeInYear(year, sport);
+                  }}
+                  className="w-full rounded-md px-2 py-1.5 text-left transition-colors"
+                  style={{
+                    backgroundColor: isSelected
+                      ? 'var(--color-surface-subtle)'
+                      : 'transparent',
+                    boxShadow: isSelected
+                      ? `inset 2px 0 0 ${meta.color}`
+                      : 'inset 2px 0 0 transparent',
+                  }}
+                >
+                  <div className="flex items-baseline justify-between gap-2 text-xs">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: meta.color }}
+                      />
+                      <span className="truncate font-medium">{meta.label}</span>
                     </span>
-                  </span>
-                  <span className="text-sm font-bold tabular-nums">
-                    {item.count}
-                  </span>
-                </div>
-                <div
-                  className="mt-1 text-xs tabular-nums"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  {subMetric}
-                </div>
-                <div
-                  className="mt-1.5 h-1 w-full overflow-hidden rounded-full"
-                  style={{ backgroundColor: 'var(--color-border)' }}
-                >
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${barPct}%`, backgroundColor: meta.color }}
-                  />
-                </div>
-              </button>
+                    <span className="font-mono-num shrink-0 font-semibold">
+                      {isSelected ? '✓ ' : ''}
+                      {item.count}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2 pl-4">
+                    <div
+                      className="h-1 flex-1 overflow-hidden rounded-full"
+                      style={{ backgroundColor: 'var(--color-border)' }}
+                    >
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${barPct}%`,
+                          backgroundColor: meta.color,
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="font-mono-num shrink-0 text-[11px]"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      {subMetric}
+                    </span>
+                  </div>
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
-    </div>
+    </section>
   );
 };
 

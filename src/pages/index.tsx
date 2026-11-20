@@ -5,6 +5,7 @@ import {
   useCallback,
   useRef,
   useSyncExternalStore,
+  type KeyboardEvent,
 } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
@@ -46,6 +47,7 @@ import {
 } from '@/utils/workoutTaxonomy';
 
 type MainViewTab = 'overview' | 'insights' | 'map';
+const TAB_ORDER: MainViewTab[] = ['overview', 'insights', 'map'];
 
 const HASH_RUN_CHANGE_EVENT = 'running-page-hash-run-change';
 
@@ -101,6 +103,11 @@ const Index = () => {
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<MainViewTab>('overview');
+  const tabElementsRef = useRef<Record<MainViewTab, HTMLButtonElement | null>>({
+    overview: null,
+    insights: null,
+    map: null,
+  });
 
   const infoMessage = useMemo(
     () => INFO_MESSAGE(years.length, year),
@@ -111,7 +118,6 @@ const Index = () => {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Animation states for replacing intervalIdRef
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState(0);
   const [animationRuns, setAnimationRuns] = useState<Activity[]>([]);
@@ -134,7 +140,6 @@ const Index = () => {
     [taxonomyMode]
   );
 
-  // Filtered runs for charts, map, and heatmap
   const runs = useMemo(() => {
     return filterAndSortRuns(
       activities,
@@ -152,7 +157,6 @@ const Index = () => {
     currentFilter.func2,
   ]);
 
-  // Additional day-click filter from ActivityHeatmap for the table below
   const tableRuns = useMemo(() => {
     if (!selectedDate) return runs;
     return runs.filter((r) => r.start_date_local.slice(0, 10) === selectedDate);
@@ -168,9 +172,7 @@ const Index = () => {
     return geoJsonForRuns(runs);
   }, [runs, themeChangeCounter]);
 
-  const bounds = useMemo(() => {
-    return getBoundsForGeoData(geoData);
-  }, [geoData]);
+  const bounds = useMemo(() => getBoundsForGeoData(geoData), [geoData]);
 
   const [viewState, setViewState] = useState<IViewState>(() => ({
     ...bounds,
@@ -217,6 +219,38 @@ const Index = () => {
     [geoData]
   );
 
+  const selectTab = useCallback((nextTab: MainViewTab, shouldFocus = false) => {
+    setActiveTab(nextTab);
+    const el = tabElementsRef.current[nextTab];
+    if (el) {
+      if (shouldFocus) el.focus();
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, []);
+
+  const handleTabKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const idx = TAB_ORDER.indexOf(activeTab);
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[(idx + 1) % TAB_ORDER.length], true);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        selectTab(
+          TAB_ORDER[(idx - 1 + TAB_ORDER.length) % TAB_ORDER.length],
+          true
+        );
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[0], true);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[TAB_ORDER.length - 1], true);
+      }
+    },
+    [activeTab, selectTab]
+  );
+
   const changeByItem = useCallback(
     (
       item: string,
@@ -239,7 +273,6 @@ const Index = () => {
 
   const changeTypeInYear = useCallback(
     (targetYear: string, sport: string) => {
-      // Toggle off when clicking the already selected sport in the same year
       if (selectedSport === sport && year === targetYear) {
         setSelectedSport(null);
         setSelectedDate(null);
@@ -289,9 +322,7 @@ const Index = () => {
       setYear(y);
 
       if ((viewState.zoom ?? 0) > 3 && bounds) {
-        setViewState({
-          ...bounds,
-        });
+        setViewState({ ...bounds });
       }
 
       changeByItem(y, 'Year', filterYearRuns);
@@ -354,19 +385,14 @@ const Index = () => {
   const locateActivity = useCallback(
     (runIds: RunIds) => {
       const ids = new Set(runIds);
-
       const selectedRuns = !runIds.length
         ? runs
         : runs.filter((run: Activity) => ids.has(run.run_id));
 
-      if (!selectedRuns.length) {
-        return;
-      }
+      if (!selectedRuns.length) return;
 
       const lastRun = selectedRuns.slice().sort(sortDateFunc)[0];
-      if (!lastRun) {
-        return;
-      }
+      if (!lastRun) return;
 
       if (runIds.length === 1) {
         const runId = runIds[0];
@@ -391,9 +417,7 @@ const Index = () => {
         setAnimationTrigger((prev) => prev + 1);
       }
 
-      setViewState({
-        ...selectedBounds,
-      });
+      setViewState({ ...selectedBounds });
       setTitle(titleForShow(lastRun));
       if (lastRun.summary_polyline) {
         scrollToMap();
@@ -441,10 +465,7 @@ const Index = () => {
   useEffect(() => {
     if (singleRunId === null) {
       const frameId = requestAnimationFrame(() => {
-        setViewState((prev) => ({
-          ...prev,
-          ...bounds,
-        }));
+        setViewState((prev) => ({ ...prev, ...bounds }));
       });
       return () => cancelAnimationFrame(frameId);
     }
@@ -458,14 +479,10 @@ const Index = () => {
   }, [runs, startAnimation, singleRunId]);
 
   useEffect(() => {
-    if (year !== 'Total') {
-      return;
-    }
+    if (year !== 'Total') return;
 
     const svgStat = document.getElementById('svgStat');
-    if (!svgStat) {
-      return;
-    }
+    if (!svgStat) return;
 
     const handleClick = (e: Event) => {
       const target = e.target as HTMLElement;
@@ -532,13 +549,12 @@ const Index = () => {
       </Helmet>
 
       {/* Left Sidebar */}
-      <div
-        className={`relative w-full lg:shrink-0 ${desktopSidebarOpen ? 'lg:w-[310px] lg:pr-5 xl:w-[340px]' : 'lg:w-10'}`}
+      <aside
+        className={`relative w-full lg:shrink-0 ${desktopSidebarOpen ? 'lg:w-[290px] lg:pr-8 xl:w-[310px]' : 'lg:w-10'}`}
       >
         <button
           type="button"
-          className="absolute top-0 right-1 hidden h-8 w-8 items-center justify-center rounded-md border opacity-60 hover:opacity-100 lg:inline-flex"
-          style={{ borderColor: 'var(--color-border)' }}
+          className="absolute top-0 right-2 hidden h-7 w-7 items-center justify-center rounded-md opacity-60 hover:opacity-100 lg:inline-flex"
           aria-expanded={desktopSidebarOpen}
           aria-controls="sidebar-content"
           aria-label={
@@ -547,8 +563,8 @@ const Index = () => {
           onClick={() => setDesktopSidebarOpen((open) => !open)}
         >
           <svg
-            width="16"
-            height="16"
+            width="15"
+            height="15"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -561,13 +577,13 @@ const Index = () => {
 
         <div className="flex items-center justify-between gap-3 lg:block">
           <h1
-            className={`my-4 min-w-0 text-3xl font-extrabold tracking-tight break-words italic lg:my-2 lg:mb-3 lg:text-4xl ${desktopSidebarOpen ? '' : 'lg:hidden'}`}
+            className={`my-3 min-w-0 text-3xl font-bold tracking-tight break-words lg:my-1 lg:mb-2 ${desktopSidebarOpen ? '' : 'lg:hidden'}`}
           >
             <a href={siteUrl}>{siteTitle}</a>
           </h1>
           <button
             type="button"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border opacity-70 hover:opacity-100 lg:hidden"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border opacity-75 hover:opacity-100 lg:hidden"
             style={{ borderColor: 'var(--color-border)' }}
             aria-label={
               mobileSidebarOpen ? 'Collapse filters' : 'Expand filters'
@@ -590,7 +606,7 @@ const Index = () => {
           </button>
         </div>
 
-        <div className={desktopSidebarOpen ? 'mb-4' : 'lg:hidden'}>
+        <div className={desktopSidebarOpen ? 'mb-5' : 'lg:hidden'}>
           <p
             className="text-xs leading-relaxed"
             style={{ color: 'var(--color-text-muted)' }}
@@ -621,19 +637,17 @@ const Index = () => {
             />
           )}
         </div>
-      </div>
+      </aside>
 
       {/* Right Main Workspace */}
-      <div className="w-full min-w-0 space-y-4 lg:flex-1" id="map-container">
-        {/* Top View Switcher + Active Filter Chips */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="w-full min-w-0 space-y-6 lg:flex-1" id="map-container">
+        {/* Accessible Single-Row Underline Tabs + Inline Filter Readout */}
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div
-            className="inline-flex rounded-xl border p-1 text-xs font-medium"
-            style={{
-              backgroundColor: 'var(--color-surface)',
-              borderColor: 'var(--color-border)',
-            }}
             role="tablist"
+            aria-label="训练视图"
+            className="mwg-tablist"
+            onKeyDown={handleTabKeyDown}
           >
             {(
               [
@@ -644,85 +658,67 @@ const Index = () => {
             ).map(([tabKey, label]) => (
               <button
                 key={tabKey}
+                ref={(el) => {
+                  tabElementsRef.current[tabKey] = el;
+                }}
+                id={`tab-${tabKey}`}
                 type="button"
                 role="tab"
+                tabIndex={activeTab === tabKey ? 0 : -1}
                 aria-selected={activeTab === tabKey}
-                onClick={() => setActiveTab(tabKey)}
-                className="rounded-lg px-3 py-1.5 transition-colors"
-                style={
-                  activeTab === tabKey
-                    ? {
-                        backgroundColor: 'var(--color-brand)',
-                        color: '#ffffff',
-                      }
-                    : { color: 'var(--color-text-muted)' }
-                }
+                onClick={() => selectTab(tabKey)}
+                className="mwg-tab"
               >
                 {label}
               </button>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span
-              className="rounded-full border px-2.5 py-1 font-medium tabular-nums"
-              style={{
-                backgroundColor: 'var(--color-surface)',
-                borderColor: 'var(--color-border)',
-              }}
+          {(selectedSport || selectedDate) && (
+            <div
+              className="flex flex-wrap items-center gap-3 pb-1.5 text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
             >
-              {year === 'Total' ? 'All Time' : year}
-            </span>
-            {selectedSport && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  borderColor: 'var(--color-border)',
-                }}
-              >
+              {selectedSport && (
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full"
+                    style={{
+                      backgroundColor: getSportMeta(selectedSport).color,
+                    }}
+                  />
+                  <span style={{ color: 'var(--color-text)' }}>
+                    {getSportMeta(selectedSport).label}
+                  </span>
+                </span>
+              )}
+              {selectedDate && (
                 <span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    backgroundColor: getSportMeta(selectedSport).color,
-                  }}
-                />
-                {getSportMeta(selectedSport).label}
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="ml-1 opacity-60 hover:opacity-100"
-                  aria-label="Clear sport filter"
+                  className="font-mono-num"
+                  style={{ color: 'var(--color-text)' }}
                 >
-                  ✕
-                </button>
-              </span>
-            )}
-            {selectedDate && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium tabular-nums"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  borderColor: 'var(--color-brand)',
-                }}
+                  {selectedDate}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="underline underline-offset-4 hover:opacity-80"
               >
-                {selectedDate}
-                <button
-                  type="button"
-                  onClick={() => setSelectedDate(null)}
-                  className="ml-1 opacity-60 hover:opacity-100"
-                  aria-label="Clear date filter"
-                >
-                  ✕
-                </button>
-              </span>
-            )}
-          </div>
+                清除筛选
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Active Tab Content */}
+        {/* Active Tab Panels */}
         {activeTab === 'overview' && (
-          <div className="space-y-4">
+          <div
+            role="tabpanel"
+            aria-labelledby="tab-overview"
+            className="space-y-6"
+          >
             <ActivityHeatmap
               activities={runs}
               year={year}
@@ -735,16 +731,18 @@ const Index = () => {
         )}
 
         {activeTab === 'insights' && (
-          <TrainingInsights
-            allActivities={activities}
-            filteredActivities={runs}
-            taxonomyMode={taxonomyMode}
-            year={year}
-          />
+          <div role="tabpanel" aria-labelledby="tab-insights">
+            <TrainingInsights
+              allActivities={activities}
+              filteredActivities={runs}
+              taxonomyMode={taxonomyMode}
+              year={year}
+            />
+          </div>
         )}
 
         {activeTab === 'map' && (
-          <div className="space-y-4">
+          <div role="tabpanel" aria-labelledby="tab-map" className="space-y-6">
             <RunMap
               title={title}
               viewState={viewState}

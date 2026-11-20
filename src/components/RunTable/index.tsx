@@ -67,8 +67,7 @@ const RunTable = ({
     );
   }, [runs, search, taxonomyMode]);
 
-  // Adaptive columns: hide 0.00 km / Elev / Pace noise on pure indoor views
-  const { showDistanceCols, columns } = useMemo(() => {
+  const columns = useMemo(() => {
     const hasDistance = filteredRuns.some((r) => (r.distance || 0) > 0);
     const isPureIndoor =
       (selectedSport && getSportMeta(selectedSport).indoor) || !hasDistance;
@@ -107,7 +106,7 @@ const RunTable = ({
             { key: 'Date', label: '日期' },
           ];
 
-    return { showDistanceCols: !isPureIndoor, columns: cols };
+    return cols;
   }, [filteredRuns, selectedSport]);
 
   const displayedRuns = useMemo(() => {
@@ -182,55 +181,59 @@ const RunTable = ({
   const hasMore = visibleRows.length < displayedRuns.length;
 
   return (
-    <section
-      className="mt-4 rounded-xl border p-4"
-      style={{
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
-      }}
-    >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">训练明细</h3>
-          <span
-            className="rounded-full border px-2 py-0.5 text-xs tabular-nums"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface-subtle)',
-              color: 'var(--color-text-muted)',
-            }}
+    <section className="pt-2">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+        <div className="flex items-baseline gap-2.5">
+          <h2
+            id="activities-table-heading"
+            className="text-sm font-semibold tracking-tight"
           >
-            {displayedRuns.length} 条
+            训练记录
+          </h2>
+          <span
+            className="font-mono-num text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {displayedRuns.length}
           </span>
         </div>
         <input
-          type="text"
+          type="search"
+          aria-label="搜索训练记录"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setVisibleLimit(25);
           }}
-          placeholder="搜索名称 / 项目 / 城市（如 CrossFit、Hyrox、羽毛球）"
-          className="w-full rounded-lg border px-3 py-1.5 text-xs focus:outline-none sm:w-72"
+          placeholder="搜索名称、项目或城市"
+          className="w-full border-b bg-transparent py-1 text-xs focus:outline-none sm:w-56"
           style={{
             borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-surface-subtle)',
             color: 'var(--color-text)',
           }}
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left text-xs">
+      {/* Responsive accessible table container (modern-web-guidance: responsive-table) */}
+      <div
+        tabIndex={0}
+        role="region"
+        aria-labelledby="activities-table-heading"
+        className="mwg-table-wrapper"
+      >
+        <table className="mwg-table">
           <thead>
-            <tr
-              className="border-b"
-              style={{
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text-muted)',
-              }}
-            >
-              <th className="px-2.5 py-2 font-medium">名称</th>
+            <tr>
+              <th
+                scope="col"
+                className="border-b px-2 py-2 text-left text-xs font-medium"
+                style={{
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
+                名称
+              </th>
               {columns.map((col) => {
                 const arrow =
                   sortState?.key === col.key
@@ -241,18 +244,28 @@ const RunTable = ({
                 return (
                   <th
                     key={col.key}
+                    scope="col"
                     aria-sort={
                       sortState?.key === col.key
                         ? sortState.direction
                         : undefined
                     }
-                    className={`cursor-pointer px-2.5 py-2 font-medium whitespace-nowrap select-none ${
+                    className={`border-b px-2 py-2 text-xs font-medium whitespace-nowrap ${
                       col.key === 'Type' ? 'text-left' : 'text-right'
                     }`}
-                    onClick={() => handleSortClick(col.key)}
+                    style={{
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-muted)',
+                    }}
                   >
-                    {col.label}
-                    {arrow}
+                    <button
+                      type="button"
+                      onClick={() => handleSortClick(col.key)}
+                      className="inline-flex items-center gap-0.5 hover:opacity-100"
+                    >
+                      {col.label}
+                      {arrow}
+                    </button>
                   </th>
                 );
               })}
@@ -272,7 +285,6 @@ const RunTable = ({
                     setRunIndex={setRunIndex}
                     columns={columns}
                     taxonomyMode={taxonomyMode}
-                    showDistanceCols={showDistanceCols}
                   />
                 );
               })
@@ -280,10 +292,10 @@ const RunTable = ({
               <tr>
                 <td
                   colSpan={columns.length + 1}
-                  className="py-8 text-center"
+                  className="py-8 text-center text-xs"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
-                  没有匹配的训练记录
+                  无匹配记录
                 </td>
               </tr>
             )}
@@ -293,38 +305,26 @@ const RunTable = ({
 
       {displayedRuns.length > 0 && (
         <div
-          className="mt-3 flex items-center justify-between border-t pt-2.5 text-xs"
-          style={{
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text-muted)',
-          }}
+          className="mt-3 flex items-center justify-between text-xs"
+          style={{ color: 'var(--color-text-muted)' }}
         >
-          <span className="tabular-nums">
-            显示 {visibleRows.length} / {displayedRuns.length} 条
+          <span className="font-mono-num">
+            {visibleRows.length} / {displayedRuns.length}
           </span>
           {hasMore && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => setVisibleLimit((n) => n + 30)}
-                className="rounded-lg border px-3 py-1 font-medium transition-opacity hover:opacity-80"
-                style={{
-                  borderColor: 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface-subtle)',
-                  color: 'var(--color-text)',
-                }}
+                className="underline underline-offset-4 hover:opacity-80"
+                style={{ color: 'var(--color-text)' }}
               >
                 加载更多
               </button>
               <button
                 type="button"
                 onClick={() => setVisibleLimit(displayedRuns.length)}
-                className="rounded-lg border px-3 py-1 font-medium transition-opacity hover:opacity-80"
-                style={{
-                  borderColor: 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface-subtle)',
-                  color: 'var(--color-text)',
-                }}
+                className="hover:opacity-80"
               >
                 显示全部
               </button>

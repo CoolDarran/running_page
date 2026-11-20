@@ -32,7 +32,7 @@ interface TrainingInsightsProps {
   year: string;
 }
 
-const YEAR_LINE_COLORS = ['#10b981', '#38bdf8', '#a855f7', '#94a3b8'];
+const YEAR_LINE_COLORS = ['#15803d', '#0284c7', '#9333ea', '#71717a'];
 const HR_ZONE_COLORS = ['#94a3b8', '#38bdf8', '#10b981', '#f59e0b', '#ef4444'];
 const HR_ZONE_LABELS = ['Z1 恢复', 'Z2 有氧', 'Z3 节奏', 'Z4 阈值', 'Z5 极限'];
 
@@ -75,7 +75,6 @@ const TrainingInsights = ({
     [filteredActivities, taxonomyMode]
   );
 
-  // Aggregate real Strava Z1-Z5 HR zones if present on activities
   const hrZoneTotals = useMemo(() => {
     const totals = [0, 0, 0, 0, 0];
     let syncedCount = 0;
@@ -89,28 +88,12 @@ const TrainingInsights = ({
     return { totals, syncedCount };
   }, [filteredActivities]);
 
-  const acwrStatus = useMemo(() => {
+  const acwrNote = useMemo(() => {
     if (!fitness.latest) return null;
     const { acwr } = fitness.latest;
-    if (acwr > 1.35) {
-      return {
-        label: '负荷偏高 · 注意恢复',
-        color: '#f97316',
-        bg: 'rgba(249,115,22,0.14)',
-      };
-    }
-    if (acwr >= 0.8) {
-      return {
-        label: '理想进阶区',
-        color: '#10b981',
-        bg: 'rgba(16,185,129,0.14)',
-      };
-    }
-    return {
-      label: '减量 / 恢复期',
-      color: '#38bdf8',
-      bg: 'rgba(56,189,248,0.14)',
-    };
+    if (acwr > 1.35) return { text: '负荷偏高', color: '#ea580c' };
+    if (acwr >= 0.8) return { text: '进阶区', color: 'var(--color-brand)' };
+    return { text: '恢复期', color: 'var(--color-text-muted)' };
   }, [fitness.latest]);
 
   const consistencyPct = consistency.totalWeeks
@@ -118,161 +101,81 @@ const TrainingInsights = ({
     : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {/* 1. Fitness & Fatigue (TRIMP -> CTL / ATL / TSB) */}
       <section
-        className="rounded-xl border p-4"
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          borderColor: 'var(--color-border)',
-        }}
+        className="border-b pb-7"
+        style={{ borderColor: 'var(--color-border)' }}
       >
-        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold">
-                体能与疲劳曲线（TRIMP · 近 180 天）
-              </h3>
-              {acwrStatus && (
-                <span
-                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{
-                    backgroundColor: acwrStatus.bg,
-                    color: acwrStatus.color,
-                  }}
-                >
-                  {acwrStatus.label} · ACWR {fitness.latest?.acwr}
+        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex flex-wrap items-baseline gap-3">
+            <h2 className="text-sm font-semibold tracking-tight">
+              体能与疲劳（近 180 天）
+            </h2>
+            {fitness.latest && (
+              <div className="font-mono-num flex flex-wrap items-baseline gap-4 text-xs">
+                <span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>CTL </span>
+                  <strong style={{ color: 'var(--color-brand)' }}>
+                    {fitness.latest.ctl}
+                  </strong>
                 </span>
-              )}
-            </div>
-            <p
-              className="mt-0.5 text-xs"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              基于时长与心率储备估算训练冲量（HRmax≈{fitness.hrMaxEstimate}{' '}
-              bpm），不依赖 GPS 距离即可追踪 CrossFit / Hyrox 体能积累
-            </p>
+                <span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>ATL </span>
+                  <strong style={{ color: '#ea580c' }}>
+                    {fitness.latest.atl}
+                  </strong>
+                </span>
+                <span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>TSB </span>
+                  <strong>
+                    {fitness.latest.tsb > 0
+                      ? `+${fitness.latest.tsb}`
+                      : fitness.latest.tsb}
+                  </strong>
+                </span>
+                {acwrNote && (
+                  <span style={{ color: acwrNote.color }}>
+                    ACWR {fitness.latest.acwr} · {acwrNote.text}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <MetricExplainer
-            title="训练负荷模型说明"
+            title="TRIMP 负荷模型"
             items={[
               {
-                term: 'CTL 长期体能',
-                desc: '42 天指数平均负荷，反映有氧与综合体能底子。',
+                term: 'CTL 体能',
+                desc: '42 天指数平均负荷，衡量长期有氧与体能底子。',
                 color: '#10b981',
               },
               {
-                term: 'ATL 短期疲劳',
-                desc: '7 天指数平均负荷，反映最近一周的急性训练压力。',
-                color: '#f97316',
+                term: 'ATL 疲劳',
+                desc: '7 天指数平均负荷，反映近期急性训练压力。',
+                color: '#ea580c',
               },
               {
-                term: 'TSB 状态值',
-                desc: 'CTL − ATL。正值代表恢复充分、状态佳；持续低于 −20 需防过度训练。',
-                color: '#38bdf8',
+                term: 'TSB 状态',
+                desc: 'CTL − ATL。正值为恢复良好，持续低于 −20 需注意休整。',
+                color: '#0284c7',
               },
               {
                 term: 'ACWR 负荷比',
-                desc: 'ATL / CTL。0.8–1.3 为安全进阶区间，超过 1.35 建议安排恢复日。',
+                desc: 'ATL / CTL，0.8–1.3 为理想进阶区间。',
               },
             ]}
           />
         </div>
 
-        {fitness.latest && (
-          <div className="mb-3 grid grid-cols-3 gap-2.5 sm:grid-cols-4">
-            <div
-              className="rounded-lg border px-3 py-2"
-              style={{
-                backgroundColor: 'var(--color-surface-subtle)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <div
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                CTL 体能
-              </div>
-              <div
-                className="mt-0.5 text-lg font-bold tabular-nums"
-                style={{ color: '#10b981' }}
-              >
-                {fitness.latest.ctl}
-              </div>
-            </div>
-            <div
-              className="rounded-lg border px-3 py-2"
-              style={{
-                backgroundColor: 'var(--color-surface-subtle)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <div
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                ATL 疲劳
-              </div>
-              <div
-                className="mt-0.5 text-lg font-bold tabular-nums"
-                style={{ color: '#f97316' }}
-              >
-                {fitness.latest.atl}
-              </div>
-            </div>
-            <div
-              className="rounded-lg border px-3 py-2"
-              style={{
-                backgroundColor: 'var(--color-surface-subtle)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <div
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                TSB 状态
-              </div>
-              <div
-                className="mt-0.5 text-lg font-bold tabular-nums"
-                style={{
-                  color: fitness.latest.tsb >= 0 ? '#38bdf8' : '#f43f5e',
-                }}
-              >
-                {fitness.latest.tsb > 0
-                  ? `+${fitness.latest.tsb}`
-                  : fitness.latest.tsb}
-              </div>
-            </div>
-            <div
-              className="hidden rounded-lg border px-3 py-2 sm:block"
-              style={{
-                backgroundColor: 'var(--color-surface-subtle)',
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <div
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                ACWR 负荷比
-              </div>
-              <div className="mt-0.5 text-lg font-bold tabular-nums">
-                {fitness.latest.acwr}
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={fitness.series}
-              margin={{ top: 8, right: 12, bottom: 0, left: -12 }}
+              margin={{ top: 6, right: 8, bottom: 0, left: -14 }}
             >
               <CartesianGrid
-                strokeDasharray="3 3"
+                strokeDasharray="2 4"
                 stroke="var(--color-border)"
                 vertical={false}
               />
@@ -297,7 +200,7 @@ const TrainingInsights = ({
                 contentStyle={{
                   backgroundColor: 'var(--color-surface)',
                   borderColor: 'var(--color-border)',
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.5rem',
                   fontSize: '12px',
                   color: 'var(--color-text)',
                 }}
@@ -306,9 +209,9 @@ const TrainingInsights = ({
                 type="monotone"
                 dataKey="tsb"
                 name="TSB 状态"
-                stroke="#38bdf8"
-                fill="#38bdf8"
-                fillOpacity={0.12}
+                stroke="#0284c7"
+                fill="#0284c7"
+                fillOpacity={0.1}
                 strokeWidth={1.5}
               />
               <Line
@@ -316,15 +219,15 @@ const TrainingInsights = ({
                 dataKey="ctl"
                 name="CTL 体能"
                 stroke="#10b981"
-                strokeWidth={2.2}
+                strokeWidth={2}
                 dot={false}
               />
               <Line
                 type="monotone"
                 dataKey="atl"
                 name="ATL 疲劳"
-                stroke="#f97316"
-                strokeWidth={1.8}
+                stroke="#ea580c"
+                strokeWidth={1.6}
                 dot={false}
               />
             </ComposedChart>
@@ -332,37 +235,21 @@ const TrainingInsights = ({
         </div>
       </section>
 
-      {/* 2. YTD Cumulative Comparison + Weekly Consistency Tracker */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-        {/* YTD Comparison (7 cols) */}
-        <section
-          className="rounded-xl border p-4 xl:col-span-7"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 className="text-sm font-semibold">跨年累计进度对比（YTD）</h3>
-              <p
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                同日历进度下，对比近 {ytd.years.length} 年的累计训练投入
-              </p>
-            </div>
-            <div
-              className="inline-flex rounded-lg border p-0.5 text-xs"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-surface-subtle)',
-              }}
-            >
+      {/* 2. YTD Cumulative Comparison + Weekly Consistency */}
+      <div
+        className="grid grid-cols-1 gap-8 border-b pb-7 xl:grid-cols-12"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <section className="xl:col-span-7">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold tracking-tight">
+              跨年累计对比（YTD）
+            </h2>
+            <div className="flex items-center gap-3 text-xs">
               {(
                 [
-                  ['hours', '时长 h'],
-                  ['kcal', '消耗 kcal'],
+                  ['hours', '时长'],
+                  ['kcal', '消耗'],
                   ['count', '次数'],
                 ] as const
               ).map(([key, label]) => (
@@ -370,15 +257,17 @@ const TrainingInsights = ({
                   key={key}
                   type="button"
                   onClick={() => setYtdMetric(key)}
-                  className="rounded-md px-2 py-1 font-medium transition-colors"
-                  style={
-                    ytdMetric === key
-                      ? {
-                          backgroundColor: 'var(--color-brand)',
-                          color: '#ffffff',
-                        }
-                      : { color: 'var(--color-text-muted)' }
-                  }
+                  className="pb-0.5 transition-colors"
+                  style={{
+                    color:
+                      ytdMetric === key
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-muted)',
+                    borderBottom:
+                      ytdMetric === key
+                        ? '1.5px solid var(--color-brand)'
+                        : '1.5px solid transparent',
+                  }}
                 >
                   {label}
                 </button>
@@ -390,10 +279,10 @@ const TrainingInsights = ({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={ytd.points}
-                margin={{ top: 8, right: 12, bottom: 0, left: -8 }}
+                margin={{ top: 6, right: 8, bottom: 0, left: -12 }}
               >
                 <CartesianGrid
-                  strokeDasharray="3 3"
+                  strokeDasharray="2 4"
                   stroke="var(--color-border)"
                   vertical={false}
                 />
@@ -418,7 +307,7 @@ const TrainingInsights = ({
                   contentStyle={{
                     backgroundColor: 'var(--color-surface)',
                     borderColor: 'var(--color-border)',
-                    borderRadius: '0.75rem',
+                    borderRadius: '0.5rem',
                     fontSize: '12px',
                     color: 'var(--color-text)',
                   }}
@@ -430,7 +319,7 @@ const TrainingInsights = ({
                     dataKey={yr}
                     name={yr}
                     stroke={YEAR_LINE_COLORS[idx % YEAR_LINE_COLORS.length]}
-                    strokeWidth={idx === 0 ? 2.6 : 1.6}
+                    strokeWidth={idx === 0 ? 2.4 : 1.5}
                     strokeDasharray={idx >= 2 ? '4 3' : undefined}
                     dot={false}
                     connectNulls={false}
@@ -441,15 +330,13 @@ const TrainingInsights = ({
           </div>
 
           <div
-            className="mt-2 flex flex-wrap gap-3 border-t pt-2 text-xs tabular-nums"
-            style={{
-              borderColor: 'var(--color-border)',
-              color: 'var(--color-text-muted)',
-            }}
+            className="font-mono-num mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
           >
             {ytd.years.map((yr, idx) => (
               <span key={yr} className="inline-flex items-center gap-1.5">
                 <span
+                  aria-hidden="true"
                   className="h-2 w-2 rounded-full"
                   style={{
                     backgroundColor:
@@ -462,108 +349,83 @@ const TrainingInsights = ({
                     ? `${ytd.yearTotals[yr]}h`
                     : ytdMetric === 'kcal'
                       ? `${ytd.yearTotals[yr].toLocaleString()} kcal`
-                      : `${ytd.yearTotals[yr]} 次`}
+                      : `${ytd.yearTotals[yr]}次`}
                 </span>
               </span>
             ))}
           </div>
         </section>
 
-        {/* Weekly Consistency Tracker (5 cols, Tremor + Bencho style) */}
-        <section
-          className="flex flex-col justify-between rounded-xl border p-4 xl:col-span-5"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="text-sm font-semibold">周目标一致性 Tracker</h3>
-                <p
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  {year === 'Total' ? '近 52 周' : `${year} 年`} · 每周目标 ≥{' '}
-                  {weeklyTarget} 练
-                </p>
-              </div>
-              <div
-                className="inline-flex rounded-lg border p-0.5 text-xs"
-                style={{
-                  borderColor: 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface-subtle)',
-                }}
-              >
+        <section className="flex flex-col justify-between xl:col-span-5">
+          <div>
+            <div className="mb-3 flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-semibold tracking-tight">
+                周达标追踪 · {year === 'Total' ? '近52周' : year}
+              </h2>
+              <div className="flex items-center gap-2.5 text-xs">
                 {[2, 3, 4].map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setWeeklyTarget(t)}
-                    className="rounded-md px-2 py-0.5 font-medium tabular-nums"
-                    style={
-                      weeklyTarget === t
-                        ? {
-                            backgroundColor: 'var(--color-brand)',
-                            color: '#ffffff',
-                          }
-                        : { color: 'var(--color-text-muted)' }
-                    }
+                    className="font-mono-num pb-0.5"
+                    style={{
+                      color:
+                        weeklyTarget === t
+                          ? 'var(--color-text)'
+                          : 'var(--color-text-muted)',
+                      borderBottom:
+                        weeklyTarget === t
+                          ? '1.5px solid var(--color-brand)'
+                          : '1.5px solid transparent',
+                    }}
                   >
-                    {t}次
+                    ≥{t}练
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center gap-4 py-1">
-              <ArcRing percent={consistencyPct} size={68} strokeWidth={6} />
-              <div className="grid flex-1 grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-5 py-2">
+              <ArcRing percent={consistencyPct} size={62} strokeWidth={5} />
+              <dl className="grid flex-1 grid-cols-3 gap-2 text-xs">
                 <div>
-                  <div style={{ color: 'var(--color-text-muted)' }}>
-                    达标周数
-                  </div>
-                  <div className="text-base font-bold tabular-nums">
-                    {consistency.hitWeeks} / {consistency.totalWeeks}
-                  </div>
+                  <dt style={{ color: 'var(--color-text-muted)' }}>达标</dt>
+                  <dd className="font-mono-num mt-0.5 text-sm font-semibold">
+                    {consistency.hitWeeks}/{consistency.totalWeeks}
+                  </dd>
                 </div>
                 <div>
-                  <div style={{ color: 'var(--color-text-muted)' }}>
-                    最长连达
-                  </div>
-                  <div className="text-base font-bold tabular-nums">
-                    {consistency.bestStreak} 周
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <span style={{ color: 'var(--color-text-muted)' }}>
-                    当前连续达标：
-                  </span>
-                  <strong
-                    className="tabular-nums"
+                  <dt style={{ color: 'var(--color-text-muted)' }}>当前连达</dt>
+                  <dd
+                    className="font-mono-num mt-0.5 text-sm font-semibold"
                     style={{ color: 'var(--color-brand)' }}
                   >
-                    {consistency.currentStreak} 周
-                  </strong>
+                    {consistency.currentStreak}周
+                  </dd>
                 </div>
-              </div>
+                <div>
+                  <dt style={{ color: 'var(--color-text-muted)' }}>最长连达</dt>
+                  <dd className="font-mono-num mt-0.5 text-sm font-semibold">
+                    {consistency.bestStreak}周
+                  </dd>
+                </div>
+              </dl>
             </div>
 
-            {/* Tremor-style Tracker Strip */}
-            <div className="flex h-8 w-full items-stretch gap-0.5 pt-1">
+            <div className="mt-3 flex h-7 w-full items-stretch gap-0.5">
               {consistency.weeks.map((w) => {
                 const bg =
                   w.status === 'hit'
-                    ? '#10b981'
+                    ? 'var(--color-brand)'
                     : w.status === 'near'
-                      ? '#f59e0b'
+                      ? '#d97706'
                       : 'var(--color-border)';
                 return (
                   <div
                     key={w.weekStart}
                     title={`${w.weekStart} 周：${w.count} 次 · ${w.hours}h · ${w.kcal} kcal`}
-                    className="flex-1 rounded-sm transition-opacity hover:opacity-75"
+                    className="flex-1 rounded-xs transition-opacity hover:opacity-75"
                     style={{ backgroundColor: bg }}
                   />
                 );
@@ -572,48 +434,46 @@ const TrainingInsights = ({
           </div>
 
           <div
-            className="mt-3 flex items-center justify-between border-t pt-2 text-xs"
-            style={{
-              borderColor: 'var(--color-border)',
-              color: 'var(--color-text-muted)',
-            }}
+            className="mt-3 flex items-center gap-4 text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
           >
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-sm bg-emerald-500" />
-                达标
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-sm bg-amber-500" />差 1 次
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="h-2 w-2 rounded-sm"
-                  style={{ backgroundColor: 'var(--color-border)' }}
-                />
-                休整
-              </span>
-            </div>
-            <span>悬停查看每周明细</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-xs"
+                style={{ backgroundColor: 'var(--color-brand)' }}
+              />
+              达标
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-xs"
+                style={{ backgroundColor: '#d97706' }}
+              />
+              差 1 次
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-xs"
+                style={{ backgroundColor: 'var(--color-border)' }}
+              />
+              休整
+            </span>
           </div>
         </section>
       </div>
 
-      {/* 3. HR Load by Sport + Rhythm Heatmap */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <section
-          className="rounded-xl border p-4"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="mb-3">
-            <h3 className="text-sm font-semibold">各项目心率负荷对比</h3>
-            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              平均心率 → 平均峰值心率区间（括号内为历史最高极值）
-            </p>
-          </div>
+      {/* 3. HR Load by Sport + Day-of-Week Rhythm */}
+      <div
+        className="grid grid-cols-1 gap-8 border-b pb-7 xl:grid-cols-2"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <section>
+          <h2 className="mb-3 text-sm font-semibold tracking-tight">
+            心率负荷区间（均 → 峰 bpm）
+          </h2>
 
           {hrBySport.length ? (
             <div className="space-y-3">
@@ -627,6 +487,7 @@ const TrainingInsights = ({
                     <div className="flex items-center justify-between text-xs">
                       <span className="inline-flex items-center gap-1.5 font-medium">
                         <span
+                          aria-hidden="true"
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: r.color }}
                         />
@@ -636,53 +497,38 @@ const TrainingInsights = ({
                         </span>
                       </span>
                       <span
-                        className="tabular-nums"
+                        className="font-mono-num"
                         style={{ color: 'var(--color-text-muted)' }}
                       >
-                        均{' '}
                         <strong style={{ color: 'var(--color-text)' }}>
                           {r.avgHr}
-                        </strong>{' '}
-                        → 峰{' '}
+                        </strong>
+                        {' → '}
                         <strong
                           style={{
                             color:
                               r.avgMaxHr >= 170
-                                ? '#f97316'
+                                ? '#ea580c'
                                 : 'var(--color-text)',
                           }}
                         >
                           {r.avgMaxHr}
-                        </strong>{' '}
-                        bpm{' '}
-                        <span className="opacity-70">(极值 {r.peakHr})</span>
+                        </strong>
+                        <span className="ml-1.5 opacity-75">
+                          max {r.peakHr}
+                        </span>
                       </span>
                     </div>
                     <div
-                      className="relative h-2.5 w-full rounded-full border"
-                      style={{
-                        backgroundColor: 'var(--color-surface-subtle)',
-                        borderColor: 'var(--color-border)',
-                      }}
+                      className="relative h-2 w-full rounded-full"
+                      style={{ backgroundColor: 'var(--color-surface-subtle)' }}
                     >
                       <div
-                        className="absolute top-0 bottom-0 rounded-full opacity-75"
+                        className="absolute top-0 bottom-0 rounded-full opacity-80"
                         style={{
                           left: `${left}%`,
                           width: `${Math.max(2, right - left)}%`,
                           backgroundColor: r.color,
-                        }}
-                      />
-                      <span
-                        className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                        style={{ left: `${left}%`, backgroundColor: r.color }}
-                      />
-                      <span
-                        className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
-                        style={{
-                          left: `${right}%`,
-                          backgroundColor: r.color,
-                          borderColor: 'var(--color-surface)',
                         }}
                       />
                     </div>
@@ -696,11 +542,12 @@ const TrainingInsights = ({
                   style={{ borderColor: 'var(--color-border)' }}
                 >
                   <div className="mb-2 flex items-center justify-between text-xs">
-                    <span className="font-semibold">
-                      Strava 心率区间分布（Z1–Z5）
-                    </span>
-                    <span style={{ color: 'var(--color-text-muted)' }}>
-                      来自 {hrZoneTotals.syncedCount} 条已同步区间数据
+                    <span className="font-medium">心率区间（Z1–Z5）</span>
+                    <span
+                      className="font-mono-num"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      {hrZoneTotals.syncedCount} 条区间记录
                     </span>
                   </div>
                   <CategoryBar
@@ -715,39 +562,20 @@ const TrainingInsights = ({
               )}
             </div>
           ) : (
-            <div
-              className="py-8 text-center text-xs"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              当前筛选下无心率数据
-            </div>
+            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              暂无心率数据
+            </p>
           )}
         </section>
 
-        {/* Rhythm Matrix */}
-        <section
-          className="rounded-xl border p-4"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="mb-3 flex items-start justify-between gap-2">
-            <div>
-              <h3 className="text-sm font-semibold">训练节律（星期 × 时段）</h3>
-              <p
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                按开始时间统计最常训练的窗口
-              </p>
-            </div>
+        <section>
+          <div className="mb-3 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold tracking-tight">
+              训练时段分布
+            </h2>
             <span
-              className="rounded-full border px-2.5 py-0.5 text-xs font-medium tabular-nums"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-surface-subtle)',
-              }}
+              className="font-mono-num text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
             >
               早 9 点前 {rhythm.morningPct}%
             </span>
@@ -761,7 +589,7 @@ const TrainingInsights = ({
                   {rhythm.days.map((d) => (
                     <th
                       key={d}
-                      className="pb-1 text-center font-medium"
+                      className="pb-1 text-center font-normal"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
                       周{d}
@@ -772,28 +600,30 @@ const TrainingInsights = ({
               <tbody>
                 {rhythm.buckets.map((bucket, bi) => (
                   <tr key={bucket}>
-                    <td
-                      className="pr-2 text-right whitespace-nowrap"
+                    <th
+                      scope="row"
+                      className="pr-2 text-right font-normal whitespace-nowrap"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
                       {bucket}
-                    </td>
+                    </th>
                     {rhythm.days.map((d, di) => {
                       const val = rhythm.cells[bi][di];
-                      const op =
-                        val === 0 ? 0 : 0.18 + 0.82 * (val / rhythm.maxCount);
+                      const mixPct =
+                        val === 0
+                          ? 0
+                          : Math.round(18 + 82 * (val / rhythm.maxCount));
                       return (
                         <td
                           key={d}
-                          className="h-8 rounded-md border text-center font-semibold tabular-nums"
+                          className="font-mono-num h-7 rounded-sm text-center font-medium"
                           style={{
-                            borderColor: 'var(--color-border)',
                             backgroundColor: val
-                              ? `rgba(16, 185, 129, ${op.toFixed(2)})`
+                              ? `color-mix(in oklab, var(--color-brand) ${mixPct}%, var(--color-surface-subtle))`
                               : 'var(--color-surface-subtle)',
                             color:
-                              val && op > 0.55
-                                ? '#ffffff'
+                              val && mixPct >= 62
+                                ? 'var(--color-brand-ink)'
                                 : 'var(--color-text)',
                           }}
                         >
@@ -809,58 +639,37 @@ const TrainingInsights = ({
         </section>
       </div>
 
-      {/* 4. Personal Records (PR) Wall */}
+      {/* 4. Personal Records — Flat Editorial Grid (No nested cards!) */}
       {records.length > 0 && (
-        <section
-          className="rounded-xl border p-4"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold">个人纪录墙 & 里程碑</h3>
-              <p
-                className="text-xs"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                面向室内体能与多运动场景的专属高光纪录
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section>
+          <h2 className="mb-3 text-sm font-semibold tracking-tight">
+            个人纪录
+          </h2>
+          <dl
+            className="grid grid-cols-2 gap-x-6 gap-y-5 border-t pt-4 sm:grid-cols-3"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
             {records.map((rec) => (
-              <div
-                key={rec.id}
-                className="rounded-lg border p-3"
-                style={{
-                  backgroundColor: 'var(--color-surface-subtle)',
-                  borderColor: 'var(--color-border)',
-                }}
-              >
-                <div
+              <div key={rec.id} className="min-w-0">
+                <dt
                   className="text-xs"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
                   {rec.label}
-                </div>
-                <div
-                  className="mt-1 text-xl font-extrabold tabular-nums"
-                  style={{ color: rec.accent ?? 'var(--color-text)' }}
-                >
+                </dt>
+                <dd className="font-mono-num mt-1 text-xl font-semibold tracking-tight">
                   {rec.value}
-                </div>
-                <div
-                  className="mt-1 truncate text-xs"
+                </dd>
+                <dd
+                  className="mt-0.5 truncate text-xs"
                   style={{ color: 'var(--color-text-muted)' }}
                   title={rec.detail}
                 >
                   {rec.detail}
-                </div>
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
         </section>
       )}
     </div>

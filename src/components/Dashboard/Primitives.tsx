@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 /**
- * Bencho-inspired smooth ease-out counter for KPI numbers.
+ * Smooth ease-out counter for KPI numbers. Respects prefers-reduced-motion.
  */
 export function RollingNumber({
   value,
@@ -21,17 +21,22 @@ export function RollingNumber({
     const start = prevRef.current;
     const end = value;
     prevRef.current = value;
-    if (start === end) {
-      return;
+    if (start === end) return;
+
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      const id = requestAnimationFrame(() => setDisplay(end));
+      return () => cancelAnimationFrame(id);
     }
 
-    const duration = 420;
+    const duration = 360;
     const startTime = performance.now();
     let frameId = 0;
 
     const tick = (now: number) => {
       const progress = Math.min(1, (now - startTime) / duration);
-      // Cubic ease-out
       const eased = 1 - Math.pow(1 - progress, 3);
       setDisplay(start + (end - start) * eased);
       if (progress < 1) {
@@ -49,16 +54,16 @@ export function RollingNumber({
       ? display.toFixed(decimals)
       : Math.round(display).toLocaleString();
 
-  return <span className={`tabular-nums ${className}`}>{text}</span>;
+  return <span className={`font-mono-num ${className}`}>{text}</span>;
 }
 
 /**
- * Bencho-inspired compact SVG progress ring for weekly consistency / goal attainment.
+ * Compact SVG progress ring for weekly consistency target.
  */
 export function ArcRing({
   percent,
-  size = 64,
-  strokeWidth = 6,
+  size = 56,
+  strokeWidth = 5,
   color = 'var(--color-brand)',
   label,
 }: {
@@ -75,10 +80,10 @@ export function ArcRing({
 
   return (
     <div
-      className="relative inline-flex items-center justify-center"
+      className="relative inline-flex shrink-0 items-center justify-center"
       style={{ width: size, height: size }}
     >
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -97,10 +102,10 @@ export function ArcRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+          style={{ transition: 'stroke-dashoffset 0.45s ease' }}
         />
       </svg>
-      <span className="absolute text-xs font-bold tabular-nums">
+      <span className="font-mono-num absolute text-xs font-semibold">
         {label ?? `${Math.round(clamped)}%`}
       </span>
     </div>
@@ -108,7 +113,9 @@ export function ArcRing({
 }
 
 /**
- * Detent-inspired clean interactive metric explainer popover.
+ * On-demand metric disclosure backed by native HTML Popover API (top-layer,
+ * light-dismiss on Esc/outside click) with JS coordinate fallback when CSS
+ * anchor positioning (`position-area`) is unavailable.
  */
 export function MetricExplainer({
   title,
@@ -117,71 +124,99 @@ export function MetricExplainer({
   title: string;
   items: Array<{ term: string; desc: string; color?: string }>;
 }) {
-  const [open, setOpen] = useState(false);
+  const popoverId = useId();
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const pop = popoverRef.current;
+    const trigger = triggerRef.current;
+    if (!pop || !trigger) return;
+
+    const supportsAnchor =
+      typeof CSS !== 'undefined' && CSS.supports('position-area: bottom');
+    if (supportsAnchor) return;
+
+    const onBeforeToggle = (event: Event) => {
+      const toggleEvent = event as ToggleEvent;
+      if (toggleEvent.newState !== 'open') return;
+      const rect = trigger.getBoundingClientRect();
+      const width = Math.min(320, window.innerWidth - 32);
+      const left = Math.max(
+        16,
+        Math.min(rect.right - width, window.innerWidth - width - 16)
+      );
+      pop.style.position = 'fixed';
+      pop.style.top = `${rect.bottom + 6}px`;
+      pop.style.left = `${left}px`;
+      pop.style.right = 'auto';
+    };
+
+    pop.addEventListener('beforetoggle', onBeforeToggle);
+    return () => pop.removeEventListener('beforetoggle', onBeforeToggle);
+  }, []);
 
   return (
-    <div className="relative inline-block">
+    <>
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs transition-opacity hover:opacity-100"
-        style={{
-          borderColor: 'var(--color-border)',
-          color: 'var(--color-text-muted)',
-          backgroundColor: 'var(--color-surface-subtle)',
-        }}
-        aria-expanded={open}
+        {...({ popovertarget: popoverId } as Record<string, string>)}
+        className="inline-flex items-center gap-1 text-xs underline decoration-dotted underline-offset-4 transition-opacity hover:opacity-100"
+        style={{ color: 'var(--color-text-muted)' }}
       >
-        <span className="font-mono font-bold">?</span>
         <span>指标说明</span>
       </button>
 
-      {open && (
-        <div
-          className="absolute right-0 z-30 mt-2 w-80 rounded-xl border p-3.5 text-xs shadow-xl"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-semibold">{title}</span>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="opacity-60 hover:opacity-100"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="space-y-2 leading-relaxed">
-            {items.map((item) => (
-              <div key={item.term} className="flex items-start gap-2">
-                {item.color && (
-                  <span
-                    className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                )}
-                <div>
-                  <span className="font-semibold">{item.term}：</span>
-                  <span style={{ color: 'var(--color-text-muted)' }}>
-                    {item.desc}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div
+        ref={popoverRef}
+        id={popoverId}
+        {...({ popover: 'auto' } as Record<string, string>)}
+        className="mwg-popover text-xs"
+      >
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="font-semibold">{title}</span>
+          <button
+            type="button"
+            {...({
+              popovertarget: popoverId,
+              popovertargetaction: 'hide',
+            } as Record<string, string>)}
+            className="opacity-60 hover:opacity-100"
+            aria-label="关闭说明"
+          >
+            ✕
+          </button>
         </div>
-      )}
-    </div>
+        <dl className="space-y-2 leading-relaxed">
+          {items.map((item) => (
+            <div key={item.term} className="flex items-start gap-2">
+              {item.color && (
+                <span
+                  aria-hidden="true"
+                  className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+              )}
+              <div>
+                <dt className="inline font-semibold">{item.term}：</dt>
+                <dd
+                  className="inline"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  {item.desc}
+                </dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </>
   );
 }
 
 /**
- * Tremor-inspired multi-segment horizontal CategoryBar (sport mix or HR zones).
+ * Multi-segment horizontal proportion bar (HR zones or sport mix).
  */
 export function CategoryBar({
   segments,
@@ -194,7 +229,7 @@ export function CategoryBar({
   return (
     <div className="space-y-2">
       <div
-        className="flex h-2.5 w-full overflow-hidden rounded-full"
+        className="flex h-2 w-full overflow-hidden rounded-full"
         style={{ backgroundColor: 'var(--color-border)' }}
       >
         {segments
@@ -225,11 +260,12 @@ export function CategoryBar({
             return (
               <span key={s.key} className="inline-flex items-center gap-1.5">
                 <span
+                  aria-hidden="true"
                   className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: s.color }}
                 />
                 <span>{s.label}</span>
-                <span className="font-medium tabular-nums">{pct}%</span>
+                <span className="font-mono-num font-medium">{pct}%</span>
               </span>
             );
           })}

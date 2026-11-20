@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { ReactElement } from 'react';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 import { useTheme, Theme } from '@/hooks/useTheme';
@@ -9,12 +9,13 @@ import { ReactComponent as WatchSvg } from '@assets/watch.svg';
 const Header = () => {
   const { logo, navLinks } = getSiteMetadata();
   const { theme, setTheme } = useTheme();
+  const { pathname } = useLocation();
 
   const icons: Record<Theme, ReactElement> = {
     dark: (
       <svg
-        width="22"
-        height="23"
+        width="20"
+        height="20"
         viewBox="0 0 22 23"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -30,8 +31,8 @@ const Header = () => {
     ),
     light: (
       <svg
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -53,68 +54,98 @@ const Header = () => {
     setTheme(nextTheme);
   };
 
+  const isHome = pathname === '/' || pathname === '';
+
   return (
-    <>
-      <nav className="mx-auto mt-8 flex w-full items-center justify-between gap-3 px-4 lg:mt-10 lg:px-16">
-        <div className="shrink-0">
-          <Link to="/" aria-label="Home">
-            <picture>
-              <img
-                className="h-12 w-12 rounded-full lg:h-14 lg:w-14"
-                alt="logo"
-                src={logo}
-              />
-            </picture>
-          </Link>
-        </div>
-        <div className="hidden flex-1 items-end justify-end sm:flex">
-          <a
-            href="https://developers.strava.com/"
-            rel="noopener noreferrer"
-            target="_blank"
+    <header className="border-b" style={{ borderColor: 'var(--color-border)' }}>
+      <nav
+        aria-label="主导航"
+        className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 lg:px-16"
+      >
+        <div className="flex items-center gap-5">
+          <Link
+            to="/"
+            aria-label="Home"
+            className="flex shrink-0 items-center gap-2.5"
           >
             <picture>
-              <StravaSvg className={styles.stravaSVG} />
+              <img className="h-9 w-9 rounded-full" alt="logo" src={logo} />
             </picture>
-          </a>
-          <picture>
-            <WatchSvg className={styles.watchSVG} />
-          </picture>
-        </div>
-        <div className="flex items-center justify-end gap-3 text-right">
-          {navLinks.map((n) =>
-            n.url.startsWith('http') ? (
-              <a
-                key={n.url}
-                href={n.url}
-                className="text-sm font-medium transition-opacity hover:opacity-80 lg:text-base"
-              >
-                {n.name}
-              </a>
-            ) : (
-              <Link
-                key={n.url}
-                to={n.url}
-                className="text-sm font-medium transition-opacity hover:opacity-80 lg:text-base"
-              >
-                {n.name}
-              </Link>
-            )
-          )}
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={handleToggle}
-              className={`${styles.themeButton} ${styles.themeButtonActive}`}
-              aria-label={`Switch to ${nextTheme} theme`}
-              title={`Switch to ${nextTheme} theme`}
+          </Link>
+          <div className="flex items-center gap-4 text-sm">
+            <Link
+              to="/"
+              aria-current={isHome ? 'page' : undefined}
+              className="py-1 font-medium transition-colors"
+              style={{
+                color: isHome ? 'var(--color-text)' : 'var(--color-text-muted)',
+                borderBottom: isHome
+                  ? '2px solid var(--color-brand)'
+                  : '2px solid transparent',
+              }}
             >
-              <div className={styles.iconWrapper}>{icons[theme]}</div>
-            </button>
+              首页
+            </Link>
+            {navLinks.map((n) => {
+              const active = !n.url.startsWith('http') && pathname === n.url;
+              return n.url.startsWith('http') ? (
+                <a
+                  key={n.url}
+                  href={n.url}
+                  className="py-1 font-medium transition-opacity hover:opacity-80"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  {n.name}
+                </a>
+              ) : (
+                <Link
+                  key={n.url}
+                  to={n.url}
+                  aria-current={active ? 'page' : undefined}
+                  className="py-1 font-medium transition-colors"
+                  style={{
+                    color: active
+                      ? 'var(--color-text)'
+                      : 'var(--color-text-muted)',
+                    borderBottom: active
+                      ? '2px solid var(--color-brand)'
+                      : '2px solid transparent',
+                  }}
+                >
+                  {n.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden items-center sm:flex">
+            <a
+              href="https://developers.strava.com/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <picture>
+                <StravaSvg className={styles.stravaSVG} />
+              </picture>
+            </a>
+            <picture>
+              <WatchSvg className={styles.watchSVG} />
+            </picture>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggle}
+            className={`${styles.themeButton} ${styles.themeButtonActive}`}
+            aria-label={`Switch to ${nextTheme} theme`}
+            title={`Switch to ${nextTheme} theme`}
+          >
+            <div className={styles.iconWrapper}>{icons[theme]}</div>
+          </button>
+        </div>
       </nav>
-    </>
+    </header>
   );
 };
 
