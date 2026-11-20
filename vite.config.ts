@@ -23,9 +23,18 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: false,
       workbox: {
-        // Include lazy routes and the content-hashed activities JSON.
+        // Include core routes and content-hashed activities JSON; keep heavy
+        // lazy-loaded SVG poster chunks on-demand instead of precaching ~5MB.
         globPatterns: ['**/*.{js,css,html,json,png,svg,ico,woff2}'],
-        globIgnores: ['**/.vite/**'],
+        globIgnores: [
+          '**/.vite/**',
+          '**/year_summary_*.js',
+          '**/mol*.js',
+          '**/year_*.js',
+          '**/github_*.js',
+          '**/github-*.js',
+          '**/grid-*.js',
+        ],
         maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,

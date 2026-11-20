@@ -34,18 +34,23 @@ export interface Activity {
   name: string;
   distance: number;
   moving_time: string;
+  elapsed_time?: string | null;
   type: string;
-  subtype: string;
+  subtype?: string | null;
   start_date: string;
   start_date_local: string;
   location_country?: string | null;
   summary_polyline?: string | null;
   average_heartrate?: number | null;
-  max_heartrate?: number;
+  max_heartrate?: number | null;
   elevation_gain?: number | null;
   average_speed?: number;
   calories?: number;
   streak: number;
+  suffer_score?: number | null;
+  device_name?: string | null;
+  description?: string | null;
+  hr_zones?: string | null;
 }
 
 const titleForShow = (run: Activity): string => {

@@ -1,4 +1,5 @@
 import datetime
+import json
 import math
 import os
 import sys
@@ -182,7 +183,29 @@ class Generator:
             activity.source = "strava"
             #  strava use total_elevation_gain as elevation_gain
             activity.elevation_gain = activity.total_elevation_gain
-            activity.subtype = activity.type
+            sport_type = getattr(activity, "sport_type", None)
+            activity.subtype = str(sport_type) if sport_type else str(activity.type)
+            existing = (
+                self.session.query(Activity).filter_by(run_id=int(activity.id)).first()
+            )
+            if getattr(activity, "average_heartrate", None) and (
+                existing is None or not existing.hr_zones
+            ):
+                try:
+                    zones = self.client.get_activity_zones(activity.id)
+                    for z in zones or []:
+                        if getattr(z, "type", None) == "heartrate" and getattr(
+                            z, "distribution_buckets", None
+                        ):
+                            buckets = [
+                                int(getattr(b, "time", 0) or 0)
+                                for b in z.distribution_buckets
+                            ]
+                            if any(buckets):
+                                activity.hr_zones = json.dumps(buckets)
+                            break
+                except Exception:
+                    pass
             created = update_or_create_activity(self.session, activity)
             if created:
                 sys.stdout.write("+")

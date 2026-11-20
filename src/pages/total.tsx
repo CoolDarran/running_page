@@ -1,28 +1,28 @@
-import ActivityList from '@/components/ActivityList';
-import { Helmet } from 'react-helmet-async';
-import { useTheme } from '@/hooks/useTheme';
 import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import ActivityList from '@/components/ActivityList';
+import Header from '@/components/Header';
+import { useTheme } from '@/hooks/useTheme';
 
-const HomePage = () => {
-  // Use the theme hook to get the current theme
+const SummaryPage = () => {
   const { theme } = useTheme();
 
-  // Apply theme changes to the document when theme changes
   useEffect(() => {
-    const htmlElement = document.documentElement;
-    // Set explicit theme attribute
-    htmlElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   return (
     <>
       <Helmet>
-        {/* Set HTML attributes including theme */}
-        <html lang="en" data-theme={theme} />
+        <html lang="zh-CN" data-theme={theme} />
+        <title>Summary · danran workouts</title>
       </Helmet>
-      <ActivityList />
+      <Header />
+      <main className="mx-auto max-w-[1440px] px-4 pt-6 pb-16 lg:px-16">
+        <ActivityList />
+      </main>
     </>
   );
 };
 
-export default HomePage;
+export default SummaryPage;

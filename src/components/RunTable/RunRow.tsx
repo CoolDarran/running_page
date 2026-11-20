@@ -1,22 +1,40 @@
 import {
   formatPace,
-  colorFromType,
   titleForRun,
-  formatRunTime,
+  M_TO_DIST,
+  M_TO_ELEV,
   Activity,
   RunIds,
 } from '@/utils/utils';
-import { SHOW_ELEVATION_GAIN } from '@/utils/const';
-import { M_TO_DIST, M_TO_ELEV } from '@/utils/utils';
-import styles from './style.module.css';
+import {
+  getActivityCategory,
+  getSportMeta,
+  type TaxonomyMode,
+} from '@/utils/workoutTaxonomy';
+import {
+  calculateTrimp,
+  formatDurationShort,
+  getActivityMinutes,
+  getElapsedMinutes,
+  parseHrZones,
+} from '@/utils/workoutAnalytics';
+
+interface ColumnDef {
+  key: string;
+  label: string;
+}
 
 interface IRunRowProperties {
   elementIndex: number;
   locateActivity: (_runIds: RunIds) => void;
   run: Activity;
   runIndex: number;
-  setRunIndex: (_ndex: number) => void;
+  setRunIndex: (_index: number) => void;
+  columns: ColumnDef[];
+  taxonomyMode: TaxonomyMode;
 }
+
+const ZONE_COLORS = ['#94a3b8', '#38bdf8', '#10b981', '#f59e0b', '#ef4444'];
 
 const RunRow = ({
   elementIndex,
@@ -24,42 +42,266 @@ const RunRow = ({
   run,
   runIndex,
   setRunIndex,
+  columns,
+  taxonomyMode,
 }: IRunRowProperties) => {
-  const distance = (run.distance / M_TO_DIST).toFixed(2);
-  const paceParts = run.average_speed ? formatPace(run.average_speed) : null;
-  const heartRate = run.average_heartrate;
-  const calories = run.calories;
-  const type = run.type;
-  const runTime = formatRunTime(run.moving_time);
+  const isSelected = runIndex === elementIndex;
+  const category = getActivityCategory(run, taxonomyMode);
+  const meta = getSportMeta(category);
+  const minutes = getActivityMinutes(run);
+  const elapsedMin = getElapsedMinutes(run);
+  const trimp = calculateTrimp(run);
+  const km = (run.distance || 0) / M_TO_DIST;
+  const elev = (run.elevation_gain ?? 0) * M_TO_ELEV;
+  const paceParts =
+    run.average_speed && km > 0 ? formatPace(run.average_speed) : null;
+  const hrZones = parseHrZones(run);
+
   const handleClick = () => {
-    if (runIndex === elementIndex) {
+    if (isSelected) {
       setRunIndex(-1);
-      locateActivity([]);
+      if (run.summary_polyline) {
+        locateActivity([]);
+      }
       return;
     }
     setRunIndex(elementIndex);
-    locateActivity([run.run_id]);
+    if (run.summary_polyline) {
+      locateActivity([run.run_id]);
+    }
+  };
+
+  const dash = <span style={{ color: 'var(--color-text-muted)' }}>—</span>;
+
+  const renderCell = (col: ColumnDef) => {
+    const borderStyle = { borderColor: 'var(--color-border)' };
+    switch (col.key) {
+      case 'Type':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="border-b px-2 py-2.5 whitespace-nowrap"
+            style={borderStyle}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: meta.color }}
+              />
+              <span>{meta.shortLabel}</span>
+            </span>
+          </td>
+        );
+      case 'Time':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
+          >
+            {formatDurationShort(minutes)}
+          </td>
+        );
+      case 'Kcal':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right font-medium whitespace-nowrap"
+            style={borderStyle}
+          >
+            {run.calories && run.calories > 0 ? Math.round(run.calories) : dash}
+          </td>
+        );
+      case 'BPM':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
+          >
+            {run.average_heartrate ? Math.round(run.average_heartrate) : dash}
+          </td>
+        );
+      case 'MaxHR':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{
+              ...borderStyle,
+              color:
+                run.max_heartrate && run.max_heartrate >= 175
+                  ? '#ea580c'
+                  : 'var(--color-text)',
+              fontWeight:
+                run.max_heartrate && run.max_heartrate >= 175 ? 600 : 400,
+            }}
+          >
+            {run.max_heartrate ? Math.round(run.max_heartrate) : dash}
+          </td>
+        );
+      case 'TRIMP':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{ ...borderStyle, color: 'var(--color-text-muted)' }}
+          >
+            {trimp > 0 ? trimp : dash}
+          </td>
+        );
+      case 'KM':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
+          >
+            {km > 0 ? km.toFixed(2) : dash}
+          </td>
+        );
+      case 'Elev':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
+          >
+            {elev > 0 ? elev.toFixed(0) : dash}
+          </td>
+        );
+      case 'Pace':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={borderStyle}
+          >
+            {paceParts ?? dash}
+          </td>
+        );
+      case 'Date':
+        return (
+          <td
+            key={col.key}
+            data-label={col.label}
+            className="font-mono-num border-b px-2 py-2.5 text-right whitespace-nowrap"
+            style={{ ...borderStyle, color: 'var(--color-text-muted)' }}
+          >
+            {run.start_date_local.slice(0, 16)}
+          </td>
+        );
+      default:
+        return <td key={col.key} />;
+    }
   };
 
   return (
-    <tr
-      className={`${styles.runRow} ${runIndex === elementIndex ? styles.selected : ''}`}
-      key={run.start_date_local}
-      onClick={handleClick}
-      style={{ color: colorFromType(type) }}
-    >
-      <td>{titleForRun(run)}</td>
-      <td>{type}</td>
-      <td>{distance}</td>
-      {SHOW_ELEVATION_GAIN && (
-        <td>{((run.elevation_gain ?? 0) * M_TO_ELEV).toFixed(1)}</td>
+    <>
+      <tr
+        data-selected={isSelected ? 'true' : undefined}
+        className="cursor-pointer"
+        onClick={handleClick}
+      >
+        <th
+          scope="row"
+          className="max-w-[260px] truncate border-b px-2 py-2.5"
+          style={{ borderColor: 'var(--color-border)' }}
+          title={run.name}
+        >
+          {titleForRun(run)}
+        </th>
+        {columns.map((c) => renderCell(c))}
+      </tr>
+
+      {isSelected && (
+        <tr
+          data-detail-row="true"
+          style={{ backgroundColor: 'var(--color-surface-subtle)' }}
+        >
+          <td
+            colSpan={columns.length + 1}
+            className="border-b px-3 py-2.5 text-xs"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+              <span className="font-mono-num">
+                <span style={{ color: 'var(--color-text-muted)' }}>TRIMP </span>
+                {trimp}
+              </span>
+              {elapsedMin > minutes + 0.5 && (
+                <span className="font-mono-num">
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    总耗时{' '}
+                  </span>
+                  {formatDurationShort(elapsedMin)}（密度{' '}
+                  {Math.round((minutes / elapsedMin) * 100)}%）
+                </span>
+              )}
+              {run.suffer_score ? (
+                <span className="font-mono-num">
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    Relative Effort{' '}
+                  </span>
+                  {Math.round(run.suffer_score)}
+                </span>
+              ) : null}
+              {run.device_name && (
+                <span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    设备{' '}
+                  </span>
+                  {run.device_name}
+                </span>
+              )}
+              {run.location_country && (
+                <span className="truncate">
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    地点{' '}
+                  </span>
+                  {run.location_country}
+                </span>
+              )}
+            </div>
+            {run.description && (
+              <p
+                className="mt-1.5 whitespace-pre-wrap"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                {run.description}
+              </p>
+            )}
+            {hrZones && (
+              <div className="mt-2 flex h-1.5 w-full max-w-md overflow-hidden rounded-full">
+                {hrZones.map((sec, idx) => {
+                  const total = hrZones.reduce((a, b) => a + b, 0) || 1;
+                  return (
+                    <div
+                      key={ZONE_COLORS[idx]}
+                      title={`Z${idx + 1}: ${Math.round(sec / 60)}m`}
+                      style={{
+                        width: `${(sec / total) * 100}%`,
+                        backgroundColor: ZONE_COLORS[idx],
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </td>
+        </tr>
       )}
-      <td>{paceParts}</td>
-      <td>{heartRate && heartRate.toFixed(0)}</td>
-      <td>{calories}</td>
-      <td>{runTime}</td>
-      <td className={styles.runDate}>{run.start_date_local}</td>
-    </tr>
+    </>
   );
 };
 

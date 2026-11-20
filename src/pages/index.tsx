@@ -5,6 +5,7 @@ import {
   useCallback,
   useRef,
   useSyncExternalStore,
+  type KeyboardEvent,
 } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
@@ -12,9 +13,10 @@ import Layout from '@/components/Layout';
 import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
-import SVGStat from '@/components/SVGStat';
 import WeeklyStat from '@/components/WeeklyStat';
 import YearsStat from '@/components/YearsStat';
+import ActivityHeatmap from '@/components/Dashboard/ActivityHeatmap';
+import TrainingInsights from '@/components/Dashboard/TrainingInsights';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 import { useInterval } from '@/hooks/useInterval';
@@ -24,7 +26,6 @@ import {
   filterAndSortRuns,
   filterCityRuns,
   filterTitleRuns,
-  filterTypeRuns,
   filterYearRuns,
   scrollToMap,
   sortDateFunc,
@@ -37,6 +38,15 @@ import {
   type IViewState,
 } from '@/utils/geoUtils';
 import { useTheme, useThemeChangeCounter } from '@/hooks/useTheme';
+import {
+  getSportMeta,
+  isOutdoorSport,
+  matchesCategoryFilter,
+  type TaxonomyMode,
+} from '@/utils/workoutTaxonomy';
+
+type MainViewTab = 'overview' | 'insights' | 'map';
+const TAB_ORDER: MainViewTab[] = ['overview', 'insights', 'map'];
 
 const HASH_RUN_CHANGE_EVENT = 'running-page-hash-run-change';
 
@@ -88,6 +98,16 @@ const Index = () => {
   const { activities, thisYear, years } = useActivities();
   const themeChangeCounter = useThemeChangeCounter();
   const [year, setYear] = useState(thisYear);
+  const [taxonomyMode, setTaxonomyMode] = useState<TaxonomyMode>('sub');
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<MainViewTab>('overview');
+  const tabElementsRef = useRef<Record<MainViewTab, HTMLButtonElement | null>>({
+    overview: null,
+    insights: null,
+    map: null,
+  });
+
   const infoMessage = useMemo(
     () => INFO_MESSAGE(years.length, year),
     [years.length, year]
@@ -96,35 +116,34 @@ const Index = () => {
   const [title, setTitle] = useState('');
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  // Animation states for replacing intervalIdRef
+
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState(0);
   const [animationRuns, setAnimationRuns] = useState<Activity[]>([]);
   const [currentFilter, setCurrentFilter] = useState<{
     item: string;
     func: (_run: Activity, _value: string) => boolean;
-    item2: string | null;
-    func2: ((_run: Activity, _value: string) => boolean) | null;
+    item2?: string | null;
+    func2?: ((_run: Activity, _value: string) => boolean) | null;
   }>({ item: thisYear, func: filterYearRuns, item2: null, func2: null });
 
-  // Track if we're showing a single run from URL hash
   const singleRunId = useRunHashId();
-
-  // Animation trigger for single runs - increment this to force animation replay
   const [animationTrigger, setAnimationTrigger] = useState(0);
 
-  const selectedRunIdRef = useRef<number | null>(null);
-  const selectedRunDateRef = useRef<string | null>(null);
+  const filterByCategory = useCallback(
+    (run: Activity, category: string) =>
+      matchesCategoryFilter(run, category, taxonomyMode),
+    [taxonomyMode]
+  );
 
-  // Memoize expensive calculations
   const runs = useMemo(() => {
     return filterAndSortRuns(
       activities,
       currentFilter.item,
       currentFilter.func,
       sortDateFunc,
-      currentFilter.item2,
-      currentFilter.func2
+      currentFilter.item2 ?? null,
+      currentFilter.func2 ?? null
     );
   }, [
     activities,
@@ -134,24 +153,29 @@ const Index = () => {
     currentFilter.func2,
   ]);
 
+  const tableRuns = useMemo(() => {
+    if (!selectedDate) return runs;
+    return runs.filter((r) => r.start_date_local.slice(0, 10) === selectedDate);
+  }, [runs, selectedDate]);
+
+  const gpsCount = useMemo(
+    () => runs.filter((r) => Boolean(r.summary_polyline)).length,
+    [runs]
+  );
+
   const geoData = useMemo(() => {
     void themeChangeCounter;
     return geoJsonForRuns(runs);
   }, [runs, themeChangeCounter]);
 
-  // for auto zoom
-  const bounds = useMemo(() => {
-    return getBoundsForGeoData(geoData);
-  }, [geoData]);
+  const bounds = useMemo(() => getBoundsForGeoData(geoData), [geoData]);
 
   const [viewState, setViewState] = useState<IViewState>(() => ({
     ...bounds,
   }));
 
-  // Add state for animated geoData to handle the animation effect
   const [animatedGeoData, setAnimatedGeoData] = useState(geoData);
 
-  // Use useInterval for animation instead of intervalIdRef
   useInterval(
     () => {
       if (!isAnimating || currentAnimationIndex >= animationRuns.length) {
@@ -175,7 +199,6 @@ const Index = () => {
     isAnimating ? 300 : null
   );
 
-  // Helper function to start animation
   const startAnimation = useCallback(
     (runsToAnimate: Activity[]) => {
       if (runsToAnimate.length === 0) {
@@ -192,6 +215,38 @@ const Index = () => {
     [geoData]
   );
 
+  const selectTab = useCallback((nextTab: MainViewTab, shouldFocus = false) => {
+    setActiveTab(nextTab);
+    const el = tabElementsRef.current[nextTab];
+    if (el) {
+      if (shouldFocus) el.focus();
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, []);
+
+  const handleTabKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const idx = TAB_ORDER.indexOf(activeTab);
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[(idx + 1) % TAB_ORDER.length], true);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        selectTab(
+          TAB_ORDER[(idx - 1 + TAB_ORDER.length) % TAB_ORDER.length],
+          true
+        );
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[0], true);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        selectTab(TAB_ORDER[TAB_ORDER.length - 1], true);
+      }
+    },
+    [activeTab, selectTab]
+  );
+
   const changeByItem = useCallback(
     (
       item: string,
@@ -202,52 +257,71 @@ const Index = () => {
       if (name != 'Year') {
         setYear(thisYear);
       }
-      setCurrentFilter({ item, func });
+      setCurrentFilter({ item, func, item2: null, func2: null });
+      setSelectedSport(null);
+      setSelectedDate(null);
       setRunIndex(-1);
       setTitle(`${item} ${name} Heatmap`);
-      // Reset single run state when changing filters
       clearRunHash();
     },
     [thisYear]
   );
 
   const changeTypeInYear = useCallback(
-    (year: string, type: string) => {
-      scrollToMap();
-      // type in year, filter year first, then type
-      if (year != 'Total') {
-        setYear(year);
+    (targetYear: string, sport: string) => {
+      if (selectedSport === sport && year === targetYear) {
+        setSelectedSport(null);
+        setSelectedDate(null);
         setCurrentFilter({
-          item: year,
+          item: targetYear,
           func: filterYearRuns,
-          item2: type,
-          func2: filterTypeRuns,
+          item2: null,
+          func2: null,
+        });
+        setRunIndex(-1);
+        setTitle(`${targetYear} Year Heatmap`);
+        clearRunHash();
+        return;
+      }
+
+      scrollToMap();
+      setYear(targetYear);
+      setSelectedSport(sport);
+      setSelectedDate(null);
+      if (targetYear !== 'Total') {
+        setCurrentFilter({
+          item: targetYear,
+          func: filterYearRuns,
+          item2: sport,
+          func2: filterByCategory,
         });
       } else {
-        setYear(thisYear);
-        setCurrentFilter({ item: type, func: filterTypeRuns });
+        setCurrentFilter({
+          item: sport,
+          func: filterByCategory,
+          item2: null,
+          func2: null,
+        });
+      }
+      if (isOutdoorSport(sport)) {
+        setActiveTab('map');
       }
       setRunIndex(-1);
-      setTitle(`${year} ${type} Type Heatmap`);
-      // Reset single run state when changing filters
+      setTitle(`${targetYear} ${sport} Heatmap`);
       clearRunHash();
     },
-    [thisYear]
+    [selectedSport, year, filterByCategory]
   );
 
   const changeYear = useCallback(
     (y: string) => {
-      // default year
       setYear(y);
 
       if ((viewState.zoom ?? 0) > 3 && bounds) {
-        setViewState({
-          ...bounds,
-        });
+        setViewState({ ...bounds });
       }
 
       changeByItem(y, 'Year', filterYearRuns);
-      // Stop current animation
       setIsAnimating(false);
     },
     [viewState.zoom, bounds, changeByItem]
@@ -255,95 +329,99 @@ const Index = () => {
 
   const changeCity = useCallback(
     (city: string) => {
+      setActiveTab('map');
       changeByItem(city, 'City', filterCityRuns);
     },
     [changeByItem]
   );
 
   const changeTitle = useCallback(
-    (title: string) => {
-      changeByItem(title, 'Title', filterTitleRuns);
+    (newTitle: string) => {
+      changeByItem(newTitle, 'Title', filterTitleRuns);
     },
     [changeByItem]
   );
 
   const changeType = useCallback(
     (type: string) => {
-      changeByItem(type, 'Type', filterTypeRuns);
+      setSelectedSport(type);
+      setSelectedDate(null);
+      setCurrentFilter({
+        item: type,
+        func: filterByCategory,
+        item2: null,
+        func2: null,
+      });
+      if (isOutdoorSport(type)) {
+        setActiveTab('map');
+      }
+      setRunIndex(-1);
+      setTitle(`${type} Heatmap`);
+      clearRunHash();
     },
-    [changeByItem]
+    [filterByCategory]
   );
 
-  // For RunTable compatibility - create a mock setActivity function
-  const setActivity = useCallback((_newRuns: Activity[]) => {
-    // Since we're using memoized runs, we can't directly set activity
-    // This is used by RunTable but we can work around it by managing the filter instead
-    console.warn('setActivity called but runs are now computed from filters');
-  }, []);
+  const handleTaxonomyChange = useCallback(
+    (mode: TaxonomyMode) => {
+      setTaxonomyMode(mode);
+      if (selectedSport) {
+        setSelectedSport(null);
+        setCurrentFilter({
+          item: year,
+          func: filterYearRuns,
+          item2: null,
+          func2: null,
+        });
+      }
+    },
+    [selectedSport, year]
+  );
 
   const locateActivity = useCallback(
     (runIds: RunIds) => {
       const ids = new Set(runIds);
-
       const selectedRuns = !runIds.length
         ? runs
         : runs.filter((run: Activity) => ids.has(run.run_id));
 
-      if (!selectedRuns.length) {
-        return;
-      }
+      if (!selectedRuns.length) return;
 
       const lastRun = selectedRuns.slice().sort(sortDateFunc)[0];
+      if (!lastRun) return;
 
-      if (!lastRun) {
-        return;
-      }
-
-      // Set runIndex for table highlighting when single run is selected
       if (runIds.length === 1) {
         const runId = runIds[0];
         const runIdx = runs.findIndex((run) => run.run_id === runId);
         setRunIndex(runIdx);
+        setRunHash(runId);
+        if (lastRun.summary_polyline) {
+          setActiveTab('map');
+        }
       } else {
         setRunIndex(-1);
-      }
-
-      // Update URL hash when a single run is located
-      if (runIds.length === 1) {
-        const runId = runIds[0];
-        setRunHash(runId);
-      } else {
-        // If multiple runs or no runs, clear the hash and single run state
         clearRunHash();
       }
 
-      // Create geoData for selected runs and calculate new bounds
       const selectedGeoData = geoJsonForRuns(selectedRuns);
       const selectedBounds = getBoundsForGeoData(selectedGeoData);
 
-      // Stop any existing animation
       setIsAnimating(false);
-
-      // Update the animated geoData immediately to trigger RunMap animation
       setAnimatedGeoData(selectedGeoData);
 
-      // For single run, trigger animation by incrementing the trigger
       if (runIds.length === 1) {
         setAnimationTrigger((prev) => prev + 1);
       }
 
-      // Update view state
-      setViewState({
-        ...selectedBounds,
-      });
+      setViewState({ ...selectedBounds });
       setTitle(titleForShow(lastRun));
-      scrollToMap();
+      if (lastRun.summary_polyline) {
+        scrollToMap();
+      }
     },
     [runs]
   );
 
-  // Auto locate activity when singleRunId is set and activities are loaded
-  // First, detect the run's year and switch to it if needed
   useEffect(() => {
     if (singleRunId !== null && activities.length > 0) {
       const frameId = requestAnimationFrame(() => {
@@ -354,9 +432,10 @@ const Index = () => {
             setYear(runYear);
             setCurrentFilter({ item: runYear, func: filterYearRuns });
           }
+          if (targetRun.summary_polyline) {
+            setActiveTab('map');
+          }
         } else {
-          // If run doesn't exist, clear the hash and show a warning
-          console.warn(`Run with ID ${singleRunId} not found in activities`);
           window.history.replaceState(null, '', window.location.pathname);
           notifyRunHashChange();
         }
@@ -379,20 +458,15 @@ const Index = () => {
     }
   }, [runs, singleRunId, locateActivity]);
 
-  // Update bounds when geoData changes
   useEffect(() => {
     if (singleRunId === null) {
       const frameId = requestAnimationFrame(() => {
-        setViewState((prev) => ({
-          ...prev,
-          ...bounds,
-        }));
+        setViewState((prev) => ({ ...prev, ...bounds }));
       });
       return () => cancelAnimationFrame(frameId);
     }
   }, [bounds, singleRunId]);
 
-  // Animate geoData when runs change
   useEffect(() => {
     if (singleRunId === null) {
       const frameId = requestAnimationFrame(() => startAnimation(runs));
@@ -400,78 +474,35 @@ const Index = () => {
     }
   }, [runs, startAnimation, singleRunId]);
 
-  useEffect(() => {
-    if (year !== 'Total') {
-      return;
-    }
-
-    let svgStat = document.getElementById('svgStat');
-    if (!svgStat) {
-      return;
-    }
-
-    const handleClick = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName.toLowerCase() === 'path') {
-        // Use querySelector to get the <desc> element and the <title> element.
-        const descEl = target.querySelector('desc');
-        if (descEl) {
-          // If the runId exists in the <desc> element, it means that a running route has been clicked.
-          const runId = Number(descEl.innerHTML);
-          if (!runId) {
-            return;
-          }
-          if (selectedRunIdRef.current === runId) {
-            selectedRunIdRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunIdRef.current = runId;
-            locateActivity([runId]);
-          }
-          return;
-        }
-
-        const titleEl = target.querySelector('title');
-        if (titleEl) {
-          // If the runDate exists in the <title> element, it means that a date square has been clicked.
-          const [runDate] = titleEl.innerHTML.match(
-            /\d{4}-\d{1,2}-\d{1,2}/
-          ) || [`${+thisYear + 1}`];
-          const runIDsOnDate = runs
-            .filter((r) => r.start_date_local.slice(0, 10) === runDate)
-            .map((r) => r.run_id);
-          if (!runIDsOnDate.length) {
-            return;
-          }
-          if (selectedRunDateRef.current === runDate) {
-            selectedRunDateRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunDateRef.current = runDate;
-            locateActivity(runIDsOnDate);
-          }
-        }
-      }
-    };
-    svgStat.addEventListener('click', handleClick);
-    return () => {
-      svgStat && svgStat.removeEventListener('click', handleClick);
-    };
-  }, [year, locateActivity, runs, thisYear]);
-
   const { theme } = useTheme();
+  void changeTitle;
+
+  const resetFilters = () => {
+    setSelectedSport(null);
+    setSelectedDate(null);
+    setCurrentFilter({
+      item: year,
+      func: filterYearRuns,
+      item2: null,
+      func2: null,
+    });
+    setRunIndex(-1);
+    clearRunHash();
+  };
 
   return (
     <Layout>
       <Helmet>
-        <html lang="en" data-theme={theme} />
+        <html lang="zh-CN" data-theme={theme} />
       </Helmet>
-      <div
-        className={`relative w-full lg:shrink-0 ${desktopSidebarOpen ? 'lg:w-1/4 lg:pr-4' : 'lg:w-10'}`}
+
+      {/* Left Sidebar */}
+      <aside
+        className={`relative w-full lg:shrink-0 ${desktopSidebarOpen ? 'lg:w-[290px] lg:pr-8 xl:w-[310px]' : 'lg:w-10'}`}
       >
         <button
           type="button"
-          className="absolute top-0 right-1 hidden h-8 w-8 items-center justify-center rounded-md border border-current/20 opacity-60 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 lg:inline-flex"
+          className="absolute top-0 right-2 hidden h-7 w-7 items-center justify-center rounded-md opacity-60 hover:opacity-100 lg:inline-flex"
           aria-expanded={desktopSidebarOpen}
           aria-controls="sidebar-content"
           aria-label={
@@ -480,8 +511,8 @@ const Index = () => {
           onClick={() => setDesktopSidebarOpen((open) => !open)}
         >
           <svg
-            width="16"
-            height="16"
+            width="15"
+            height="15"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -491,15 +522,17 @@ const Index = () => {
             <path d={desktopSidebarOpen ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'} />
           </svg>
         </button>
+
         <div className="flex items-center justify-between gap-3 lg:block">
           <h1
-            className={`my-6 min-w-0 text-5xl font-extrabold break-words italic lg:mb-12 ${desktopSidebarOpen ? '' : 'lg:hidden'}`}
+            className={`my-3 min-w-0 text-3xl font-bold tracking-tight break-words lg:my-1 lg:mb-2 ${desktopSidebarOpen ? '' : 'lg:hidden'}`}
           >
             <a href={siteUrl}>{siteTitle}</a>
           </h1>
           <button
             type="button"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-current/20 opacity-70 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 lg:hidden"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border opacity-75 hover:opacity-100 lg:hidden"
+            style={{ borderColor: 'var(--color-border)' }}
             aria-label={
               mobileSidebarOpen ? 'Collapse filters' : 'Expand filters'
             }
@@ -520,20 +553,21 @@ const Index = () => {
             </svg>
           </button>
         </div>
-        <div className={desktopSidebarOpen ? '' : 'lg:hidden'}>
-          <section className="pb-0">
-            <p className="leading-relaxed">
-              {infoMessage}
-              <br />
-            </p>
-          </section>
-          <hr />
+
+        <div className={desktopSidebarOpen ? 'mb-5' : 'lg:hidden'}>
+          <p
+            className="text-xs leading-relaxed"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {infoMessage}
+          </p>
         </div>
+
         <div
           id="sidebar-content"
           className={`${mobileSidebarOpen ? 'block' : 'hidden'} ${desktopSidebarOpen ? 'lg:block' : 'lg:hidden'}`}
         >
-          {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
+          {activeTab === 'map' && (viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
             <LocationStat
               changeYear={changeYear}
               changeCity={changeCity}
@@ -543,35 +577,144 @@ const Index = () => {
           ) : (
             <YearsStat
               year={year}
+              selectedSport={selectedSport}
+              taxonomyMode={taxonomyMode}
+              onTaxonomyChange={handleTaxonomyChange}
               onClick={changeYear}
               onClickTypeInYear={changeTypeInYear}
             />
           )}
         </div>
-      </div>
-      <div className="w-full min-w-0 lg:flex-1" id="map-container">
-        <RunMap
-          title={title}
-          viewState={viewState}
-          geoData={animatedGeoData}
-          setViewState={setViewState}
-          changeYear={changeYear}
-          thisYear={year}
-          animationTrigger={animationTrigger}
-        />
-        <WeeklyStat runs={runs} />
-        {year === 'Total' ? (
-          <SVGStat />
-        ) : (
-          <RunTable
-            runs={runs}
-            locateActivity={locateActivity}
-            runIndex={runIndex}
-            setRunIndex={setRunIndex}
-          />
+      </aside>
+
+      {/* Right Main Workspace */}
+      <div className="w-full min-w-0 space-y-6 lg:flex-1" id="map-container">
+        {/* Accessible Single-Row Underline Tabs + Inline Filter Readout */}
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div
+            role="tablist"
+            aria-label="训练视图"
+            className="mwg-tablist"
+            onKeyDown={handleTabKeyDown}
+          >
+            {(
+              [
+                ['overview', '训练看板'],
+                ['insights', '深度分析'],
+                ['map', `轨迹地图 (${gpsCount})`],
+              ] as const
+            ).map(([tabKey, label]) => (
+              <button
+                key={tabKey}
+                ref={(el) => {
+                  tabElementsRef.current[tabKey] = el;
+                }}
+                id={`tab-${tabKey}`}
+                type="button"
+                role="tab"
+                tabIndex={activeTab === tabKey ? 0 : -1}
+                aria-selected={activeTab === tabKey}
+                onClick={() => selectTab(tabKey)}
+                className="mwg-tab"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {(selectedSport || selectedDate) && (
+            <div
+              className="flex flex-wrap items-center gap-3 pb-1.5 text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {selectedSport && (
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full"
+                    style={{
+                      backgroundColor: getSportMeta(selectedSport).color,
+                    }}
+                  />
+                  <span style={{ color: 'var(--color-text)' }}>
+                    {getSportMeta(selectedSport).label}
+                  </span>
+                </span>
+              )}
+              {selectedDate && (
+                <span
+                  className="font-mono-num"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {selectedDate}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="underline underline-offset-4 hover:opacity-80"
+              >
+                清除筛选
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Active Tab Panels */}
+        {activeTab === 'overview' && (
+          <div
+            role="tabpanel"
+            aria-labelledby="tab-overview"
+            className="space-y-6"
+          >
+            <ActivityHeatmap
+              activities={runs}
+              year={year}
+              taxonomyMode={taxonomyMode}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+            <WeeklyStat runs={runs} taxonomyMode={taxonomyMode} />
+          </div>
         )}
+
+        {activeTab === 'insights' && (
+          <div role="tabpanel" aria-labelledby="tab-insights">
+            <TrainingInsights
+              allActivities={activities}
+              filteredActivities={runs}
+              taxonomyMode={taxonomyMode}
+              year={year}
+            />
+          </div>
+        )}
+
+        {activeTab === 'map' && (
+          <div role="tabpanel" aria-labelledby="tab-map" className="space-y-6">
+            <RunMap
+              title={title}
+              viewState={viewState}
+              geoData={animatedGeoData}
+              setViewState={setViewState}
+              changeYear={changeYear}
+              thisYear={year}
+              animationTrigger={animationTrigger}
+            />
+            <WeeklyStat runs={runs} taxonomyMode={taxonomyMode} />
+          </div>
+        )}
+
+        {/* Activity Table */}
+        <RunTable
+          runs={tableRuns}
+          locateActivity={locateActivity}
+          runIndex={runIndex}
+          setRunIndex={setRunIndex}
+          taxonomyMode={taxonomyMode}
+          selectedSport={selectedSport}
+        />
       </div>
-      {/* Enable Audiences in Vercel Analytics: https://vercel.com/docs/concepts/analytics/audiences/quickstart */}
+
       {import.meta.env.VERCEL && <Analytics />}
     </Layout>
   );

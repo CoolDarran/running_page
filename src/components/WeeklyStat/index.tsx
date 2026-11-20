@@ -1,23 +1,33 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import {
-  LineChart,
-  Line,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from 'recharts';
-import { Activity } from '@/utils/utils';
+import type { Activity } from '@/utils/utils';
 import { IS_CHINESE } from '@/utils/const';
+import {
+  getActivityCategory,
+  getSportMeta,
+  type TaxonomyMode,
+} from '@/utils/workoutTaxonomy';
+import { getActivityMinutes } from '@/utils/workoutAnalytics';
+
+type WeeklyMetric = 'hours' | 'kcal' | 'count' | 'km';
 
 interface WeeklyStatProps {
   runs: Activity[];
+  taxonomyMode?: TaxonomyMode;
 }
 
-const formatRunTime = (seconds: number) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
+const formatRunTime = (minutes: number) => {
+  const totalSec = Math.round(minutes * 60);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
   if (h > 0) return `${h}h${m}m`;
   return `${m}m`;
 };
@@ -31,24 +41,117 @@ const subscribeToViewport = (onChange: () => void) => {
 const getIsMobile = () => window.matchMedia(mobileQuery).matches;
 const getServerIsMobile = () => false;
 
-const WeeklyStat = ({ runs }: WeeklyStatProps) => {
+interface WeekRow {
+  timestamp: number;
+  xLabel: string;
+  totalHours: number;
+  totalKcal: number;
+  totalCount: number;
+  totalKm: number;
+  bySport: Record<
+    string,
+    { hours: number; kcal: number; count: number; km: number }
+  >;
+  [sportKey: string]: unknown;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{ payload: WeekRow }>;
+  metric: WeeklyMetric;
+}
+
+const WeeklyTooltip = ({ active, payload, metric }: TooltipProps) => {
+  if (!active || !payload || !payload.length) return null;
+  const row = payload[0].payload;
+  const d = new Date(row.timestamp);
+  const endD = new Date(row.timestamp + 6 * 86400000);
+  const weekStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ~ ${String(endD.getMonth() + 1).padStart(2, '0')}-${String(endD.getDate()).padStart(2, '0')}`;
+
+  const entries = Object.entries(row.bySport).sort(
+    (a, b) => b[1][metric] - a[1][metric]
+  );
+
+  return (
+    <div
+      className="rounded-lg border px-3 py-2.5 text-xs shadow-lg"
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+        color: 'var(--color-text)',
+      }}
+    >
+      <div className="font-mono-num mb-1 font-semibold">{weekStr}</div>
+      <div
+        className="font-mono-num mb-2"
+        style={{ color: 'var(--color-text-muted)' }}
+      >
+        {row.totalCount}次 · {row.totalHours.toFixed(1)}h ·{' '}
+        {Math.round(row.totalKcal).toLocaleString()} kcal
+        {row.totalKm > 0 ? ` · ${row.totalKm.toFixed(1)} km` : ''}
+      </div>
+      {entries.length > 0 && (
+        <div
+          className="space-y-1 border-t pt-1.5"
+          style={{ borderColor: 'var(--color-border)' }}
+        >
+          {entries.map(([sport, stats]) => {
+            const meta = getSportMeta(sport);
+            const valStr =
+              metric === 'hours'
+                ? formatRunTime(stats.hours * 60)
+                : metric === 'kcal'
+                  ? `${Math.round(stats.kcal).toLocaleString()} kcal`
+                  : metric === 'count'
+                    ? `${stats.count}次`
+                    : `${stats.km.toFixed(1)} km`;
+            return (
+              <div
+                key={sport}
+                className="flex items-center justify-between gap-4"
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: meta.color }}
+                  />
+                  <span>{meta.shortLabel}</span>
+                </span>
+                <span className="font-mono-num font-medium">{valStr}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const WeeklyStat = ({ runs, taxonomyMode = 'sub' }: WeeklyStatProps) => {
+  const [metric, setMetric] = useState<WeeklyMetric>('hours');
   const isMobile = useSyncExternalStore(
     subscribeToViewport,
     getIsMobile,
     getServerIsMobile
   );
   const weekLimit = isMobile ? 26 : 53;
-  const data = useMemo(() => {
-    if (!runs || runs.length === 0) return [];
 
-    const sortedRuns = [...runs].sort(
-      (a, b) =>
-        new Date(a.start_date_local.replace(' ', 'T')).getTime() -
-        new Date(b.start_date_local.replace(' ', 'T')).getTime()
+  const { data, sportKeys, avgValue } = useMemo(() => {
+    if (!runs || runs.length === 0) {
+      return {
+        data: [] as WeekRow[],
+        sportKeys: [] as string[],
+        avgValue: 0,
+      };
+    }
+
+    const sortedRuns = [...runs].sort((a, b) =>
+      a.start_date_local.localeCompare(b.start_date_local)
     );
 
     const getWeekStart = (dateStr: string) => {
-      const date = new Date(dateStr.replace(' ', 'T'));
+      const date = new Date(`${dateStr.slice(0, 10)}T12:00:00`);
       const day = date.getDay();
       const diff = date.getDate() - day + (day === 0 ? -6 : 1);
       const weekStart = new Date(date.getTime());
@@ -57,68 +160,84 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
       return weekStart.getTime();
     };
 
-    const firstRunDateStr = sortedRuns[0].start_date_local;
-    const lastRunDateStr = sortedRuns[sortedRuns.length - 1].start_date_local;
+    const startWeek = getWeekStart(sortedRuns[0].start_date_local);
+    const endWeek = getWeekStart(
+      sortedRuns[sortedRuns.length - 1].start_date_local
+    );
 
-    const startWeek = getWeekStart(firstRunDateStr);
-    const endWeek = getWeekStart(lastRunDateStr);
-
-    const weeksMap = new Map();
-
-    let currentT = new Date(startWeek);
-    while (currentT.getTime() <= endWeek) {
-      weeksMap.set(currentT.getTime(), {
-        timestamp: currentT.getTime(),
-        distance: 0,
-        activities: {} as Record<
-          string,
-          { distance: number; time: number; elevation: number }
-        >,
+    const weeksMap = new Map<number, WeekRow>();
+    for (
+      let cur = new Date(startWeek);
+      cur.getTime() <= endWeek;
+      cur.setDate(cur.getDate() + 7)
+    ) {
+      const ts = cur.getTime();
+      weeksMap.set(ts, {
+        timestamp: ts,
+        xLabel: '',
+        totalHours: 0,
+        totalKcal: 0,
+        totalCount: 0,
+        totalKm: 0,
+        bySport: {},
       });
-      currentT.setDate(currentT.getDate() + 7);
     }
+
+    const sportTotals = new Map<string, number>();
 
     sortedRuns.forEach((run) => {
       const w = getWeekStart(run.start_date_local);
-      const weekData = weeksMap.get(w);
-      if (weekData) {
-        const runDist = run.distance / 1000;
-        weekData.distance += runDist;
+      const weekRow = weeksMap.get(w);
+      if (!weekRow) return;
 
-        const splits = run.moving_time ? run.moving_time.split(', ') : [];
-        let totalSeconds = 0;
-        if (splits.length > 0) {
-          const timeStr = splits.splice(-1)[0];
-          const days = splits.length > 1 ? parseInt(splits[0]) : 0;
-          const [hours, minutes, seconds] = timeStr.split(':').map(Number);
-          totalSeconds = ((days * 24 + hours) * 60 + minutes) * 60 + seconds;
-        }
+      const sport = getActivityCategory(run, taxonomyMode);
+      const hours = getActivityMinutes(run) / 60;
+      const kcal = run.calories || 0;
+      const km = (run.distance || 0) / 1000;
 
-        if (!weekData.activities[run.type]) {
-          weekData.activities[run.type] = {
-            distance: 0,
-            time: 0,
-            elevation: 0,
-          };
-        }
-        weekData.activities[run.type].distance += runDist;
-        weekData.activities[run.type].time += totalSeconds;
-        weekData.activities[run.type].elevation += run.elevation_gain || 0;
+      weekRow.totalHours += hours;
+      weekRow.totalKcal += kcal;
+      weekRow.totalCount += 1;
+      weekRow.totalKm += km;
+
+      if (!weekRow.bySport[sport]) {
+        weekRow.bySport[sport] = { hours: 0, kcal: 0, count: 0, km: 0 };
       }
+      weekRow.bySport[sport].hours += hours;
+      weekRow.bySport[sport].kcal += kcal;
+      weekRow.bySport[sport].count += 1;
+      weekRow.bySport[sport].km += km;
+
+      const val =
+        metric === 'hours'
+          ? hours
+          : metric === 'kcal'
+            ? kcal
+            : metric === 'count'
+              ? 1
+              : km;
+      sportTotals.set(sport, (sportTotals.get(sport) || 0) + val);
     });
+
+    const orderedSports = Array.from(sportTotals.entries())
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k]) => k);
+
+    const allWeeks = Array.from(weeksMap.values());
+    const limited =
+      allWeeks.length > weekLimit ? allWeeks.slice(-weekLimit) : allWeeks;
 
     let currentYear = 0;
     let currentMonth = 0;
+    let activeCount = 0;
+    let metricSum = 0;
 
-    const weeksList = Array.from(weeksMap.values());
-    const limitedWeeksList =
-      weeksList.length > weekLimit ? weeksList.slice(-weekLimit) : weeksList;
-
-    return limitedWeeksList.map((item) => {
+    const formatted = limited.map((item) => {
       const d = new Date(item.timestamp);
       const month = d.getMonth() + 1;
       const year = d.getFullYear();
-      let xLabel: string;
+      let xLabel = '';
 
       if (year !== currentYear) {
         currentYear = year;
@@ -129,110 +248,149 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
         xLabel = IS_CHINESE
           ? `${month}月`
           : d.toLocaleString('en-US', { month: 'short' });
-      } else {
-        xLabel = '';
       }
 
-      return {
-        ...item,
-        xLabel,
-        distance: parseFloat(item.distance.toFixed(2)),
-      };
+      if (item.totalCount > 0) {
+        activeCount += 1;
+      }
+
+      const out: WeekRow = { ...item, xLabel };
+
+      orderedSports.forEach((s) => {
+        const v = item.bySport[s]?.[metric] || 0;
+        out[`sport_${s}`] =
+          metric === 'hours' || metric === 'km'
+            ? Number(v.toFixed(2))
+            : Math.round(v);
+      });
+
+      metricSum +=
+        metric === 'hours'
+          ? item.totalHours
+          : metric === 'kcal'
+            ? item.totalKcal
+            : metric === 'count'
+              ? item.totalCount
+              : item.totalKm;
+
+      return out;
     });
-  }, [runs, weekLimit]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      const d = new Date(data.timestamp);
-      const endD = new Date(data.timestamp + 6 * 24 * 60 * 60 * 1000);
-      const weekStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ~ ${String(endD.getMonth() + 1).padStart(2, '0')}-${String(endD.getDate()).padStart(2, '0')}`;
+    return {
+      data: formatted,
+      sportKeys: orderedSports,
+      avgValue: activeCount ? metricSum / activeCount : 0,
+    };
+  }, [runs, taxonomyMode, metric, weekLimit]);
 
-      return (
-        <div
-          className="rounded border p-3 text-sm shadow-md"
-          style={{
-            backgroundColor: 'var(--color-background)',
-            borderColor: 'var(--color-hr-primary)',
-            color: 'var(--color-run-date)',
-          }}
-        >
-          <p
-            className="mb-2 font-bold"
-            style={{ color: 'var(--color-run-table-thead)' }}
-          >
-            {weekStr}
-          </p>
-          <p className="mb-1">
-            {IS_CHINESE ? '总距离' : 'Total Distance'}:{' '}
-            <span
-              className="font-semibold"
-              style={{ color: 'var(--color-run-table-thead)' }}
-            >
-              {data.distance.toFixed(2)} km
-            </span>
-          </p>
-          {Object.entries(data.activities).map(
-            ([type, stats]: [string, any]) => (
-              <div key={type} className="mt-2 text-xs">
-                <span
-                  className="font-semibold"
-                  style={{ color: 'var(--color-run-table-thead)' }}
-                >
-                  {type}
-                </span>
-                : {stats.distance.toFixed(2)} km | {formatRunTime(stats.time)} |{' '}
-                {stats.elevation.toFixed(0)} m
-              </div>
-            )
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
+  if (!data.length) return null;
 
-  if (!data || data.length === 0) return null;
+  const avgFormatted =
+    metric === 'hours'
+      ? `${avgValue.toFixed(1)} h`
+      : metric === 'kcal'
+        ? `${Math.round(avgValue).toLocaleString()} kcal`
+        : metric === 'count'
+          ? `${avgValue.toFixed(1)} 次`
+          : `${avgValue.toFixed(1)} km`;
 
   return (
-    <div className="mt-8 mb-2 h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
-          <XAxis
-            dataKey="timestamp"
-            tickFormatter={(value) => {
-              const item = data.find((d) => d.timestamp === value);
-              return item ? item.xLabel : '';
-            }}
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
-            minTickGap={20}
-            interval={0}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-            width={40}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Line
-            type="monotone"
-            dataKey="distance"
-            stroke="var(--color-primary)"
-            strokeWidth={2}
-            dot={{ r: 3, fill: 'var(--color-primary)', strokeWidth: 1 }}
-            activeDot={{ r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+    <section
+      className="border-b pb-6"
+      style={{ borderColor: 'var(--color-border)' }}
+    >
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-sm font-semibold tracking-tight">每周训练量</h2>
+          <span
+            className="font-mono-num text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            周均 {avgFormatted}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3.5 text-xs">
+          {(
+            [
+              ['hours', '时长'],
+              ['kcal', '消耗'],
+              ['count', '次数'],
+              ['km', '距离'],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setMetric(key)}
+              className="pb-0.5 transition-colors"
+              style={{
+                color:
+                  metric === key
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-muted)',
+                borderBottom:
+                  metric === key
+                    ? '1.5px solid var(--color-brand)'
+                    : '1.5px solid transparent',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-56 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={data}
+            margin={{ top: 6, right: 6, bottom: 0, left: -14 }}
+          >
+            <CartesianGrid
+              strokeDasharray="2 4"
+              stroke="var(--color-border)"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="xLabel"
+              tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+              interval={0}
+              minTickGap={18}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v) =>
+                metric === 'kcal' && v >= 1000
+                  ? `${(v / 1000).toFixed(1)}k`
+                  : String(v)
+              }
+            />
+            <Tooltip
+              cursor={{
+                fill: 'var(--color-surface-subtle)',
+                opacity: 0.7,
+              }}
+              content={<WeeklyTooltip metric={metric} />}
+            />
+            {sportKeys.map((sport) => (
+              <Bar
+                key={sport}
+                dataKey={`sport_${sport}`}
+                stackId="weekly"
+                fill={getSportMeta(sport).color}
+                radius={[2, 2, 0, 0]}
+                maxBarSize={18}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
   );
 };
 
