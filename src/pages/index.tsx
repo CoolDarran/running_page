@@ -13,7 +13,6 @@ import Layout from '@/components/Layout';
 import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
-import SVGStat from '@/components/SVGStat';
 import WeeklyStat from '@/components/WeeklyStat';
 import YearsStat from '@/components/YearsStat';
 import ActivityHeatmap from '@/components/Dashboard/ActivityHeatmap';
@@ -130,9 +129,6 @@ const Index = () => {
 
   const singleRunId = useRunHashId();
   const [animationTrigger, setAnimationTrigger] = useState(0);
-
-  const selectedRunIdRef = useRef<number | null>(null);
-  const selectedRunDateRef = useRef<string | null>(null);
 
   const filterByCategory = useCallback(
     (run: Activity, category: string) =>
@@ -478,54 +474,6 @@ const Index = () => {
     }
   }, [runs, startAnimation, singleRunId]);
 
-  useEffect(() => {
-    if (year !== 'Total') return;
-
-    const svgStat = document.getElementById('svgStat');
-    if (!svgStat) return;
-
-    const handleClick = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName.toLowerCase() === 'path') {
-        const descEl = target.querySelector('desc');
-        if (descEl) {
-          const runId = Number(descEl.innerHTML);
-          if (!runId) return;
-          if (selectedRunIdRef.current === runId) {
-            selectedRunIdRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunIdRef.current = runId;
-            locateActivity([runId]);
-          }
-          return;
-        }
-
-        const titleEl = target.querySelector('title');
-        if (titleEl) {
-          const [runDate] = titleEl.innerHTML.match(
-            /\d{4}-\d{1,2}-\d{1,2}/
-          ) || [`${+thisYear + 1}`];
-          const runIDsOnDate = runs
-            .filter((r) => r.start_date_local.slice(0, 10) === runDate)
-            .map((r) => r.run_id);
-          if (!runIDsOnDate.length) return;
-          if (selectedRunDateRef.current === runDate) {
-            selectedRunDateRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunDateRef.current = runDate;
-            locateActivity(runIDsOnDate);
-          }
-        }
-      }
-    };
-    svgStat.addEventListener('click', handleClick);
-    return () => {
-      svgStat.removeEventListener('click', handleClick);
-    };
-  }, [year, locateActivity, runs, thisYear]);
-
   const { theme } = useTheme();
   void changeTitle;
 
@@ -756,19 +704,15 @@ const Index = () => {
           </div>
         )}
 
-        {/* Table or All-Time SVG Wall */}
-        {year === 'Total' && activeTab === 'map' ? (
-          <SVGStat />
-        ) : (
-          <RunTable
-            runs={tableRuns}
-            locateActivity={locateActivity}
-            runIndex={runIndex}
-            setRunIndex={setRunIndex}
-            taxonomyMode={taxonomyMode}
-            selectedSport={selectedSport}
-          />
-        )}
+        {/* Activity Table */}
+        <RunTable
+          runs={tableRuns}
+          locateActivity={locateActivity}
+          runIndex={runIndex}
+          setRunIndex={setRunIndex}
+          taxonomyMode={taxonomyMode}
+          selectedSport={selectedSport}
+        />
       </div>
 
       {import.meta.env.VERCEL && <Analytics />}

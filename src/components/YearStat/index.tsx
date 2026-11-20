@@ -1,9 +1,6 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { useMemo } from 'react';
 import useActivities from '@/hooks/useActivities';
 import { formatPace, M_TO_DIST, M_TO_ELEV, ELEV_UNIT } from '@/utils/utils';
-import useHover from '@/hooks/useHover';
-import { yearStats, githubYearStats } from '@assets/index';
-import { loadSvgComponent } from '@/utils/svgUtils';
 import { SHOW_ELEVATION_GAIN } from '@/utils/const';
 import {
   getActivityCategory,
@@ -12,20 +9,6 @@ import {
 } from '@/utils/workoutTaxonomy';
 import { computeDayStreak, getActivityMinutes } from '@/utils/workoutAnalytics';
 import { RollingNumber } from '@/components/Dashboard/Primitives';
-
-const yearSvgs = Object.fromEntries(
-  Object.keys(yearStats).map((path) => [
-    path,
-    lazy(() => loadSvgComponent(yearStats, path)),
-  ])
-);
-
-const githubYearSvgs = Object.fromEntries(
-  Object.keys(githubYearStats).map((path) => [
-    path,
-    lazy(() => loadSvgComponent(githubYearStats, path)),
-  ])
-);
 
 interface YearStatProps {
   year: string;
@@ -47,9 +30,6 @@ const YearStat = ({
   onClickTypeInYear,
 }: YearStatProps) => {
   const { activities: allActivities, years } = useActivities();
-  const [hovered, eventHandlers] = useHover();
-  const YearSVG = yearSvgs[`./year_${year}.svg`];
-  const GithubYearSVG = githubYearSvgs[`./github_${year}.svg`];
 
   const stats = useMemo(() => {
     const runs = years.includes(year)
@@ -154,7 +134,6 @@ const YearStat = ({
       <div
         className="border-b py-2.5"
         style={{ borderColor: 'var(--color-border)' }}
-        {...eventHandlers}
       >
         <button
           type="button"
@@ -189,12 +168,6 @@ const YearStat = ({
             )}
           </span>
         </button>
-        {year !== 'Total' && hovered && YearSVG && GithubYearSVG && (
-          <Suspense fallback={null}>
-            <YearSVG className="year-svg my-3 h-4/6 w-4/6 border-0 p-0" />
-            <GithubYearSVG className="github-year-svg my-3 h-auto w-full border-0 p-0" />
-          </Suspense>
-        )}
       </div>
     );
   }
@@ -203,7 +176,6 @@ const YearStat = ({
     <section
       className="border-b pb-6"
       style={{ borderColor: 'var(--color-border)' }}
-      {...eventHandlers}
     >
       {/* Year Header */}
       <div className="mb-4 flex items-baseline justify-between gap-2">

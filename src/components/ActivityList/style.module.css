@@ -121,21 +121,27 @@
 .lifeSection {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1.25rem;
+}
+
+.posterToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .yearSelector {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .yearButton {
-  padding: 0.35rem 0.75rem;
+  padding: 0.3rem 0.65rem;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   background: transparent;
   border: 1px solid var(--color-border);
@@ -158,10 +164,11 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.25rem;
   border-radius: 0.625rem;
   border: 1px solid var(--color-border);
   background-color: var(--color-surface);
+  overflow-x: auto;
 }
 
 .svgStage :global(svg) {

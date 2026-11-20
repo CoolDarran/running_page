@@ -10,8 +10,9 @@ import React, {
 } from 'react';
 import styles from './style.module.css';
 import { SHOW_ELEVATION_GAIN } from '@/utils/const';
-import { totalStat, yearSummaryStats } from '@assets/index';
+import { totalStat, yearStats, yearSummaryStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
+import { updateSvgSpecialColors } from '@/utils/colorUtils';
 import {
   DIST_UNIT,
   ELEV_UNIT,
@@ -35,13 +36,22 @@ import {
 
 type IntervalType = 'year' | 'month' | 'week' | 'day' | 'life';
 type ChartMetric = 'hours' | 'kcal' | 'km';
+type PosterKind = 'mol' | 'year_summary' | 'circular' | 'grid' | 'github';
 
 const INTERVAL_TABS: Array<{ key: IntervalType; label: string }> = [
   { key: 'year', label: '按年' },
   { key: 'month', label: '按月' },
   { key: 'week', label: '按周' },
   { key: 'day', label: '按日' },
-  { key: 'life', label: '人生视图' },
+  { key: 'life', label: '海报' },
+];
+
+const POSTER_MODES: Array<{ key: PosterKind; label: string }> = [
+  { key: 'mol', label: '人生月历' },
+  { key: 'year_summary', label: '年度海报' },
+  { key: 'circular', label: '环形年历' },
+  { key: 'grid', label: '路线网格' },
+  { key: 'github', label: '历年打卡' },
 ];
 
 const loadRoutePreview = () => import('@/components/RoutePreview');
@@ -62,9 +72,17 @@ const LIFE_SVG_MAP: Record<
   hiking: MonthOfLifeSvg('hiking'),
   cycling: MonthOfLifeSvg('cycling'),
   swimming: MonthOfLifeSvg('swimming'),
-  skiing: MonthOfLifeSvg('skiing'),
   workout: MonthOfLifeSvg('workout'),
 };
+
+const GridSvg = lazy(() => loadSvgComponent(totalStat, './grid.svg'));
+const GithubSvg = lazy(() => loadSvgComponent(totalStat, './github.svg'));
+
+const circularYearSvgs = Object.fromEntries(
+  Object.keys(yearStats)
+    .filter((path) => /^\.\/year_\d{4}\.svg$/.test(path))
+    .map((path) => [path, lazy(() => loadSvgComponent(yearStats, path))])
+);
 
 const yearSummarySvgs = Object.fromEntries(
   Object.keys(yearSummaryStats).map((path) => [
@@ -543,35 +561,239 @@ const PeriodCard = React.memo(
   }
 );
 
-const LifePosterView = ({
+const PosterGallery = ({
   sportType,
-  selectedYear,
+  availableYears,
 }: {
   sportType: string;
-  selectedYear: string | null;
+  availableYears: string[];
 }) => {
+  const [posterKind, setPosterKind] = useState<PosterKind>('mol');
+  const [selectedYear, setSelectedYear] = useState<string>(
+    () => availableYears[0] ?? '2026'
+  );
+  const stageRef = useRef<HTMLDivElement | null>(null);
+
+  const activeYear = availableYears.includes(selectedYear)
+    ? selectedYear
+    : (availableYears[0] ?? '2026');
+  const needsYear = posterKind === 'year_summary' || posterKind === 'circular';
   const token = SPORT_TO_SVG_TOKEN[sportType] || 'all';
-  const YearSvg = selectedYear
-    ? (token !== 'all' &&
-        yearSummarySvgs[`./year_summary_${token}_${selectedYear}.svg`]) ||
-      yearSummarySvgs[`./year_summary_${selectedYear}.svg`]
-    : null;
+
+  // Keyboard arrow navigation across years for year-scoped posters
+  useEffect(() => {
+    if (!needsYear || availableYears.length === 0) return;
+
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (
+        document.activeElement &&
+        document.activeElement.getAttribute('role') === 'tab'
+      ) {
+        return;
+      }
+      e.preventDefault();
+      const idx = availableYears.indexOf(activeYear);
+      if (idx === -1) return;
+      if (e.key === 'ArrowLeft' && idx > 0) {
+        setSelectedYear(availableYears[idx - 1]);
+      } else if (e.key === 'ArrowRight' && idx < availableYears.length - 1) {
+        setSelectedYear(availableYears[idx + 1]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [needsYear, activeYear, availableYears]);
+
+  // Apply theme-aware special color classes to Grid and GitHub SVGs once mounted & on theme change
+  useEffect(() => {
+    if (posterKind !== 'grid' && posterKind !== 'github') return;
+
+    updateSvgSpecialColors();
+
+    const stageObserver = new MutationObserver(() => {
+      updateSvgSpecialColors();
+    });
+    if (stageRef.current) {
+      stageObserver.observe(stageRef.current, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    const themeObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'data-theme'
+        ) {
+          updateSvgSpecialColors();
+        }
+      }
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => {
+      stageObserver.disconnect();
+      themeObserver.disconnect();
+    };
+  }, [posterKind]);
+
+  const handleExportSvg = useCallback(() => {
+    const svgEl = stageRef.current?.querySelector('svg');
+    if (!svgEl) return;
+
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(svgEl);
+    if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+      source = source.replace(
+        '<svg',
+        '<svg xmlns="http://www.w3.org/2000/svg"'
+      );
+    }
+
+    const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const suffixParts = [posterKind];
+    if (
+      (posterKind === 'mol' || posterKind === 'year_summary') &&
+      token !== 'all'
+    ) {
+      suffixParts.push(token);
+    }
+    if (needsYear) {
+      suffixParts.push(activeYear);
+    }
+    link.href = url;
+    link.download = `workouts_${suffixParts.join('_')}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, [posterKind, token, needsYear, activeYear]);
+
   const MolSvg = LIFE_SVG_MAP[token] || LIFE_SVG_MAP.all;
+  const YearSummarySvg =
+    (token !== 'all' &&
+      yearSummarySvgs[`./year_summary_${token}_${activeYear}.svg`]) ||
+    yearSummarySvgs[`./year_summary_${activeYear}.svg`] ||
+    null;
+  const CircularSvg = circularYearSvgs[`./year_${activeYear}.svg`] || null;
+
+  const renderPoster = () => {
+    if (posterKind === 'mol') {
+      return <MolSvg />;
+    }
+    if (posterKind === 'year_summary') {
+      return YearSummarySvg ? (
+        <YearSummarySvg />
+      ) : (
+        <span
+          className="py-12 text-xs"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
+          {activeYear} 年暂无年度海报
+        </span>
+      );
+    }
+    if (posterKind === 'circular') {
+      return CircularSvg ? (
+        <CircularSvg className="year-svg max-h-[68vh] w-auto" />
+      ) : (
+        <span
+          className="py-12 text-xs"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
+          {activeYear} 年暂无环形年历
+        </span>
+      );
+    }
+    if (posterKind === 'grid') {
+      return <GridSvg className="grid-svg h-auto w-full" />;
+    }
+    return <GithubSvg className="github-svg h-auto w-full" />;
+  };
 
   return (
-    <div className={styles.svgStage}>
-      <Suspense
-        fallback={
-          <span
-            className="py-12 text-xs"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            加载海报…
-          </span>
-        }
-      >
-        {YearSvg ? <YearSvg /> : <MolSvg />}
-      </Suspense>
+    <div
+      role="tabpanel"
+      aria-labelledby="summary-tab-life"
+      className={styles.lifeSection}
+    >
+      <div className={styles.posterToolbar}>
+        <div
+          className="flex flex-wrap items-center gap-4 text-xs"
+          role="group"
+          aria-label="海报类型"
+        >
+          {POSTER_MODES.map((m) => {
+            const active = posterKind === m.key;
+            return (
+              <button
+                key={m.key}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setPosterKind(m.key)}
+                className="pb-1 font-medium"
+                style={{
+                  color: active
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-muted)',
+                  borderBottom: active
+                    ? '2px solid var(--color-brand)'
+                    : '2px solid transparent',
+                }}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleExportSvg}
+          className={styles.yearButton}
+        >
+          导出 SVG
+        </button>
+      </div>
+
+      {needsYear && (
+        <div className={styles.yearSelector} role="group" aria-label="年份选择">
+          {availableYears.map((yr) => (
+            <button
+              key={yr}
+              type="button"
+              aria-pressed={activeYear === yr}
+              className={styles.yearButton}
+              onClick={() => setSelectedYear(yr)}
+            >
+              {yr}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div ref={stageRef} className={styles.svgStage}>
+        <Suspense
+          fallback={
+            <span
+              className="py-12 text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              加载海报…
+            </span>
+          }
+        >
+          {renderPoster()}
+        </Suspense>
+      </div>
     </div>
   );
 };
@@ -582,7 +804,6 @@ const ActivityList: React.FC = () => {
   const [taxonomyMode, setTaxonomyMode] = useState<TaxonomyMode>('sub');
   const [sportFilter, setSportFilter] = useState<string>('all');
   const [chartMetric, setChartMetric] = useState<ChartMetric>('hours');
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const tabElementsRef = useRef<Record<IntervalType, HTMLButtonElement | null>>(
     {
       year: null,
@@ -673,43 +894,6 @@ const ActivityList: React.FC = () => {
     [interval, selectInterval]
   );
 
-  // Preserve keyboard arrow navigation across years in Life view
-  useEffect(() => {
-    if (interval !== 'life') return;
-
-    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      if (
-        document.activeElement &&
-        document.activeElement.getAttribute('role') === 'tab'
-      ) {
-        return;
-      }
-      e.preventDefault();
-      const currentIndex = selectedYear
-        ? availableYears.indexOf(selectedYear)
-        : -1;
-      if (e.key === 'ArrowLeft') {
-        if (currentIndex === -1) {
-          setSelectedYear(availableYears[availableYears.length - 1] ?? null);
-        } else if (currentIndex > 0) {
-          setSelectedYear(availableYears[currentIndex - 1]);
-        } else {
-          setSelectedYear(null);
-        }
-      } else if (e.key === 'ArrowRight') {
-        if (currentIndex === -1) {
-          setSelectedYear(availableYears[0] ?? null);
-        } else if (currentIndex < availableYears.length - 1) {
-          setSelectedYear(availableYears[currentIndex + 1]);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [interval, selectedYear, availableYears]);
-
   return (
     <div className={styles.summaryPage}>
       {/* Page Title & Controls */}
@@ -721,7 +905,7 @@ const ActivityList: React.FC = () => {
             style={{ color: 'var(--color-text-muted)' }}
           >
             {interval === 'life'
-              ? `${availableYears.length} 个年份 · 支持 ←/→ 切换年份海报`
+              ? '人生月历 · 年度海报 · 环形年历 · 路线网格 · 历年打卡'
               : `${summaries.length} 个周期`}
           </p>
         </div>
@@ -853,38 +1037,10 @@ const ActivityList: React.FC = () => {
 
       {/* Tabpanel Content */}
       {interval === 'life' ? (
-        <div
-          role="tabpanel"
-          aria-labelledby="summary-tab-life"
-          className={styles.lifeSection}
-        >
-          <div
-            className={styles.yearSelector}
-            role="group"
-            aria-label="年份选择"
-          >
-            <button
-              type="button"
-              aria-pressed={selectedYear === null}
-              className={styles.yearButton}
-              onClick={() => setSelectedYear(null)}
-            >
-              人生总览
-            </button>
-            {availableYears.map((yr) => (
-              <button
-                key={yr}
-                type="button"
-                aria-pressed={selectedYear === yr}
-                className={styles.yearButton}
-                onClick={() => setSelectedYear(selectedYear === yr ? null : yr)}
-              >
-                {yr}
-              </button>
-            ))}
-          </div>
-          <LifePosterView sportType={sportFilter} selectedYear={selectedYear} />
-        </div>
+        <PosterGallery
+          sportType={sportFilter}
+          availableYears={availableYears}
+        />
       ) : (
         <div
           role="tabpanel"
