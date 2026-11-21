@@ -7496,7 +7496,11 @@
 "calories": 475.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 28.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[2063, 766, 460, 221, 0]",
 "streak": 2
 },
 {
@@ -7516,7 +7520,11 @@
 "calories": 516.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 45.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1350, 959, 676, 394, 0]",
 "streak": 1
 },
 {
@@ -7536,7 +7544,11 @@
 "calories": 577.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 61.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[160, 2041, 861, 338, 0]",
 "streak": 1
 },
 {
@@ -7556,7 +7568,11 @@
 "calories": 601.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 80.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[384, 1453, 889, 780, 0]",
 "streak": 2
 },
 {
@@ -7576,7 +7592,10 @@
 "calories": 304.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Workout",
+"suffer_score": 10.0,
+"device_name": "Apple Watch Series 6",
+"hr_zones": "[3532, 53, 0, 0, 0]",
 "streak": 3
 },
 {
@@ -7596,7 +7615,11 @@
 "calories": 631.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 47.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1226, 2181, 346, 426, 0]",
 "streak": 4
 },
 {
@@ -7616,7 +7639,11 @@
 "calories": 592.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 57.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[666, 2217, 812, 255, 0]",
 "streak": 1
 },
 {
@@ -7636,7 +7663,11 @@
 "calories": 545.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 62.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[662, 1745, 567, 497, 19]",
 "streak": 2
 },
 {
@@ -7656,7 +7687,11 @@
 "calories": 505.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 39.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1013, 1908, 404, 267, 0]",
 "streak": 3
 },
 {
@@ -7676,7 +7711,11 @@
 "calories": 537.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 39.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1538, 1311, 705, 128, 0]",
 "streak": 1
 },
 {
@@ -7696,7 +7735,11 @@
 "calories": 631.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 85.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[488, 1859, 524, 765, 192]",
 "streak": 1
 },
 {
@@ -7716,7 +7759,11 @@
 "calories": 526.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 39.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1269, 1662, 419, 431, 0]",
 "streak": 2
 },
 {
@@ -7736,7 +7783,9 @@
 "calories": 193.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 5.0,
+"hr_zones": "[1310, 292, 0, 0, 0]",
 "streak": 1
 },
 {
@@ -7756,7 +7805,10 @@
 "calories": 407.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Workout",
+"suffer_score": 14.0,
+"device_name": "Apple Watch Series 6",
+"hr_zones": "[4141, 706, 0, 0, 0]",
 "streak": 2
 },
 {
@@ -7776,7 +7828,9 @@
 "calories": 829.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 75.0,
+"hr_zones": "[1136, 1330, 940, 834, 0]",
 "streak": 3
 },
 {
@@ -7796,7 +7850,11 @@
 "calories": 611.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Workout",
+"suffer_score": 70.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[823, 1671, 510, 712, 0]",
 "streak": 4
 },
 {
@@ -7816,7 +7874,11 @@
 "calories": 487.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 33.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1592, 1120, 553, 164, 0]",
 "streak": 5
 },
 {
@@ -7836,7 +7898,9 @@
 "calories": 217.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 9.0,
+"hr_zones": "[1324, 150, 218, 0, 0]",
 "streak": 6
 },
 {
@@ -7856,7 +7920,11 @@
 "calories": 774.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 69.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1539, 1854, 909, 645, 0]",
 "streak": 1
 },
 {
@@ -7876,7 +7944,11 @@
 "calories": 693.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 96.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[725, 1228, 963, 927, 101]",
 "streak": 2
 },
 {
@@ -7896,7 +7968,11 @@
 "calories": 589.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 64.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[462, 2085, 603, 603, 13]",
 "streak": 3
 },
 {
@@ -7916,7 +7992,11 @@
 "calories": 518.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Workout",
+"suffer_score": 79.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[561, 1297, 677, 819, 5]",
 "streak": 4
 },
 {
@@ -7936,7 +8016,11 @@
 "calories": 491.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 41.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1277, 1866, 677, 155, 0]",
 "streak": 1
 },
 {
@@ -7956,7 +8040,11 @@
 "calories": 439.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 37.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1564, 1351, 129, 615, 0]",
 "streak": 1
 },
 {
@@ -7976,7 +8064,11 @@
 "calories": 266.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 21.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[2726, 903, 246, 84, 0]",
 "streak": 1
 },
 {
@@ -7996,7 +8088,11 @@
 "calories": 439.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 47.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1228, 1061, 826, 285, 0]",
 "streak": 2
 },
 {
@@ -8016,7 +8112,11 @@
 "calories": 521.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 66.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[878, 1126, 1447, 155, 0]",
 "streak": 3
 },
 {
@@ -8036,7 +8136,10 @@
 "calories": 385.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Workout",
+"suffer_score": 14.0,
+"device_name": "Apple Watch Series 6",
+"hr_zones": "[2027, 1837, 0, 0, 0]",
 "streak": 1
 },
 {
@@ -8056,7 +8159,11 @@
 "calories": 639.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 67.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1030, 2678, 784, 297, 0]",
 "streak": 2
 },
 {
@@ -8076,7 +8183,11 @@
 "calories": 515.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 41.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1459, 1564, 867, 104, 0]",
 "streak": 3
 },
 {
@@ -8096,7 +8207,11 @@
 "calories": 595.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 77.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1337, 834, 973, 816, 0]",
 "streak": 4
 },
 {
@@ -8116,7 +8231,11 @@
 "calories": 579.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 46.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1182, 1841, 855, 178, 0]",
 "streak": 1
 },
 {
@@ -8136,7 +8255,11 @@
 "calories": 576.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 54.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1180, 1724, 484, 563, 73]",
 "streak": 1
 },
 {
@@ -8156,7 +8279,9 @@
 "calories": 719.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 70.0,
+"hr_zones": "[1190, 1049, 752, 845, 0]",
 "streak": 2
 },
 {
@@ -8176,7 +8301,9 @@
 "calories": 713.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 46.0,
+"hr_zones": "[1315, 1831, 849, 153, 0]",
 "streak": 1
 },
 {
@@ -8196,7 +8323,11 @@
 "calories": 458.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 92.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[253, 442, 634, 1161, 16]",
 "streak": 2
 },
 {
@@ -8216,7 +8347,11 @@
 "calories": 663.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 85.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[949, 1438, 918, 866, 19]",
 "streak": 3
 },
 {
@@ -8236,7 +8371,11 @@
 "calories": 380.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 17.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[2498, 630, 199, 0, 0]",
 "streak": 4
 },
 {
@@ -8256,7 +8395,11 @@
 "calories": 531.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 46.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1803, 829, 1130, 146, 0]",
 "streak": 5
 },
 {
@@ -8276,7 +8419,11 @@
 "calories": 415.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 16.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[2850, 1012, 20, 0, 0]",
 "streak": 6
 },
 {
@@ -8296,7 +8443,11 @@
 "calories": 489.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 38.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1794, 1119, 931, 0, 0]",
 "streak": 1
 },
 {
@@ -8316,7 +8467,11 @@
 "calories": 465.0,
 "elevation_gain": 0.0,
 "source": "strava",
-"subtype": null,
+"subtype": "Crossfit",
+"suffer_score": 38.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1240, 1629, 747, 6, 0]",
 "streak": 1
 },
 {
