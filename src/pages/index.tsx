@@ -17,6 +17,7 @@ import WeeklyStat from '@/components/WeeklyStat';
 import YearsStat from '@/components/YearsStat';
 import ActivityHeatmap from '@/components/Dashboard/ActivityHeatmap';
 import TrainingInsights from '@/components/Dashboard/TrainingInsights';
+import WeeklyCoachBar from '@/components/Dashboard/WeeklyCoachBar';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 import { useInterval } from '@/hooks/useInterval';
@@ -667,6 +668,12 @@ const Index = () => {
             aria-labelledby="tab-overview"
             className="space-y-6"
           >
+            {(year === thisYear || year === 'Total') && !selectedSport && (
+              <WeeklyCoachBar
+                allActivities={activities}
+                onOpenInsights={() => selectTab('insights')}
+              />
+            )}
             <ActivityHeatmap
               activities={runs}
               year={year}

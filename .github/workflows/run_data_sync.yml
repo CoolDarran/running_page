@@ -2,6 +2,22 @@ name: Run Data Sync
 
 on:
   workflow_dispatch:
+    inputs:
+      backfill_strava_details:
+        description: 'Backfill historical Strava hr_zones, suffer_score, subtype, and elapsed_time'
+        required: false
+        type: boolean
+        default: false
+      backfill_since_year:
+        description: 'Earliest year to backfill (e.g. 2025 or 2026)'
+        required: false
+        type: string
+        default: '2025'
+      backfill_limit:
+        description: 'Max activities per run (<=45 to stay under Strava 15-min rate limit)'
+        required: false
+        type: string
+        default: '40'
   schedule:
     - cron: '0 0 * * *'
   push:
@@ -123,8 +139,16 @@ jobs:
 
       - name: Run sync Strava script
         if: env.RUN_TYPE == 'strava'
+        env:
+          BACKFILL_DETAILS: ${{ inputs.backfill_strava_details }}
+          BACKFILL_SINCE_YEAR: ${{ inputs.backfill_since_year || '2025' }}
+          BACKFILL_LIMIT: ${{ inputs.backfill_limit || '40' }}
         run: |
-          python run_page/strava_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }}
+          EXTRA_ARGS=""
+          if [ "$BACKFILL_DETAILS" = "true" ]; then
+            EXTRA_ARGS="--backfill-details --backfill-since-year ${BACKFILL_SINCE_YEAR} --backfill-limit ${BACKFILL_LIMIT}"
+          fi
+          python run_page/strava_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} $EXTRA_ARGS
         # If you only want to sync 'type running' add args --only-run, default script is to sync all data (rides and runs).
 
       - name: Run sync Google Health script
