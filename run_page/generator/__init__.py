@@ -9,7 +9,7 @@ import polyline as polyline_codec
 import stravalib
 from config import MAPPING_TYPE
 from gpxtrackposter import track_loader
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from polyline_processor import filter_out
 from synced_data_file_logger import save_synced_data_file_list
@@ -192,18 +192,9 @@ class Generator:
                 existing is None or not existing.hr_zones
             ):
                 try:
-                    zones = self.client.get_activity_zones(activity.id)
-                    for z in zones or []:
-                        if getattr(z, "type", None) == "heartrate" and getattr(
-                            z, "distribution_buckets", None
-                        ):
-                            buckets = [
-                                int(getattr(b, "time", 0) or 0)
-                                for b in z.distribution_buckets
-                            ]
-                            if any(buckets):
-                                activity.hr_zones = json.dumps(buckets)
-                            break
+                    zones_json = self._fetch_hr_zones(activity.id)
+                    if zones_json is not None:
+                        activity.hr_zones = zones_json
                 except Exception:
                     pass
             created = update_or_create_activity(self.session, activity)
@@ -213,6 +204,101 @@ class Generator:
                 sys.stdout.write(".")
             sys.stdout.flush()
         self.session.commit()
+
+    def _fetch_hr_zones(self, activity_id):
+        try:
+            zones = self.client.get_activity_zones(activity_id)
+            for z in zones or []:
+                if getattr(z, "type", None) == "heartrate" and getattr(
+                    z, "distribution_buckets", None
+                ):
+                    buckets = [
+                        int(getattr(b, "time", 0) or 0) for b in z.distribution_buckets
+                    ]
+                    if any(buckets):
+                        return json.dumps(buckets)
+                    break
+            return "[]"
+        except Exception as exc:
+            if "429" in str(exc) or "RateLimit" in type(exc).__name__:
+                raise
+            return None
+
+    def backfill_strava_details(self, since_year=2025, max_activities=40):
+        """
+        Rate-limited incremental backfill for historical Strava activities missing
+        hr_zones, elapsed_time, or subtype. Processes newest activities first.
+        """
+        if not getattr(self.client, "access_token", None):
+            self.check_access()
+
+        cutoff = f"{int(since_year)}-01-01"
+        pending_query = (
+            self.session.query(Activity)
+            .filter(Activity.start_date_local >= cutoff)
+            .filter(or_(Activity.source == "strava", Activity.source.is_(None)))
+            .filter(
+                or_(
+                    Activity.hr_zones.is_(None),
+                    Activity.elapsed_time.is_(None),
+                    Activity.subtype.is_(None),
+                )
+            )
+            .order_by(Activity.start_date_local.desc())
+        )
+        total_pending = pending_query.count()
+        if not total_pending:
+            print(f"No Strava activities >= {since_year} need detail backfill.")
+            return
+
+        batch = pending_query.limit(max(1, int(max_activities))).all()
+        print(
+            f"\nBackfilling {len(batch)} of {total_pending} pending Strava activities (>= {since_year})..."
+        )
+        updated = 0
+        for row in batch:
+            try:
+                activity = self.client.get_activity(
+                    int(row.run_id), include_all_efforts=False
+                )
+                if IGNORE_BEFORE_SAVING:
+                    if activity.map and activity.map.summary_polyline:
+                        activity.map.summary_polyline = filter_out(
+                            activity.map.summary_polyline
+                        )
+                activity.source = "strava"
+                activity.elevation_gain = activity.total_elevation_gain
+                sport_type = getattr(activity, "sport_type", None)
+                activity.subtype = str(sport_type) if sport_type else str(activity.type)
+                if getattr(activity, "average_heartrate", None):
+                    if not row.hr_zones:
+                        zones_json = self._fetch_hr_zones(activity.id)
+                        if zones_json is not None:
+                            activity.hr_zones = zones_json
+                elif row.hr_zones is None:
+                    activity.hr_zones = "[]"
+
+                update_or_create_activity(self.session, activity)
+                updated += 1
+                sys.stdout.write("*")
+                sys.stdout.flush()
+                if updated % 10 == 0:
+                    self.session.commit()
+            except Exception as exc:
+                err_name = type(exc).__name__
+                err_msg = str(exc)
+                if "429" in err_msg or "RateLimit" in err_name:
+                    print(
+                        f"\nStrava rate limit reached after {updated} activities; saving progress."
+                    )
+                    break
+                print(
+                    f"\nSkip activity {row.run_id} during backfill: {err_name}: {err_msg}"
+                )
+
+        self.session.commit()
+        remaining = max(0, total_pending - updated)
+        print(f"\nBackfill complete: updated {updated}, remaining ~{remaining}.")
 
     def sync_from_data_dir(self, data_dir, file_suffix="gpx", activity_title_dict={}):
         loader = track_loader.TrackLoader()

@@ -1,9 +1,16 @@
 import { convertMovingTime2Sec, type Activity } from './utils';
 import {
+  classifySubSport,
   getActivityCategory,
   getSportMeta,
   type TaxonomyMode,
 } from './workoutTaxonomy';
+import {
+  classifyTrainingPillar,
+  PILLAR_META,
+  TRAINING_GOALS,
+  type TrainingPillar,
+} from './trainingGoals';
 
 export function getActivityMinutes(activity: Activity): number {
   return convertMovingTime2Sec(activity.moving_time) / 60;
@@ -36,8 +43,11 @@ export function parseHrZones(activity: Activity): number[] | null {
 }
 
 /**
- * Banister TRIMP (Training Impulse) estimate using moving duration + heart rate reserve.
- * Falls back to Strava suffer_score or calorie-scaled estimate when HR is missing.
+ * Training load (TRIMP) estimate:
+ * 1) Strava Relative Effort (suffer_score) when present
+ * 2) Edwards HR-Zone TRIMP (weighted minutes across Z1-Z5, scaled to match Banister range)
+ * 3) Banister exponential HRR TRIMP using moving duration + avg HR
+ * 4) Calorie / duration fallback
  */
 export function calculateTrimp(
   activity: Activity,
@@ -47,6 +57,23 @@ export function calculateTrimp(
   if (activity.suffer_score && activity.suffer_score > 0) {
     return Math.round(activity.suffer_score);
   }
+
+  const zones = parseHrZones(activity);
+  if (zones) {
+    const totalSec = zones.reduce((s, v) => s + v, 0);
+    if (totalSec > 0) {
+      // Edwards TRIMP: sum(minutes_in_zone * zone_weight[1..5]) * 0.55 to align scale with Banister TRIMP
+      const edwards =
+        (zones[0] * 1 +
+          zones[1] * 2 +
+          zones[2] * 3 +
+          zones[3] * 4 +
+          zones[4] * 5) /
+        60;
+      return Math.round(edwards * 0.55);
+    }
+  }
+
   const minutes = getActivityMinutes(activity);
   if (minutes <= 0) return 0;
 
@@ -284,9 +311,12 @@ export function computeYtdComparison(
   return { years, points, yearTotals };
 }
 
+export type ConsistencyTargetMode = 'sessions' | 'kcal';
+
 export interface WeekConsistencyItem {
   weekStart: string;
   count: number;
+  activeDays: number;
   hours: number;
   kcal: number;
   status: 'hit' | 'near' | 'rest';
@@ -298,13 +328,15 @@ export interface WeeklyConsistencySummary {
   totalWeeks: number;
   currentStreak: number;
   bestStreak: number;
-  targetSessions: number;
+  targetValue: number;
+  targetMode: ConsistencyTargetMode;
 }
 
 export function computeWeeklyConsistency(
   activities: Activity[],
-  targetSessions = 3,
-  maxWeeks = 52
+  targetValue = 3,
+  maxWeeks = 52,
+  targetMode: ConsistencyTargetMode = 'sessions'
 ): WeeklyConsistencySummary {
   if (!activities.length) {
     return {
@@ -313,7 +345,8 @@ export function computeWeeklyConsistency(
       totalWeeks: 0,
       currentStreak: 0,
       bestStreak: 0,
-      targetSessions,
+      targetValue,
+      targetMode,
     };
   }
 
@@ -338,13 +371,21 @@ export function computeWeeklyConsistency(
   );
   const startMon = windowStart > firstMon ? windowStart : firstMon;
 
-  const map = new Map<string, { count: number; hours: number; kcal: number }>();
+  const map = new Map<
+    string,
+    { count: number; days: Set<string>; hours: number; kcal: number }
+  >();
   for (
     let cur = new Date(startMon);
     cur <= lastMon;
     cur = new Date(cur.getTime() + 7 * 86400000)
   ) {
-    map.set(cur.toISOString().slice(0, 10), { count: 0, hours: 0, kcal: 0 });
+    map.set(cur.toISOString().slice(0, 10), {
+      count: 0,
+      days: new Set(),
+      hours: 0,
+      kcal: 0,
+    });
   }
 
   sorted.forEach((a) => {
@@ -352,24 +393,40 @@ export function computeWeeklyConsistency(
     const entry = map.get(k);
     if (entry) {
       entry.count += 1;
+      entry.days.add(a.start_date_local.slice(0, 10));
       entry.hours += getActivityMinutes(a) / 60;
       entry.kcal += a.calories || 0;
     }
   });
 
   const weeks: WeekConsistencyItem[] = Array.from(map.entries()).map(
-    ([weekStart, v]) => ({
-      weekStart,
-      count: v.count,
-      hours: Number(v.hours.toFixed(1)),
-      kcal: Math.round(v.kcal),
-      status:
-        v.count >= targetSessions
-          ? 'hit'
-          : v.count >= Math.max(1, targetSessions - 1)
-            ? 'near'
-            : 'rest',
-    })
+    ([weekStart, v]) => {
+      const kcal = Math.round(v.kcal);
+      let status: 'hit' | 'near' | 'rest';
+      if (targetMode === 'kcal') {
+        status =
+          kcal >= targetValue
+            ? 'hit'
+            : kcal >= Math.round(targetValue * 0.75)
+              ? 'near'
+              : 'rest';
+      } else {
+        status =
+          v.count >= targetValue
+            ? 'hit'
+            : v.count >= Math.max(1, targetValue - 1)
+              ? 'near'
+              : 'rest';
+      }
+      return {
+        weekStart,
+        count: v.count,
+        activeDays: v.days.size,
+        hours: Number(v.hours.toFixed(1)),
+        kcal,
+        status,
+      };
+    }
   );
 
   let bestStreak = 0;
@@ -403,7 +460,8 @@ export function computeWeeklyConsistency(
     totalWeeks: weeks.length,
     currentStreak,
     bestStreak,
-    targetSessions,
+    targetValue,
+    targetMode,
   };
 }
 
@@ -684,4 +742,510 @@ export function computeDayStreak(activities: Activity[]): number {
     }
   }
   return best;
+}
+
+export interface PillarSlice {
+  key: TrainingPillar;
+  label: string;
+  shortLabel: string;
+  color: string;
+  examples: string;
+  count: number;
+  hours: number;
+  kcal: number;
+  sharePct: number;
+  status: 'ok' | 'low';
+}
+
+export interface TrainingTriangleSummary {
+  windowDays: number;
+  totalSessions: number;
+  totalHours: number;
+  totalKcal: number;
+  pillars: PillarSlice[];
+  diagnosis: string;
+}
+
+export function computeTrainingTriangle(
+  activities: Activity[],
+  windowDays = 28
+): TrainingTriangleSummary {
+  if (!activities.length) {
+    return {
+      windowDays,
+      totalSessions: 0,
+      totalHours: 0,
+      totalKcal: 0,
+      pillars: [],
+      diagnosis: '暂无近期训练数据',
+    };
+  }
+
+  let maxDate = '';
+  activities.forEach((a) => {
+    const d = a.start_date_local.slice(0, 10);
+    if (d > maxDate) maxDate = d;
+  });
+
+  const endMs = new Date(`${maxDate}T12:00:00`).getTime();
+  const startMs = endMs - (windowDays - 1) * 86400000;
+
+  const recent = activities.filter((a) => {
+    const t = new Date(`${a.start_date_local.slice(0, 10)}T12:00:00`).getTime();
+    return t >= startMs && t <= endMs;
+  });
+
+  const acc: Record<
+    TrainingPillar,
+    { count: number; hours: number; kcal: number }
+  > = {
+    metcon: { count: 0, hours: 0, kcal: 0 },
+    strength: { count: 0, hours: 0, kcal: 0 },
+    aerobic: { count: 0, hours: 0, kcal: 0 },
+  };
+
+  let totalHours = 0;
+  let totalKcal = 0;
+
+  recent.forEach((a) => {
+    const pillar = classifyTrainingPillar(a);
+    const hrs = getActivityMinutes(a) / 60;
+    const kcal = a.calories || 0;
+    acc[pillar].count += 1;
+    acc[pillar].hours += hrs;
+    acc[pillar].kcal += kcal;
+    totalHours += hrs;
+    totalKcal += kcal;
+  });
+
+  const scaleFactor = windowDays / 28;
+  const minStrength = Math.max(
+    1,
+    Math.round(TRAINING_GOALS.rolling4wMinStrength * scaleFactor)
+  );
+  const minAerobic = Math.max(
+    1,
+    Math.round(TRAINING_GOALS.rolling4wMinAerobic * scaleFactor)
+  );
+
+  const order: TrainingPillar[] = ['metcon', 'strength', 'aerobic'];
+  const pillars: PillarSlice[] = order.map((key) => {
+    const meta = PILLAR_META[key];
+    const g = acc[key];
+    const sharePct =
+      totalHours > 0 ? Math.round((g.hours / totalHours) * 100) : 0;
+    let status: 'ok' | 'low' = 'ok';
+    if (key === 'strength' && g.count < minStrength) status = 'low';
+    if (key === 'aerobic' && g.count < minAerobic) status = 'low';
+    if (key === 'metcon' && g.count === 0) status = 'low';
+    return {
+      key,
+      label: meta.label,
+      shortLabel: meta.shortLabel,
+      color: meta.color,
+      examples: meta.examples,
+      count: g.count,
+      hours: Number(g.hours.toFixed(1)),
+      kcal: Math.round(g.kcal),
+      sharePct,
+      status,
+    };
+  });
+
+  const lowStrength = acc.strength.count < minStrength;
+  const lowAerobic = acc.aerobic.count < minAerobic;
+  let diagnosis = '近 4 周代谢、力量与有氧配比均衡，继续维持节奏。';
+  if (lowStrength && lowAerobic) {
+    diagnosis = `近 ${windowDays} 天专项力量（${acc.strength.count}次）与低中强有氧（${acc.aerobic.count}次）偏少，建议每周穿插 1 次力量保肌 + 1 次有氧燃脂恢复。`;
+  } else if (lowStrength) {
+    diagnosis = `近 ${windowDays} 天专项力量仅 ${acc.strength.count} 次（建议 ≥${minStrength} 次），减脂期建议每周留 1 次纯力量稳住肌肉量。`;
+  } else if (lowAerobic) {
+    diagnosis = `近 ${windowDays} 天有氧恢复仅 ${acc.aerobic.count} 次（建议 ≥${minAerobic} 次），补 1 次 45m 低心率有氧有助于拉高周消耗并加速恢复。`;
+  }
+
+  return {
+    windowDays,
+    totalSessions: recent.length,
+    totalHours: Number(totalHours.toFixed(1)),
+    totalKcal: Math.round(totalKcal),
+    pillars,
+    diagnosis,
+  };
+}
+
+export interface CrossFitQuarterPoint {
+  quarter: string;
+  count: number;
+  avgMinutes: number;
+  avgHr: number | null;
+  avgMaxHr: number | null;
+  avgKcal: number;
+  kcalPerMin: number;
+  z45Minutes: number | null;
+  z2Minutes: number | null;
+  zonesSynced: number;
+}
+
+export interface CrossFitTrendSummary {
+  quarters: CrossFitQuarterPoint[];
+  totalSessions: number;
+  zonesSyncedTotal: number;
+  hrDelta: number | null;
+  kcalDensityDelta: number | null;
+  interpretation: string;
+}
+
+export function computeCrossFitTrend(
+  allActivities: Activity[],
+  maxQuarters = 8
+): CrossFitTrendSummary {
+  const cf = allActivities.filter((a) => classifySubSport(a) === 'CrossFit');
+  if (!cf.length) {
+    return {
+      quarters: [],
+      totalSessions: 0,
+      zonesSyncedTotal: 0,
+      hrDelta: null,
+      kcalDensityDelta: null,
+      interpretation: '暂无 CrossFit 记录',
+    };
+  }
+
+  const byQ = new Map<
+    string,
+    {
+      count: number;
+      minSum: number;
+      hrSum: number;
+      hrCount: number;
+      maxHrSum: number;
+      maxHrCount: number;
+      kcalSum: number;
+      z45SecSum: number;
+      z2SecSum: number;
+      zonesSynced: number;
+    }
+  >();
+
+  let zonesSyncedTotal = 0;
+
+  cf.forEach((a) => {
+    const yr = a.start_date_local.slice(0, 4);
+    const mo = Number(a.start_date_local.slice(5, 7)) || 1;
+    const qKey = `${yr}-Q${Math.floor((mo - 1) / 3) + 1}`;
+    if (!byQ.has(qKey)) {
+      byQ.set(qKey, {
+        count: 0,
+        minSum: 0,
+        hrSum: 0,
+        hrCount: 0,
+        maxHrSum: 0,
+        maxHrCount: 0,
+        kcalSum: 0,
+        z45SecSum: 0,
+        z2SecSum: 0,
+        zonesSynced: 0,
+      });
+    }
+    const g = byQ.get(qKey)!;
+    const mins = getActivityMinutes(a);
+    g.count += 1;
+    g.minSum += mins;
+    g.kcalSum += a.calories || 0;
+    if (a.average_heartrate && a.average_heartrate > 0) {
+      g.hrSum += a.average_heartrate;
+      g.hrCount += 1;
+    }
+    if (a.max_heartrate && a.max_heartrate > 0) {
+      g.maxHrSum += a.max_heartrate;
+      g.maxHrCount += 1;
+    }
+    const zones = parseHrZones(a);
+    if (zones) {
+      g.zonesSynced += 1;
+      zonesSyncedTotal += 1;
+      g.z2SecSum += zones[1];
+      g.z45SecSum += zones[3] + zones[4];
+    }
+  });
+
+  const quarters: CrossFitQuarterPoint[] = Array.from(byQ.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-maxQuarters)
+    .map(([quarter, g]) => {
+      const avgMinutes = g.count ? g.minSum / g.count : 0;
+      const avgKcal = g.count ? g.kcalSum / g.count : 0;
+      return {
+        quarter,
+        count: g.count,
+        avgMinutes: Math.round(avgMinutes),
+        avgHr: g.hrCount ? Number((g.hrSum / g.hrCount).toFixed(1)) : null,
+        avgMaxHr: g.maxHrCount ? Math.round(g.maxHrSum / g.maxHrCount) : null,
+        avgKcal: Math.round(avgKcal),
+        kcalPerMin:
+          g.minSum > 0 ? Number((g.kcalSum / g.minSum).toFixed(2)) : 0,
+        z45Minutes:
+          g.zonesSynced > 0
+            ? Number((g.z45SecSum / 60 / g.zonesSynced).toFixed(1))
+            : null,
+        z2Minutes:
+          g.zonesSynced > 0
+            ? Number((g.z2SecSum / 60 / g.zonesSynced).toFixed(1))
+            : null,
+        zonesSynced: g.zonesSynced,
+      };
+    });
+
+  // Compare latest quarter with >= 5 sessions against earliest baseline with >= 5 sessions
+  const substantial = quarters.filter((q) => q.count >= 5);
+  let hrDelta: number | null = null;
+  let kcalDensityDelta: number | null = null;
+  let interpretation =
+    '保持稳定 CrossFit 频率，持续观察单位分钟消耗与心率效率。';
+
+  if (substantial.length >= 2) {
+    const first = substantial[0];
+    const last = substantial[substantial.length - 1];
+    if (first.avgHr !== null && last.avgHr !== null) {
+      hrDelta = Number((last.avgHr - first.avgHr).toFixed(1));
+    }
+    kcalDensityDelta = Number((last.kcalPerMin - first.kcalPerMin).toFixed(2));
+
+    if (zonesSyncedTotal > 0 && last.z45Minutes !== null) {
+      interpretation = `最新季度单节 Z4–Z5 有效高强 ${last.z45Minutes}m、消耗密度 ${last.kcalPerMin} kcal/min；${
+        hrDelta !== null && hrDelta <= -4
+          ? `均心率较 ${first.quarter} 下降 ${Math.abs(hrDelta)} bpm，结合高强时长可区分心肺适应与强度漂移。`
+          : `均心率稳定在 ${last.avgHr} bpm。`
+      }`;
+    } else if (hrDelta !== null && hrDelta <= -5) {
+      interpretation = `均心率较 ${first.quarter} 下降 ${Math.abs(hrDelta)} bpm、消耗密度 ${kcalDensityDelta >= 0 ? '+' : ''}${kcalDensityDelta} kcal/min。运行一次 Strava 历史区间回填后即可看清 Z4–Z5 有效高强时间。`;
+    } else if (hrDelta !== null && hrDelta >= 4) {
+      interpretation = `均心率较 ${first.quarter} 上升 +${hrDelta} bpm（${last.kcalPerMin} kcal/min），近期课上代谢刺激走高，注意穿插恢复日。`;
+    }
+  }
+
+  return {
+    quarters,
+    totalSessions: cf.length,
+    zonesSyncedTotal,
+    hrDelta,
+    kcalDensityDelta,
+    interpretation,
+  };
+}
+
+export interface WeeklyCoachSummary {
+  weekLabel: string;
+  weekStart: string;
+  weekEnd: string;
+  daysLeftInWeek: number;
+  activeDays: number;
+  sessionCount: number;
+  hours: number;
+  kcal: number;
+  consecutiveDays: number;
+  daysSinceLastWorkout: number;
+  acwr: number | null;
+  tsb: number | null;
+  pillarCounts: Record<TrainingPillar, number>;
+  rolling4w: {
+    metcon: number;
+    strength: number;
+    aerobic: number;
+    avgWeeklyKcal: number;
+    floorHitRatePct: number;
+  };
+  advice: {
+    tone: 'ok' | 'warn' | 'focus';
+    tag: string;
+    headline: string;
+    detail: string;
+  };
+}
+
+export function computeWeeklyCoach(
+  allActivities: Activity[]
+): WeeklyCoachSummary | null {
+  if (!allActivities.length) return null;
+
+  const sorted = allActivities
+    .slice()
+    .sort((a, b) => a.start_date_local.localeCompare(b.start_date_local));
+  const latestAct = sorted[sorted.length - 1];
+  const latestIso = latestAct.start_date_local.slice(0, 10);
+
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const todayMs = new Date(`${todayIso}T12:00:00`).getTime();
+  const latestMs = new Date(`${latestIso}T12:00:00`).getTime();
+  const diffFromToday = Math.round((todayMs - latestMs) / 86400000);
+
+  // Anchor on real today when data is fresh (within 14 days), else anchor on latest activity date
+  const isCurrentWeek = diffFromToday >= -1 && diffFromToday <= 14;
+  const anchorIso = isCurrentWeek ? todayIso : latestIso;
+  const anchorDate = new Date(`${anchorIso}T12:00:00`);
+  const dow = (anchorDate.getDay() + 6) % 7; // Mon=0 .. Sun=6
+  const weekStartObj = new Date(anchorDate.getTime() - dow * 86400000);
+  const weekEndObj = new Date(weekStartObj.getTime() + 6 * 86400000);
+  const weekStart = weekStartObj.toISOString().slice(0, 10);
+  const weekEnd = weekEndObj.toISOString().slice(0, 10);
+  const daysLeftInWeek = 7 - dow; // includes today
+
+  const weekActs = sorted.filter((a) => {
+    const d = a.start_date_local.slice(0, 10);
+    return d >= weekStart && d <= weekEnd;
+  });
+
+  const activeDaySet = new Set(
+    weekActs.map((a) => a.start_date_local.slice(0, 10))
+  );
+  const activeDays = activeDaySet.size;
+  const sessionCount = weekActs.length;
+  const hours = Number(
+    weekActs.reduce((s, a) => s + getActivityMinutes(a) / 60, 0).toFixed(1)
+  );
+  const kcal = Math.round(weekActs.reduce((s, a) => s + (a.calories || 0), 0));
+
+  const pillarCounts: Record<TrainingPillar, number> = {
+    metcon: 0,
+    strength: 0,
+    aerobic: 0,
+  };
+  weekActs.forEach((a) => {
+    pillarCounts[classifyTrainingPillar(a)] += 1;
+  });
+
+  // Current consecutive training days ending on anchorIso or anchorIso - 1 day
+  const allDates = new Set(sorted.map((a) => a.start_date_local.slice(0, 10)));
+  let consecutiveDays = 0;
+  const checkStartOffset = allDates.has(anchorIso) ? 0 : 1;
+  for (let offset = checkStartOffset; offset < 60; offset++) {
+    const dIso = new Date(anchorDate.getTime() - offset * 86400000)
+      .toISOString()
+      .slice(0, 10);
+    if (allDates.has(dIso)) {
+      consecutiveDays += 1;
+    } else {
+      break;
+    }
+  }
+
+  const daysSinceLastWorkout = Math.max(
+    0,
+    Math.round((anchorDate.getTime() - latestMs) / 86400000)
+  );
+
+  const fitness = computeFitnessSeries(allActivities, 90);
+  const acwr = fitness.latest ? fitness.latest.acwr : null;
+  const tsb = fitness.latest ? fitness.latest.tsb : null;
+
+  const triangle = computeTrainingTriangle(allActivities, 28);
+  const rolling4wMetcon =
+    triangle.pillars.find((p) => p.key === 'metcon')?.count ?? 0;
+  const rolling4wStrength =
+    triangle.pillars.find((p) => p.key === 'strength')?.count ?? 0;
+  const rolling4wAerobic =
+    triangle.pillars.find((p) => p.key === 'aerobic')?.count ?? 0;
+
+  const recent4w = computeWeeklyConsistency(
+    allActivities,
+    TRAINING_GOALS.weeklyFloorDays,
+    4,
+    'sessions'
+  );
+  const avgWeeklyKcal = recent4w.weeks.length
+    ? Math.round(
+        recent4w.weeks.reduce((s, w) => s + w.kcal, 0) / recent4w.weeks.length
+      )
+    : 0;
+  const floorHitRatePct = recent4w.totalWeeks
+    ? Math.round((recent4w.hitWeeks / recent4w.totalWeeks) * 100)
+    : 0;
+
+  // Deterministic, actionable coaching sentence for CrossFit + Fat Loss + Consistency
+  const missingDaysForFloor = Math.max(
+    0,
+    TRAINING_GOALS.weeklyFloorDays - activeDays
+  );
+  const missingDaysForTarget = Math.max(
+    0,
+    TRAINING_GOALS.weeklyTargetDays - activeDays
+  );
+  const missingKcal = Math.max(0, TRAINING_GOALS.weeklyTargetKcal - kcal);
+
+  const missingPillarHint =
+    rolling4wStrength < TRAINING_GOALS.rolling4wMinStrength
+      ? '优先补 1 次专项力量保肌'
+      : rolling4wAerobic < TRAINING_GOALS.rolling4wMinAerobic
+        ? '补 1 次 45m 低心率有氧燃脂恢复'
+        : '继续按早课节奏推进 CrossFit';
+
+  let advice: WeeklyCoachSummary['advice'];
+  if (
+    consecutiveDays >= TRAINING_GOALS.consecutiveDayWarn ||
+    (acwr !== null && acwr > 1.35) ||
+    (tsb !== null && tsb < -20)
+  ) {
+    advice = {
+      tone: 'warn',
+      tag: '疲劳预警',
+      headline:
+        consecutiveDays >= TRAINING_GOALS.consecutiveDayWarn
+          ? `已连练 ${consecutiveDays} 天，明天建议主动休整或 40m 低心率恢复`
+          : `近期负荷比 ACWR ${acwr} 偏高，未来 1–2 天降强度防断档`,
+      detail: `避免硬顶高强度引发 5–8 天被动停训；保持拉伸/快走即可维持节律。`,
+    };
+  } else if (daysSinceLastWorkout >= 5) {
+    advice = {
+      tone: 'focus',
+      tag: '重启节奏',
+      headline: `已休整 ${daysSinceLastWorkout} 天，今天安排 1 节中等强度课找回晨练惯性`,
+      detail: `不追极限心率，完成即达标；${missingPillarHint}。`,
+    };
+  } else if (missingDaysForFloor > 0) {
+    advice = {
+      tone: 'focus',
+      tag: '保底推进',
+      headline: `本周还差 ${missingDaysForFloor} 天达保底线（${activeDays}/${TRAINING_GOALS.weeklyFloorDays} 天），差 ${missingKcal.toLocaleString()} kcal 达减脂线`,
+      detail: `本周还剩 ${daysLeftInWeek} 天，${missingPillarHint}。`,
+    };
+  } else if (missingDaysForTarget > 0 || missingKcal > 0) {
+    advice = {
+      tone: 'ok',
+      tag: '已守住保底',
+      headline: `已达 ${TRAINING_GOALS.weeklyFloorDays} 天保底线${missingKcal > 0 ? `，再补 ${missingKcal.toLocaleString()} kcal 达成周减脂目标` : '，本周减脂消耗也已达标'}`,
+      detail: `再加 1 次低疲劳训练可冲 ${TRAINING_GOALS.weeklyTargetDays} 天目标；${missingPillarHint}。`,
+    };
+  } else {
+    advice = {
+      tone: 'ok',
+      tag: '双项达标',
+      headline: `本周出勤（${activeDays} 天）与消耗（${kcal.toLocaleString()} kcal）均已达标`,
+      detail: `可放心安排休息或轻松活动，保持下周早课状态；${missingPillarHint}。`,
+    };
+  }
+
+  return {
+    weekLabel: isCurrentWeek ? '本周' : '最近一周',
+    weekStart,
+    weekEnd,
+    daysLeftInWeek,
+    activeDays,
+    sessionCount,
+    hours,
+    kcal,
+    consecutiveDays,
+    daysSinceLastWorkout,
+    acwr,
+    tsb,
+    pillarCounts,
+    rolling4w: {
+      metcon: rolling4wMetcon,
+      strength: rolling4wStrength,
+      aerobic: rolling4wAerobic,
+      avgWeeklyKcal,
+      floorHitRatePct,
+    },
+    advice,
+  };
 }

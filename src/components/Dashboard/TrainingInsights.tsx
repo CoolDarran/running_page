@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Area,
+  Bar,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -13,11 +14,14 @@ import {
 } from 'recharts';
 import type { Activity } from '@/utils/utils';
 import type { TaxonomyMode } from '@/utils/workoutTaxonomy';
+import { TRAINING_GOALS } from '@/utils/trainingGoals';
 import {
+  computeCrossFitTrend,
   computeFitnessSeries,
   computeHrLoadBySport,
   computePersonalRecords,
   computeRhythmMatrix,
+  computeTrainingTriangle,
   computeWeeklyConsistency,
   computeYtdComparison,
   parseHrZones,
@@ -32,6 +36,8 @@ interface TrainingInsightsProps {
   year: string;
 }
 
+type ConsistencyPreset = '3d' | '4d' | '2k';
+
 const YEAR_LINE_COLORS = ['#15803d', '#0284c7', '#9333ea', '#71717a'];
 const HR_ZONE_COLORS = ['#94a3b8', '#38bdf8', '#10b981', '#f59e0b', '#ef4444'];
 const HR_ZONE_LABELS = ['Z1 恢复', 'Z2 有氧', 'Z3 节奏', 'Z4 阈值', 'Z5 极限'];
@@ -43,7 +49,8 @@ const TrainingInsights = ({
   year,
 }: TrainingInsightsProps) => {
   const [ytdMetric, setYtdMetric] = useState<YtdMetric>('hours');
-  const [weeklyTarget, setWeeklyTarget] = useState<number>(3);
+  const [consistencyPreset, setConsistencyPreset] =
+    useState<ConsistencyPreset>('3d');
 
   const fitness = useMemo(
     () => computeFitnessSeries(allActivities, 180),
@@ -55,9 +62,33 @@ const TrainingInsights = ({
     [allActivities, ytdMetric]
   );
 
-  const consistency = useMemo(
-    () => computeWeeklyConsistency(filteredActivities, weeklyTarget, 52),
-    [filteredActivities, weeklyTarget]
+  const consistency = useMemo(() => {
+    if (consistencyPreset === '2k') {
+      return computeWeeklyConsistency(
+        filteredActivities,
+        TRAINING_GOALS.weeklyTargetKcal,
+        52,
+        'kcal'
+      );
+    }
+    return computeWeeklyConsistency(
+      filteredActivities,
+      consistencyPreset === '4d'
+        ? TRAINING_GOALS.weeklyTargetDays
+        : TRAINING_GOALS.weeklyFloorDays,
+      52,
+      'sessions'
+    );
+  }, [filteredActivities, consistencyPreset]);
+
+  const triangle = useMemo(
+    () => computeTrainingTriangle(allActivities, 28),
+    [allActivities]
+  );
+
+  const cfTrend = useMemo(
+    () => computeCrossFitTrend(allActivities, 8),
+    [allActivities]
   );
 
   const hrBySport = useMemo(
@@ -85,7 +116,12 @@ const TrainingInsights = ({
         for (let i = 0; i < 5; i++) totals[i] += z[i];
       }
     });
-    return { totals, syncedCount };
+    const totalSec = totals.reduce((s, v) => s + v, 0);
+    const z45Pct = totalSec
+      ? Math.round(((totals[3] + totals[4]) / totalSec) * 100)
+      : 0;
+    const z2Pct = totalSec ? Math.round((totals[1] / totalSec) * 100) : 0;
+    return { totals, syncedCount, totalSec, z45Pct, z2Pct };
   }, [filteredActivities]);
 
   const acwrNote = useMemo(() => {
@@ -235,7 +271,193 @@ const TrainingInsights = ({
         </div>
       </section>
 
-      {/* 2. YTD Cumulative Comparison + Weekly Consistency */}
+      {/* 2. Recomposition Triangle (28d) + CrossFit Intensity Trend (Quarterly) */}
+      <div
+        className="grid grid-cols-1 gap-8 border-b pb-7 xl:grid-cols-12"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <section className="flex flex-col justify-between xl:col-span-5">
+          <div>
+            <div className="mb-3 flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-semibold tracking-tight">
+                塑形训练三角（近 {triangle.windowDays} 天）
+              </h2>
+              <span
+                className="font-mono-num text-xs"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                {triangle.totalSessions} 次 · {triangle.totalHours}h ·{' '}
+                {triangle.totalKcal.toLocaleString()} kcal
+              </span>
+            </div>
+
+            <div className="space-y-3.5">
+              {triangle.pillars.map((p) => (
+                <div key={p.key} className="space-y-1">
+                  <div className="flex items-baseline justify-between gap-2 text-xs">
+                    <span className="inline-flex items-center gap-1.5 font-medium">
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: p.color }}
+                      />
+                      <span>{p.label}</span>
+                      <span
+                        className="hidden sm:inline"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        · {p.examples}
+                      </span>
+                    </span>
+                    <span className="font-mono-num shrink-0">
+                      <strong
+                        style={{
+                          color:
+                            p.status === 'low'
+                              ? '#ea580c'
+                              : 'var(--color-text)',
+                        }}
+                      >
+                        {p.count} 次
+                      </strong>
+                      <span style={{ color: 'var(--color-text-muted)' }}>
+                        {' · '}
+                        {p.hours}h ({p.sharePct}%)
+                      </span>
+                    </span>
+                  </div>
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full"
+                    style={{ backgroundColor: 'var(--color-surface-subtle)' }}
+                  >
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.max(p.count > 0 ? 4 : 0, p.sharePct)}%`,
+                        backgroundColor: p.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p
+            className="mt-4 text-xs leading-relaxed"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {triangle.diagnosis}
+          </p>
+        </section>
+
+        <section className="xl:col-span-7">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold tracking-tight">
+              CrossFit 强度与效率趋势（按季）
+            </h2>
+            <span
+              className="font-mono-num text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              共 {cfTrend.totalSessions} 节
+              {cfTrend.zonesSyncedTotal > 0
+                ? ` · ${cfTrend.zonesSyncedTotal} 节含五区心率`
+                : ' · 均心率 + 消耗密度'}
+            </span>
+          </div>
+
+          {cfTrend.quarters.length > 0 ? (
+            <>
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={cfTrend.quarters}
+                    margin={{ top: 6, right: 6, bottom: 0, left: -16 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="2 4"
+                      stroke="var(--color-border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="quarter"
+                      tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      yAxisId="hr"
+                      domain={['dataMin - 6', 'dataMax + 6']}
+                      tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      yAxisId="density"
+                      orientation="right"
+                      domain={[0, 'dataMax + 2']}
+                      tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'var(--color-surface)',
+                        borderColor: 'var(--color-border)',
+                        borderRadius: '0.5rem',
+                        fontSize: '12px',
+                        color: 'var(--color-text)',
+                      }}
+                    />
+                    <Bar
+                      yAxisId="density"
+                      dataKey="kcalPerMin"
+                      name="消耗密度 (kcal/min)"
+                      fill="#10b981"
+                      fillOpacity={0.28}
+                      radius={[3, 3, 0, 0]}
+                      maxBarSize={28}
+                    />
+                    {cfTrend.zonesSyncedTotal > 0 && (
+                      <Line
+                        yAxisId="density"
+                        type="monotone"
+                        dataKey="z45Minutes"
+                        name="Z4–Z5 高强 (min/节)"
+                        stroke="#f59e0b"
+                        strokeWidth={2}
+                        dot={{ r: 3 }}
+                      />
+                    )}
+                    <Line
+                      yAxisId="hr"
+                      type="monotone"
+                      dataKey="avgHr"
+                      name="均心率 (bpm)"
+                      stroke="#ea580c"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p
+                className="mt-2.5 text-xs leading-relaxed"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                {cfTrend.interpretation}
+              </p>
+            </>
+          ) : (
+            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              暂无 CrossFit 趋势数据
+            </p>
+          )}
+        </section>
+      </div>
+
+      {/* 3. YTD Cumulative Comparison + Weekly Consistency */}
       <div
         className="grid grid-cols-1 gap-8 border-b pb-7 xl:grid-cols-12"
         style={{ borderColor: 'var(--color-border)' }}
@@ -363,24 +585,30 @@ const TrainingInsights = ({
                 周达标追踪 · {year === 'Total' ? '近52周' : year}
               </h2>
               <div className="flex items-center gap-2.5 text-xs">
-                {[2, 3, 4].map((t) => (
+                {(
+                  [
+                    ['3d', `≥${TRAINING_GOALS.weeklyFloorDays}练`],
+                    ['4d', `≥${TRAINING_GOALS.weeklyTargetDays}练`],
+                    ['2k', '≥2k kcal'],
+                  ] as const
+                ).map(([key, label]) => (
                   <button
-                    key={t}
+                    key={key}
                     type="button"
-                    onClick={() => setWeeklyTarget(t)}
+                    onClick={() => setConsistencyPreset(key)}
                     className="font-mono-num pb-0.5"
                     style={{
                       color:
-                        weeklyTarget === t
+                        consistencyPreset === key
                           ? 'var(--color-text)'
                           : 'var(--color-text-muted)',
                       borderBottom:
-                        weeklyTarget === t
+                        consistencyPreset === key
                           ? '1.5px solid var(--color-brand)'
                           : '1.5px solid transparent',
                     }}
                   >
-                    ≥{t}练
+                    {label}
                   </button>
                 ))}
               </div>
@@ -424,7 +652,7 @@ const TrainingInsights = ({
                 return (
                   <div
                     key={w.weekStart}
-                    title={`${w.weekStart} 周：${w.count} 次 · ${w.hours}h · ${w.kcal} kcal`}
+                    title={`${w.weekStart} 周：${w.count} 次 (${w.activeDays}天) · ${w.hours}h · ${w.kcal} kcal`}
                     className="flex-1 rounded-xs transition-opacity hover:opacity-75"
                     style={{ backgroundColor: bg }}
                   />
@@ -451,7 +679,7 @@ const TrainingInsights = ({
                 className="h-2 w-2 rounded-xs"
                 style={{ backgroundColor: '#d97706' }}
               />
-              差 1 次
+              {consistencyPreset === '2k' ? '≥75%' : '差 1 次'}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span
@@ -459,13 +687,13 @@ const TrainingInsights = ({
                 className="h-2 w-2 rounded-xs"
                 style={{ backgroundColor: 'var(--color-border)' }}
               />
-              休整
+              低谷/休整
             </span>
           </div>
         </section>
       </div>
 
-      {/* 3. HR Load by Sport + Day-of-Week Rhythm */}
+      {/* 4. HR Load by Sport + Day-of-Week Rhythm */}
       <div
         className="grid grid-cols-1 gap-8 border-b pb-7 xl:grid-cols-2"
         style={{ borderColor: 'var(--color-border)' }}
@@ -536,30 +764,47 @@ const TrainingInsights = ({
                 );
               })}
 
-              {hrZoneTotals.syncedCount > 0 && (
-                <div
-                  className="mt-4 border-t pt-3"
-                  style={{ borderColor: 'var(--color-border)' }}
-                >
-                  <div className="mb-2 flex items-center justify-between text-xs">
-                    <span className="font-medium">心率区间（Z1–Z5）</span>
-                    <span
-                      className="font-mono-num"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      {hrZoneTotals.syncedCount} 条区间记录
-                    </span>
-                  </div>
-                  <CategoryBar
-                    segments={hrZoneTotals.totals.map((val, i) => ({
-                      key: `z${i + 1}`,
-                      label: HR_ZONE_LABELS[i],
-                      value: val,
-                      color: HR_ZONE_COLORS[i],
-                    }))}
-                  />
-                </div>
-              )}
+              <div
+                className="mt-4 border-t pt-3"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                {hrZoneTotals.syncedCount > 0 ? (
+                  <>
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="font-medium">
+                        真实五区心率分布（Z1–Z5）
+                      </span>
+                      <span
+                        className="font-mono-num"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        Z2 燃脂 {hrZoneTotals.z2Pct}% · Z4–Z5 高强{' '}
+                        {hrZoneTotals.z45Pct}% ({hrZoneTotals.syncedCount} 节)
+                      </span>
+                    </div>
+                    <CategoryBar
+                      segments={hrZoneTotals.totals.map((val, i) => ({
+                        key: `z${i + 1}`,
+                        label: `${HR_ZONE_LABELS[i]} ${Math.round(val / 60)}m`,
+                        value: val,
+                        color: HR_ZONE_COLORS[i],
+                      }))}
+                    />
+                  </>
+                ) : (
+                  <p
+                    className="text-xs leading-relaxed"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  >
+                    五区心率时间分布待回填：在 GitHub Actions 手动运行一次{' '}
+                    <code className="font-mono-num">Run Data Sync</code> 并勾选{' '}
+                    <code className="font-mono-num">
+                      backfill_strava_details
+                    </code>{' '}
+                    即可自动解锁 Z1–Z5 真实分钟数与高强占比。
+                  </p>
+                )}
+              </div>
             </div>
           ) : (
             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
@@ -639,7 +884,7 @@ const TrainingInsights = ({
         </section>
       </div>
 
-      {/* 4. Personal Records — Flat Editorial Grid (No nested cards!) */}
+      {/* 5. Personal Records — Flat Editorial Grid (No nested cards!) */}
       {records.length > 0 && (
         <section>
           <h2 className="mb-3 text-sm font-semibold tracking-tight">

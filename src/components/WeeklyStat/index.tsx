@@ -3,6 +3,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,6 +17,7 @@ import {
   type TaxonomyMode,
 } from '@/utils/workoutTaxonomy';
 import { getActivityMinutes } from '@/utils/workoutAnalytics';
+import { TRAINING_GOALS } from '@/utils/trainingGoals';
 
 type WeeklyMetric = 'hours' | 'kcal' | 'count' | 'km';
 
@@ -137,151 +139,180 @@ const WeeklyStat = ({ runs, taxonomyMode = 'sub' }: WeeklyStatProps) => {
   );
   const weekLimit = isMobile ? 26 : 53;
 
-  const { data, sportKeys, avgValue } = useMemo(() => {
-    if (!runs || runs.length === 0) {
-      return {
-        data: [] as WeekRow[],
-        sportKeys: [] as string[],
-        avgValue: 0,
+  const { data, sportKeys, avgValue, targetHitCount, goalLine } =
+    useMemo(() => {
+      if (!runs || runs.length === 0) {
+        return {
+          data: [] as WeekRow[],
+          sportKeys: [] as string[],
+          avgValue: 0,
+          targetHitCount: 0,
+          goalLine: null as { value: number; label: string } | null,
+        };
+      }
+
+      const sortedRuns = [...runs].sort((a, b) =>
+        a.start_date_local.localeCompare(b.start_date_local)
+      );
+
+      const getWeekStart = (dateStr: string) => {
+        const date = new Date(`${dateStr.slice(0, 10)}T12:00:00`);
+        const day = date.getDay();
+        const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+        const weekStart = new Date(date.getTime());
+        weekStart.setDate(diff);
+        weekStart.setHours(0, 0, 0, 0);
+        return weekStart.getTime();
       };
-    }
 
-    const sortedRuns = [...runs].sort((a, b) =>
-      a.start_date_local.localeCompare(b.start_date_local)
-    );
+      const startWeek = getWeekStart(sortedRuns[0].start_date_local);
+      const endWeek = getWeekStart(
+        sortedRuns[sortedRuns.length - 1].start_date_local
+      );
 
-    const getWeekStart = (dateStr: string) => {
-      const date = new Date(`${dateStr.slice(0, 10)}T12:00:00`);
-      const day = date.getDay();
-      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-      const weekStart = new Date(date.getTime());
-      weekStart.setDate(diff);
-      weekStart.setHours(0, 0, 0, 0);
-      return weekStart.getTime();
-    };
-
-    const startWeek = getWeekStart(sortedRuns[0].start_date_local);
-    const endWeek = getWeekStart(
-      sortedRuns[sortedRuns.length - 1].start_date_local
-    );
-
-    const weeksMap = new Map<number, WeekRow>();
-    for (
-      let cur = new Date(startWeek);
-      cur.getTime() <= endWeek;
-      cur.setDate(cur.getDate() + 7)
-    ) {
-      const ts = cur.getTime();
-      weeksMap.set(ts, {
-        timestamp: ts,
-        xLabel: '',
-        totalHours: 0,
-        totalKcal: 0,
-        totalCount: 0,
-        totalKm: 0,
-        bySport: {},
-      });
-    }
-
-    const sportTotals = new Map<string, number>();
-
-    sortedRuns.forEach((run) => {
-      const w = getWeekStart(run.start_date_local);
-      const weekRow = weeksMap.get(w);
-      if (!weekRow) return;
-
-      const sport = getActivityCategory(run, taxonomyMode);
-      const hours = getActivityMinutes(run) / 60;
-      const kcal = run.calories || 0;
-      const km = (run.distance || 0) / 1000;
-
-      weekRow.totalHours += hours;
-      weekRow.totalKcal += kcal;
-      weekRow.totalCount += 1;
-      weekRow.totalKm += km;
-
-      if (!weekRow.bySport[sport]) {
-        weekRow.bySport[sport] = { hours: 0, kcal: 0, count: 0, km: 0 };
-      }
-      weekRow.bySport[sport].hours += hours;
-      weekRow.bySport[sport].kcal += kcal;
-      weekRow.bySport[sport].count += 1;
-      weekRow.bySport[sport].km += km;
-
-      const val =
-        metric === 'hours'
-          ? hours
-          : metric === 'kcal'
-            ? kcal
-            : metric === 'count'
-              ? 1
-              : km;
-      sportTotals.set(sport, (sportTotals.get(sport) || 0) + val);
-    });
-
-    const orderedSports = Array.from(sportTotals.entries())
-      .filter(([, v]) => v > 0)
-      .sort((a, b) => b[1] - a[1])
-      .map(([k]) => k);
-
-    const allWeeks = Array.from(weeksMap.values());
-    const limited =
-      allWeeks.length > weekLimit ? allWeeks.slice(-weekLimit) : allWeeks;
-
-    let currentYear = 0;
-    let currentMonth = 0;
-    let activeCount = 0;
-    let metricSum = 0;
-
-    const formatted = limited.map((item) => {
-      const d = new Date(item.timestamp);
-      const month = d.getMonth() + 1;
-      const year = d.getFullYear();
-      let xLabel = '';
-
-      if (year !== currentYear) {
-        currentYear = year;
-        currentMonth = month;
-        xLabel = `${year}`;
-      } else if (month !== currentMonth) {
-        currentMonth = month;
-        xLabel = IS_CHINESE
-          ? `${month}月`
-          : d.toLocaleString('en-US', { month: 'short' });
+      const weeksMap = new Map<number, WeekRow>();
+      for (
+        let cur = new Date(startWeek);
+        cur.getTime() <= endWeek;
+        cur.setDate(cur.getDate() + 7)
+      ) {
+        const ts = cur.getTime();
+        weeksMap.set(ts, {
+          timestamp: ts,
+          xLabel: '',
+          totalHours: 0,
+          totalKcal: 0,
+          totalCount: 0,
+          totalKm: 0,
+          bySport: {},
+        });
       }
 
-      if (item.totalCount > 0) {
-        activeCount += 1;
-      }
+      const sportTotals = new Map<string, number>();
 
-      const out: WeekRow = { ...item, xLabel };
+      sortedRuns.forEach((run) => {
+        const w = getWeekStart(run.start_date_local);
+        const weekRow = weeksMap.get(w);
+        if (!weekRow) return;
 
-      orderedSports.forEach((s) => {
-        const v = item.bySport[s]?.[metric] || 0;
-        out[`sport_${s}`] =
-          metric === 'hours' || metric === 'km'
-            ? Number(v.toFixed(2))
-            : Math.round(v);
+        const sport = getActivityCategory(run, taxonomyMode);
+        const hours = getActivityMinutes(run) / 60;
+        const kcal = run.calories || 0;
+        const km = (run.distance || 0) / 1000;
+
+        weekRow.totalHours += hours;
+        weekRow.totalKcal += kcal;
+        weekRow.totalCount += 1;
+        weekRow.totalKm += km;
+
+        if (!weekRow.bySport[sport]) {
+          weekRow.bySport[sport] = { hours: 0, kcal: 0, count: 0, km: 0 };
+        }
+        weekRow.bySport[sport].hours += hours;
+        weekRow.bySport[sport].kcal += kcal;
+        weekRow.bySport[sport].count += 1;
+        weekRow.bySport[sport].km += km;
+
+        const val =
+          metric === 'hours'
+            ? hours
+            : metric === 'kcal'
+              ? kcal
+              : metric === 'count'
+                ? 1
+                : km;
+        sportTotals.set(sport, (sportTotals.get(sport) || 0) + val);
       });
 
-      metricSum +=
-        metric === 'hours'
-          ? item.totalHours
-          : metric === 'kcal'
-            ? item.totalKcal
-            : metric === 'count'
-              ? item.totalCount
-              : item.totalKm;
+      const orderedSports = Array.from(sportTotals.entries())
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k]) => k);
 
-      return out;
-    });
+      const allWeeks = Array.from(weeksMap.values());
+      const limited =
+        allWeeks.length > weekLimit ? allWeeks.slice(-weekLimit) : allWeeks;
 
-    return {
-      data: formatted,
-      sportKeys: orderedSports,
-      avgValue: activeCount ? metricSum / activeCount : 0,
-    };
-  }, [runs, taxonomyMode, metric, weekLimit]);
+      const activeGoal =
+        metric === 'kcal'
+          ? {
+              value: TRAINING_GOALS.weeklyTargetKcal,
+              label: `目标 ${TRAINING_GOALS.weeklyTargetKcal.toLocaleString()}`,
+            }
+          : metric === 'count'
+            ? {
+                value: TRAINING_GOALS.weeklyFloorDays,
+                label: `保底 ${TRAINING_GOALS.weeklyFloorDays}次`,
+              }
+            : metric === 'hours'
+              ? {
+                  value: TRAINING_GOALS.weeklyTargetHours,
+                  label: `目标 ${TRAINING_GOALS.weeklyTargetHours}h`,
+                }
+              : null;
+
+      let currentYear = 0;
+      let currentMonth = 0;
+      let activeCount = 0;
+      let metricSum = 0;
+      let hitCount = 0;
+
+      const formatted = limited.map((item) => {
+        const d = new Date(item.timestamp);
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+        let xLabel = '';
+
+        if (year !== currentYear) {
+          currentYear = year;
+          currentMonth = month;
+          xLabel = `${year}`;
+        } else if (month !== currentMonth) {
+          currentMonth = month;
+          xLabel = IS_CHINESE
+            ? `${month}月`
+            : d.toLocaleString('en-US', { month: 'short' });
+        }
+
+        if (item.totalCount > 0) {
+          activeCount += 1;
+        }
+
+        const out: WeekRow = { ...item, xLabel };
+
+        orderedSports.forEach((s) => {
+          const v = item.bySport[s]?.[metric] || 0;
+          out[`sport_${s}`] =
+            metric === 'hours' || metric === 'km'
+              ? Number(v.toFixed(2))
+              : Math.round(v);
+        });
+
+        const rowTotal =
+          metric === 'hours'
+            ? item.totalHours
+            : metric === 'kcal'
+              ? item.totalKcal
+              : metric === 'count'
+                ? item.totalCount
+                : item.totalKm;
+
+        metricSum += rowTotal;
+        if (activeGoal && rowTotal >= activeGoal.value) {
+          hitCount += 1;
+        }
+
+        return out;
+      });
+
+      return {
+        data: formatted,
+        sportKeys: orderedSports,
+        avgValue: activeCount ? metricSum / activeCount : 0,
+        targetHitCount: hitCount,
+        goalLine: activeGoal,
+      };
+    }, [runs, taxonomyMode, metric, weekLimit]);
 
   if (!data.length) return null;
 
@@ -294,19 +325,30 @@ const WeeklyStat = ({ runs, taxonomyMode = 'sub' }: WeeklyStatProps) => {
           ? `${avgValue.toFixed(1)} 次`
           : `${avgValue.toFixed(1)} km`;
 
+  const hitPct = data.length
+    ? Math.round((targetHitCount / data.length) * 100)
+    : 0;
+
   return (
     <section
       className="border-b pb-6"
       style={{ borderColor: 'var(--color-border)' }}
     >
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <div className="flex items-baseline gap-3">
+        <div className="flex flex-wrap items-baseline gap-3">
           <h2 className="text-sm font-semibold tracking-tight">每周训练量</h2>
           <span
             className="font-mono-num text-xs"
             style={{ color: 'var(--color-text-muted)' }}
           >
             周均 {avgFormatted}
+            {goalLine && (
+              <>
+                {' · '}
+                {goalLine.label} 达标 {targetHitCount}/{data.length} 周 (
+                {hitPct}%)
+              </>
+            )}
           </span>
         </div>
 
@@ -377,6 +419,22 @@ const WeeklyStat = ({ runs, taxonomyMode = 'sub' }: WeeklyStatProps) => {
               }}
               content={<WeeklyTooltip metric={metric} />}
             />
+            {goalLine && (
+              <ReferenceLine
+                y={goalLine.value}
+                stroke="var(--color-brand)"
+                strokeDasharray="4 4"
+                strokeOpacity={0.75}
+              />
+            )}
+            {metric === 'count' && (
+              <ReferenceLine
+                y={TRAINING_GOALS.weeklyTargetDays}
+                stroke="#d97706"
+                strokeDasharray="2 4"
+                strokeOpacity={0.65}
+              />
+            )}
             {sportKeys.map((sport) => (
               <Bar
                 key={sport}
