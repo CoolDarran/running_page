@@ -69,6 +69,14 @@ TYPE_DICT = {
     "WeightTraining": "Workout",  # strava
     "Workout": "Workout",
     "Crossfit": "Workout",  # strava
+    "HybridRacing": "Workout",  # strava (Nov 2026 HYROX sport type)
+    "HybridRace": "Workout",
+    "Hybrid Racing": "Workout",
+    "Hyrox": "Workout",
+    "HYROX": "Workout",
+    "HighIntensityIntervalTraining": "Workout",  # strava
+    "Badminton": "Workout",  # strava
+    "Pilates": "Workout",  # strava
     # google health v4 API exerciseType enum values (lowercase snake_case keys)
     "trail_run": "Run",
     "biking": "Ride",

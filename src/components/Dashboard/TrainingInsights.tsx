@@ -151,6 +151,12 @@ const TrainingInsights = ({
             {fitness.latest && (
               <div className="font-mono-num flex flex-wrap items-baseline gap-4 text-xs">
                 <span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>
+                    7日 TRIMP{' '}
+                  </span>
+                  <strong>{fitness.trimp7d}</strong>
+                </span>
+                <span>
                   <span style={{ color: 'var(--color-text-muted)' }}>CTL </span>
                   <strong style={{ color: 'var(--color-brand)' }}>
                     {fitness.latest.ctl}
@@ -182,13 +188,18 @@ const TrainingInsights = ({
             title="TRIMP 负荷模型"
             items={[
               {
+                term: 'TRIMP 负荷',
+                desc: '单日训练冲量（优先采用 Strava Relative Effort / 五区心率加权），以底部灰色柱显示。',
+                color: '#71717a',
+              },
+              {
                 term: 'CTL 体能',
-                desc: '42 天指数平均负荷，衡量长期有氧与体能底子。',
+                desc: '42 天 TRIMP 指数平均，衡量长期有氧与体能底子。',
                 color: '#10b981',
               },
               {
                 term: 'ATL 疲劳',
-                desc: '7 天指数平均负荷，反映近期急性训练压力。',
+                desc: '7 天 TRIMP 指数平均，反映近期急性训练压力。',
                 color: '#ea580c',
               },
               {
@@ -223,11 +234,22 @@ const TrainingInsights = ({
                 tickLine={false}
               />
               <YAxis
+                yAxisId="load"
                 tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
                 axisLine={false}
                 tickLine={false}
               />
+              <YAxis
+                yAxisId="trimp"
+                orientation="right"
+                hide
+                domain={[
+                  0,
+                  (dataMax: number) => Math.max(80, Math.round(dataMax * 1.8)),
+                ]}
+              />
               <ReferenceLine
+                yAxisId="load"
                 y={0}
                 stroke="var(--color-border)"
                 strokeDasharray="2 2"
@@ -241,7 +263,17 @@ const TrainingInsights = ({
                   color: 'var(--color-text)',
                 }}
               />
+              <Bar
+                yAxisId="trimp"
+                dataKey="trimp"
+                name="当日 TRIMP"
+                fill="var(--color-text-muted)"
+                fillOpacity={0.22}
+                maxBarSize={5}
+                radius={[2, 2, 0, 0]}
+              />
               <Area
+                yAxisId="load"
                 type="monotone"
                 dataKey="tsb"
                 name="TSB 状态"
@@ -251,6 +283,7 @@ const TrainingInsights = ({
                 strokeWidth={1.5}
               />
               <Line
+                yAxisId="load"
                 type="monotone"
                 dataKey="ctl"
                 name="CTL 体能"
@@ -259,6 +292,7 @@ const TrainingInsights = ({
                 dot={false}
               />
               <Line
+                yAxisId="load"
                 type="monotone"
                 dataKey="atl"
                 name="ATL 疲劳"
@@ -402,12 +436,46 @@ const TrainingInsights = ({
                       tickLine={false}
                     />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        borderRadius: '0.5rem',
-                        fontSize: '12px',
-                        color: 'var(--color-text)',
+                      content={({ active, payload }) => {
+                        if (!active || !payload || !payload.length) return null;
+                        const row = payload[0].payload as {
+                          quarter: string;
+                          count: number;
+                          avgHr: number | null;
+                          avgTrimp: number;
+                          kcalPerMin: number;
+                          z45Minutes: number | null;
+                        };
+                        return (
+                          <div
+                            className="font-mono-num rounded-lg border px-3 py-2 text-xs shadow-lg"
+                            style={{
+                              backgroundColor: 'var(--color-surface)',
+                              borderColor: 'var(--color-border)',
+                              color: 'var(--color-text)',
+                            }}
+                          >
+                            <div className="mb-1 font-semibold">
+                              {row.quarter} · {row.count} 节
+                            </div>
+                            <div className="space-y-0.5">
+                              <div>均 TRIMP：{row.avgTrimp}</div>
+                              {row.avgHr !== null && (
+                                <div style={{ color: '#ea580c' }}>
+                                  均心率：{row.avgHr} bpm
+                                </div>
+                              )}
+                              {row.z45Minutes !== null && (
+                                <div style={{ color: '#f59e0b' }}>
+                                  Z4–Z5 高强：{row.z45Minutes} min/节
+                                </div>
+                              )}
+                              <div style={{ color: '#10b981' }}>
+                                消耗密度：{row.kcalPerMin} kcal/min
+                              </div>
+                            </div>
+                          </div>
+                        );
                       }}
                     />
                     <Bar
@@ -700,7 +768,7 @@ const TrainingInsights = ({
       >
         <section>
           <h2 className="mb-3 text-sm font-semibold tracking-tight">
-            心率负荷区间（均 → 峰 bpm）
+            心率与负荷区间（均 → 峰 bpm · 单次均 TRIMP）
           </h2>
 
           {hrBySport.length ? (
@@ -712,20 +780,20 @@ const TrainingInsights = ({
                 const right = pct(r.avgMaxHr);
                 return (
                   <div key={r.sport} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="inline-flex items-center gap-1.5 font-medium">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <span className="inline-flex min-w-0 items-center gap-1.5 font-medium">
                         <span
                           aria-hidden="true"
-                          className="h-2 w-2 rounded-full"
+                          className="h-2 w-2 shrink-0 rounded-full"
                           style={{ backgroundColor: r.color }}
                         />
-                        {r.label}
+                        <span className="truncate">{r.label}</span>
                         <span style={{ color: 'var(--color-text-muted)' }}>
                           ({r.count})
                         </span>
                       </span>
                       <span
-                        className="font-mono-num"
+                        className="font-mono-num shrink-0"
                         style={{ color: 'var(--color-text-muted)' }}
                       >
                         <strong style={{ color: 'var(--color-text)' }}>
@@ -744,6 +812,12 @@ const TrainingInsights = ({
                         </strong>
                         <span className="ml-1.5 opacity-75">
                           max {r.peakHr}
+                        </span>
+                        <span className="ml-2">
+                          · TRIMP{' '}
+                          <strong style={{ color: 'var(--color-text)' }}>
+                            {r.avgTrimp}
+                          </strong>
                         </span>
                       </span>
                     </div>

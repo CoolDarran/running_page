@@ -173,8 +173,10 @@ class Generator:
         for activity in self.client.get_activities(**filters):
             if self.only_run and activity.type != "Run":
                 continue
-            # get detailed activity
-            activity = self.client.get_activity(activity.id, include_all_efforts=True)
+            # get detailed activity (preserving raw sport_type dropped by stravalib 0.10.4)
+            activity = self._get_detailed_activity(
+                activity.id, include_all_efforts=True
+            )
             if IGNORE_BEFORE_SAVING:
                 if activity.map and activity.map.summary_polyline:
                     activity.map.summary_polyline = filter_out(
@@ -183,8 +185,6 @@ class Generator:
             activity.source = "strava"
             #  strava use total_elevation_gain as elevation_gain
             activity.elevation_gain = activity.total_elevation_gain
-            sport_type = getattr(activity, "sport_type", None)
-            activity.subtype = str(sport_type) if sport_type else str(activity.type)
             existing = (
                 self.session.query(Activity).filter_by(run_id=int(activity.id)).first()
             )
@@ -204,6 +204,17 @@ class Generator:
                 sys.stdout.write(".")
             sys.stdout.flush()
         self.session.commit()
+
+    def _get_detailed_activity(self, activity_id, include_all_efforts=False):
+        raw = self.client.protocol.get(
+            "/activities/{id}",
+            id=activity_id,
+            include_all_efforts=include_all_efforts,
+        )
+        activity = stravalib.model.Activity.deserialize(raw, bind_client=self.client)
+        sport_type = raw.get("sport_type") if isinstance(raw, dict) else None
+        activity.subtype = str(sport_type) if sport_type else str(activity.type)
+        return activity
 
     def _fetch_hr_zones(self, activity_id):
         try:
@@ -258,7 +269,7 @@ class Generator:
         updated = 0
         for row in batch:
             try:
-                activity = self.client.get_activity(
+                activity = self._get_detailed_activity(
                     int(row.run_id), include_all_efforts=False
                 )
                 if IGNORE_BEFORE_SAVING:
@@ -268,8 +279,6 @@ class Generator:
                         )
                 activity.source = "strava"
                 activity.elevation_gain = activity.total_elevation_gain
-                sport_type = getattr(activity, "sport_type", None)
-                activity.subtype = str(sport_type) if sport_type else str(activity.type)
                 if getattr(activity, "average_heartrate", None):
                     if not row.hr_zones:
                         zones_json = self._fetch_hr_zones(activity.id)

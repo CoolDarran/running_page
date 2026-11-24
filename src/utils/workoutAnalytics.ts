@@ -105,6 +105,7 @@ export interface FitnessPoint {
 export interface FitnessSummary {
   series: FitnessPoint[];
   latest: FitnessPoint | null;
+  trimp7d: number;
   hrMaxEstimate: number;
 }
 
@@ -113,7 +114,7 @@ export function computeFitnessSeries(
   windowDays = 180
 ): FitnessSummary {
   if (!allActivities.length) {
-    return { series: [], latest: null, hrMaxEstimate: 192 };
+    return { series: [], latest: null, trimp7d: 0, hrMaxEstimate: 192 };
   }
 
   const observedPeak = allActivities.reduce(
@@ -136,7 +137,7 @@ export function computeFitnessSeries(
   });
 
   if (!minDate || !maxDate) {
-    return { series: [], latest: null, hrMaxEstimate: hrMax };
+    return { series: [], latest: null, trimp7d: 0, hrMaxEstimate: hrMax };
   }
 
   // Only simulate from 120 days before the window start for fast warm-up
@@ -179,9 +180,12 @@ export function computeFitnessSeries(
     }
   }
 
+  const trimp7d = series.slice(-7).reduce((sum, point) => sum + point.trimp, 0);
+
   return {
     series,
     latest: series.length ? series[series.length - 1] : null,
+    trimp7d: Math.round(trimp7d),
     hrMaxEstimate: hrMax,
   };
 }
@@ -880,6 +884,7 @@ export interface CrossFitQuarterPoint {
   avgHr: number | null;
   avgMaxHr: number | null;
   avgKcal: number;
+  avgTrimp: number;
   kcalPerMin: number;
   z45Minutes: number | null;
   z2Minutes: number | null;
@@ -921,6 +926,7 @@ export function computeCrossFitTrend(
       maxHrSum: number;
       maxHrCount: number;
       kcalSum: number;
+      trimpSum: number;
       z45SecSum: number;
       z2SecSum: number;
       zonesSynced: number;
@@ -942,6 +948,7 @@ export function computeCrossFitTrend(
         maxHrSum: 0,
         maxHrCount: 0,
         kcalSum: 0,
+        trimpSum: 0,
         z45SecSum: 0,
         z2SecSum: 0,
         zonesSynced: 0,
@@ -952,6 +959,7 @@ export function computeCrossFitTrend(
     g.count += 1;
     g.minSum += mins;
     g.kcalSum += a.calories || 0;
+    g.trimpSum += calculateTrimp(a);
     if (a.average_heartrate && a.average_heartrate > 0) {
       g.hrSum += a.average_heartrate;
       g.hrCount += 1;
@@ -982,6 +990,7 @@ export function computeCrossFitTrend(
         avgHr: g.hrCount ? Number((g.hrSum / g.hrCount).toFixed(1)) : null,
         avgMaxHr: g.maxHrCount ? Math.round(g.maxHrSum / g.maxHrCount) : null,
         avgKcal: Math.round(avgKcal),
+        avgTrimp: g.count ? Math.round(g.trimpSum / g.count) : 0,
         kcalPerMin:
           g.minSum > 0 ? Number((g.kcalSum / g.minSum).toFixed(2)) : 0,
         z45Minutes:
@@ -1012,7 +1021,7 @@ export function computeCrossFitTrend(
     kcalDensityDelta = Number((last.kcalPerMin - first.kcalPerMin).toFixed(2));
 
     if (zonesSyncedTotal > 0 && last.z45Minutes !== null) {
-      interpretation = `最新季度单节 Z4–Z5 有效高强 ${last.z45Minutes}m、消耗密度 ${last.kcalPerMin} kcal/min；${
+      interpretation = `最新季度单节均 TRIMP ${last.avgTrimp}、Z4–Z5 高强 ${last.z45Minutes}m、消耗密度 ${last.kcalPerMin} kcal/min；${
         hrDelta !== null && hrDelta <= -4
           ? `均心率较 ${first.quarter} 下降 ${Math.abs(hrDelta)} bpm，结合高强时长可区分心肺适应与强度漂移。`
           : `均心率稳定在 ${last.avgHr} bpm。`
