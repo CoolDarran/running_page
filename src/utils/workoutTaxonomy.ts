@@ -116,9 +116,27 @@ const SUBTYPE_MAP: Record<string, string> = {
   weighttraining: 'Strength',
   highintensityintervaltraining: 'HIIT',
   badminton: 'Badminton',
+  hybridracing: 'Hyrox',
+  hybridrace: 'Hyrox',
+  hyrox: 'Hyrox',
 };
 
 export function classifySubSport(activity: Activity): string {
+  const rawSubtype = (activity.subtype || '')
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '');
+  if (rawSubtype && SUBTYPE_MAP[rawSubtype]) {
+    // Allow title keyword 'hyrox' to override generic Crossfit/Workout when present
+    const lowerTitle = (activity.name || '').toLowerCase();
+    if (lowerTitle.includes('hyrox')) return 'Hyrox';
+    return SUBTYPE_MAP[rawSubtype];
+  }
+
+  const rawType = (activity.type || '').toLowerCase().replace(/[\s_-]+/g, '');
+  if (rawType && SUBTYPE_MAP[rawType]) {
+    return SUBTYPE_MAP[rawType];
+  }
+
   if (activity.type !== 'Workout') {
     return activity.type;
   }
@@ -126,8 +144,10 @@ export function classifySubSport(activity: Activity): string {
   const name = activity.name || '';
   const lowerName = name.toLowerCase();
 
-  // Title keywords catch Hyrox / CrossFit / Badminton even when Strava sends generic Workout
-  if (lowerName.includes('hyrox')) return 'Hyrox';
+  // Title keywords catch Hyrox / Hybrid Racing / CrossFit / Badminton when Strava sends generic Workout
+  if (lowerName.includes('hyrox') || lowerName.includes('hybrid')) {
+    return 'Hyrox';
+  }
   if (lowerName.includes('crossfit')) return 'CrossFit';
   if (lowerName.includes('badminton') || name.includes('羽毛球')) {
     return 'Badminton';
@@ -142,11 +162,6 @@ export function classifySubSport(activity: Activity): string {
     name.includes('力量')
   ) {
     return 'Strength';
-  }
-
-  const rawSubtype = (activity.subtype || '').toLowerCase().replace(/\s+/g, '');
-  if (rawSubtype && SUBTYPE_MAP[rawSubtype]) {
-    return SUBTYPE_MAP[rawSubtype];
   }
 
   return 'Other Workout';
