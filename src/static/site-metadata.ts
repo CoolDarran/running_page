@@ -19,12 +19,11 @@ const data: ISiteMetadataResult = {
   siteTitle: 'danran workouts',
   siteUrl: 'https://workouts.danran.one',
   logo: '/images/logo.svg',
-  description:
-    'CrossFit, Hyrox, Badminton, Swimming & Outdoor Workouts Dashboard',
+  description: 'CrossFit、Hyrox、力量与户外训练数据看板',
   keywords: 'workouts, crossfit, hyrox, badminton, swimming, running, hiking',
   navLinks: [
     {
-      name: 'Summary',
+      name: '汇总',
       url: `${getBasePath()}/summary`,
     },
     // {

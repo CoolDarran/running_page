@@ -9,7 +9,7 @@ const Layout = ({ children }: React.PropsWithChildren) => {
   return (
     <>
       <Helmet>
-        <html lang="en" />
+        <html lang="zh-CN" />
         <title>{siteTitle}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content={keywords} />

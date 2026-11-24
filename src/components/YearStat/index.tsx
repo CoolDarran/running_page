@@ -60,7 +60,12 @@ const YearStat = ({
       sumMinutes += mins;
       sumCalories += cals;
 
-      if (run.average_speed && dist > 0 && run.average_speed > 0) {
+      if (
+        (run.type === 'Run' || run.type === 'Trail Run') &&
+        run.average_speed &&
+        dist > 0 &&
+        run.average_speed > 0
+      ) {
         totalMetersForPace += dist;
         totalSecondsForPace += dist / run.average_speed;
       }
@@ -199,7 +204,7 @@ const YearStat = ({
             }}
           >
             {stats.yoyHoursPct >= 0 ? '+' : ''}
-            {stats.yoyHoursPct.toFixed(1)}% vs {Number(year) - 1}
+            {stats.yoyHoursPct.toFixed(1)}% 较 {Number(year) - 1} 年
           </span>
         )}
       </div>
@@ -316,16 +321,20 @@ const YearStat = ({
         </div>
       </dl>
 
-      {SHOW_ELEVATION_GAIN && stats.hasElevation && stats.hasPace && (
+      {((SHOW_ELEVATION_GAIN && stats.hasElevation) || stats.hasPace) && (
         <div
           className="font-mono-num flex items-center justify-between pt-2.5 text-xs"
           style={{ color: 'var(--color-text-muted)' }}
         >
-          <span>
-            爬升 {stats.totalElevationGain}
-            {ELEV_UNIT}
-          </span>
-          <span>户外配速 {stats.avgPace}</span>
+          {SHOW_ELEVATION_GAIN && stats.hasElevation ? (
+            <span>
+              累计爬升 {stats.totalElevationGain}
+              {ELEV_UNIT}
+            </span>
+          ) : (
+            <span />
+          )}
+          {stats.hasPace && <span>跑步均速 {stats.avgPace}</span>}
         </div>
       )}
 

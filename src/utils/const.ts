@@ -48,12 +48,12 @@ const RICH_TITLE = true;
 const IS_CHINESE = true;
 const USE_ANIMATION_FOR_GRID = false;
 const CHINESE_INFO_MESSAGE = (yearLength: number, year: string): string => {
-  const yearStr = year === 'Total' ? '所有' : ` ${year} `;
-  return `运动 ${yearLength} 年了，下面列表展示的是 ${yearStr} 的轨迹数据`;
+  const scopeStr = year === 'Total' ? '全部' : `${year} 年`;
+  return `累计记录 ${yearLength} 个年份 · 当前展示${scopeStr}训练数据`;
 };
 const ENGLISH_INFO_MESSAGE = (yearLength: number, year: string): string =>
-  `Logged ${yearLength} Years of Outdoor Journey` +
-  (year === 'Total' ? '' : `, the map show routes in ${year}`);
+  `Logged ${yearLength} years of training` +
+  (year === 'Total' ? ' · All years' : ` · Viewing ${year}`);
 
 // English is not supported for location info messages yet
 const CHINESE_LOCATION_INFO_MESSAGE_FIRST =

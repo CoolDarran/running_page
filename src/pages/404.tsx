@@ -1,18 +1,21 @@
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import getSiteMetadata from '@/hooks/useSiteMetadata';
 
 const NotFoundPage = () => {
-  const { siteUrl } = getSiteMetadata();
   return (
     <Layout>
-      <h1 className="my-2.5 text-5xl font-bold italic">404</h1>
-      <p>This page doesn&#39;t exist.</p>
-      <p className="text-gray-400">
-        If you wanna more message, you could visit{' '}
-        <a className="font-bold text-gray-400" href={siteUrl}>
-          {siteUrl}
-        </a>
-      </p>
+      <div className="space-y-3 py-8">
+        <h1 className="font-mono-num text-5xl font-bold tracking-tight">404</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          页面不存在，可能已被移动或链接有误。
+        </p>
+        <Link
+          to="/"
+          className="inline-block text-sm font-medium underline underline-offset-4 hover:opacity-80"
+        >
+          返回首页
+        </Link>
+      </div>
     </Layout>
   );
 };
