@@ -10456,5 +10456,29 @@
 "description": "",
 "hr_zones": "[1453, 1152, 432, 28, 0]",
 "streak": 2
+},
+{
+"run_id": 21101647628,
+"name": "Morning Hyrox",
+"distance": 0.0,
+"moving_time": "0:51:28",
+"elapsed_time": "0:51:28",
+"type": "Workout",
+"start_date": "2026-11-23 23:09:57+00:00",
+"start_date_local": "2026-11-24 07:09:57",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 148.5,
+"max_heartrate": 179.0,
+"average_speed": 0.0,
+"calories": 579.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": "HybridRacing",
+"suffer_score": 79.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[459, 1041, 518, 1070, 0]",
+"streak": 3
 }
 ]
