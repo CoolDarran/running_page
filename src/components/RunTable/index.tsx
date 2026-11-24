@@ -80,7 +80,7 @@ const RunTable = ({
           { key: 'Kcal', label: 'Kcal' },
           { key: 'BPM', label: '均心率' },
           { key: 'MaxHR', label: '峰值' },
-          { key: 'TRIMP', label: '负荷' },
+          { key: 'TRIMP', label: 'TRIMP' },
           { key: 'Date', label: '日期' },
         ]
       : isPureOutdoor
@@ -102,6 +102,7 @@ const RunTable = ({
             { key: 'Kcal', label: 'Kcal' },
             { key: 'BPM', label: '均心率' },
             { key: 'MaxHR', label: '峰值' },
+            { key: 'TRIMP', label: 'TRIMP' },
             { key: 'KM', label: DIST_UNIT.toUpperCase() },
             { key: 'Date', label: '日期' },
           ];

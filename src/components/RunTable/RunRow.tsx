@@ -18,6 +18,7 @@ import {
   getElapsedMinutes,
   parseHrZones,
 } from '@/utils/workoutAnalytics';
+import { CategoryBar } from '@/components/Dashboard/Primitives';
 
 interface ColumnDef {
   key: string;
@@ -35,6 +36,12 @@ interface IRunRowProperties {
 }
 
 const ZONE_COLORS = ['#94a3b8', '#38bdf8', '#10b981', '#f59e0b', '#ef4444'];
+const ZONE_LABELS = ['Z1 恢复', 'Z2 有氧', 'Z3 节奏', 'Z4 阈值', 'Z5 极限'];
+
+const formatZoneDuration = (sec: number): string => {
+  if (sec < 60) return `${sec}s`;
+  return `${(sec / 60).toFixed(1)}m`;
+};
 
 const RunRow = ({
   elementIndex,
@@ -236,8 +243,10 @@ const RunRow = ({
           >
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
               <span className="font-mono-num">
-                <span style={{ color: 'var(--color-text-muted)' }}>TRIMP </span>
-                {trimp}
+                <span style={{ color: 'var(--color-text-muted)' }}>
+                  {run.suffer_score ? 'TRIMP（Strava RE） ' : 'TRIMP '}
+                </span>
+                <strong>{trimp}</strong>
               </span>
               {elapsedMin > minutes + 0.5 && (
                 <span className="font-mono-num">
@@ -248,14 +257,6 @@ const RunRow = ({
                   {Math.round((minutes / elapsedMin) * 100)}%）
                 </span>
               )}
-              {run.suffer_score ? (
-                <span className="font-mono-num">
-                  <span style={{ color: 'var(--color-text-muted)' }}>
-                    Relative Effort{' '}
-                  </span>
-                  {Math.round(run.suffer_score)}
-                </span>
-              ) : null}
               {run.device_name && (
                 <span>
                   <span style={{ color: 'var(--color-text-muted)' }}>
@@ -281,21 +282,22 @@ const RunRow = ({
                 {run.description}
               </p>
             )}
-            {hrZones && (
-              <div className="mt-2 flex h-1.5 w-full max-w-md overflow-hidden rounded-full">
-                {hrZones.map((sec, idx) => {
-                  const total = hrZones.reduce((a, b) => a + b, 0) || 1;
-                  return (
-                    <div
-                      key={ZONE_COLORS[idx]}
-                      title={`Z${idx + 1}: ${Math.round(sec / 60)}m`}
-                      style={{
-                        width: `${(sec / total) * 100}%`,
-                        backgroundColor: ZONE_COLORS[idx],
-                      }}
-                    />
-                  );
-                })}
+            {hrZones && hrZones.some((sec) => sec > 0) && (
+              <div className="mt-2.5 max-w-2xl space-y-1.5">
+                <div
+                  className="text-[11px] font-medium"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  心率区间分布（Z1–Z5）
+                </div>
+                <CategoryBar
+                  segments={hrZones.map((sec, idx) => ({
+                    key: `z${idx + 1}`,
+                    label: `${ZONE_LABELS[idx]} ${formatZoneDuration(sec)}`,
+                    value: sec,
+                    color: ZONE_COLORS[idx],
+                  }))}
+                />
               </div>
             )}
           </td>

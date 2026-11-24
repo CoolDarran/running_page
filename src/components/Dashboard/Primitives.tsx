@@ -216,59 +216,76 @@ export function MetricExplainer({
 }
 
 /**
- * Multi-segment horizontal proportion bar (HR zones or sport mix).
+ * Multi-segment horizontal proportion bar (HR zones or sport mix) with instant
+ * hover cross-highlighting between segments and legend items.
  */
 export function CategoryBar({
   segments,
 }: {
   segments: Array<{ key: string; label: string; value: number; color: string }>;
 }) {
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   if (total <= 0) return null;
 
+  const activeSegments = segments.filter((s) => s.value > 0);
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onMouseLeave={() => setHoveredKey(null)}>
       <div
         className="flex h-2 w-full overflow-hidden rounded-full"
         style={{ backgroundColor: 'var(--color-border)' }}
       >
-        {segments
-          .filter((s) => s.value > 0)
-          .map((s) => {
-            const pct = (s.value / total) * 100;
-            return (
-              <div
-                key={s.key}
-                title={`${s.label}: ${pct.toFixed(1)}%`}
-                style={{
-                  width: `${pct}%`,
-                  backgroundColor: s.color,
-                  transition: 'width 0.35s ease',
-                }}
-              />
-            );
-          })}
+        {activeSegments.map((s) => {
+          const pct = (s.value / total) * 100;
+          const isDimmed = hoveredKey !== null && hoveredKey !== s.key;
+          return (
+            <div
+              key={s.key}
+              title={`${s.label} (${pct.toFixed(1)}%)`}
+              onMouseEnter={() => setHoveredKey(s.key)}
+              style={{
+                width: `${pct}%`,
+                backgroundColor: s.color,
+                opacity: isDimmed ? 0.32 : 1,
+                transition: 'width 0.35s ease, opacity 0.15s ease',
+              }}
+            />
+          );
+        })}
       </div>
       <div
-        className="flex flex-wrap gap-x-3 gap-y-1 text-xs"
+        className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs"
         style={{ color: 'var(--color-text-muted)' }}
       >
-        {segments
-          .filter((s) => s.value > 0)
-          .map((s) => {
-            const pct = Math.round((s.value / total) * 100);
-            return (
-              <span key={s.key} className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: s.color }}
-                />
-                <span>{s.label}</span>
-                <span className="font-mono-num font-medium">{pct}%</span>
+        {activeSegments.map((s) => {
+          const pct = Math.round((s.value / total) * 100);
+          const isHighlighted = hoveredKey === s.key;
+          const isDimmed = hoveredKey !== null && hoveredKey !== s.key;
+          return (
+            <span
+              key={s.key}
+              onMouseEnter={() => setHoveredKey(s.key)}
+              className="inline-flex cursor-default items-center gap-1.5 transition-opacity"
+              style={{
+                color: isHighlighted
+                  ? 'var(--color-text)'
+                  : 'var(--color-text-muted)',
+                opacity: isDimmed ? 0.45 : 1,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: s.color }}
+              />
+              <span className={isHighlighted ? 'font-semibold' : undefined}>
+                {s.label}
               </span>
-            );
-          })}
+              <span className="font-mono-num font-medium">{pct}%</span>
+            </span>
+          );
+        })}
       </div>
     </div>
   );

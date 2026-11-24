@@ -7,7 +7,7 @@ import { ReactComponent as StravaSvg } from '@assets/strava.svg';
 import { ReactComponent as WatchSvg } from '@assets/watch.svg';
 
 const Header = () => {
-  const { logo, navLinks } = getSiteMetadata();
+  const { navLinks } = getSiteMetadata();
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
 
@@ -49,6 +49,8 @@ const Header = () => {
   };
 
   const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+  const nextThemeLabel =
+    nextTheme === 'dark' ? '切换为深色主题' : '切换为浅色主题';
 
   const handleToggle = () => {
     setTheme(nextTheme);
@@ -65,12 +67,26 @@ const Header = () => {
         <div className="flex items-center gap-5">
           <Link
             to="/"
-            aria-label="Home"
-            className="flex shrink-0 items-center gap-2.5"
+            aria-label="返回首页"
+            className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+            style={{ color: 'var(--color-text)' }}
           >
-            <picture>
-              <img className="h-9 w-9 rounded-full" alt="logo" src={logo} />
-            </picture>
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M 54.2 32 L 9.8 32 L 47.2 14 L 20.9 32 L 9.8 32 L 40.3 50 L 25.1 14 L 9.8 32 L 40.3 50"
+                stroke="currentColor"
+                strokeWidth="2.1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </Link>
           <div className="flex items-center gap-4 text-sm">
             <Link
@@ -138,8 +154,8 @@ const Header = () => {
             type="button"
             onClick={handleToggle}
             className={`${styles.themeButton} ${styles.themeButtonActive}`}
-            aria-label={`Switch to ${nextTheme} theme`}
-            title={`Switch to ${nextTheme} theme`}
+            aria-label={nextThemeLabel}
+            title={nextThemeLabel}
           >
             <div className={styles.iconWrapper}>{icons[theme]}</div>
           </button>

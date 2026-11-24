@@ -262,7 +262,13 @@ const Index = () => {
       setSelectedSport(null);
       setSelectedDate(null);
       setRunIndex(-1);
-      setTitle(`${item} ${name} Heatmap`);
+      setTitle(
+        name === 'Year'
+          ? item === 'Total'
+            ? '全部户外轨迹'
+            : `${item} 年户外轨迹`
+          : `${item} 轨迹`
+      );
       clearRunHash();
     },
     [thisYear]
@@ -280,7 +286,9 @@ const Index = () => {
           func2: null,
         });
         setRunIndex(-1);
-        setTitle(`${targetYear} Year Heatmap`);
+        setTitle(
+          targetYear === 'Total' ? '全部户外轨迹' : `${targetYear} 年户外轨迹`
+        );
         clearRunHash();
         return;
       }
@@ -308,7 +316,9 @@ const Index = () => {
         setActiveTab('map');
       }
       setRunIndex(-1);
-      setTitle(`${targetYear} ${sport} Heatmap`);
+      setTitle(
+        `${targetYear === 'Total' ? '全部' : `${targetYear} 年`} · ${sport} 轨迹`
+      );
       clearRunHash();
     },
     [selectedSport, year, filterByCategory]
@@ -357,7 +367,7 @@ const Index = () => {
         setActiveTab('map');
       }
       setRunIndex(-1);
-      setTitle(`${type} Heatmap`);
+      setTitle(`${type} 轨迹`);
       clearRunHash();
     },
     [filterByCategory]
@@ -506,9 +516,7 @@ const Index = () => {
           className="absolute top-0 right-2 hidden h-7 w-7 items-center justify-center rounded-md opacity-60 hover:opacity-100 lg:inline-flex"
           aria-expanded={desktopSidebarOpen}
           aria-controls="sidebar-content"
-          aria-label={
-            desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'
-          }
+          aria-label={desktopSidebarOpen ? '收起侧栏' : '展开侧栏'}
           onClick={() => setDesktopSidebarOpen((open) => !open)}
         >
           <svg
@@ -534,9 +542,7 @@ const Index = () => {
             type="button"
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border opacity-75 hover:opacity-100 lg:hidden"
             style={{ borderColor: 'var(--color-border)' }}
-            aria-label={
-              mobileSidebarOpen ? 'Collapse filters' : 'Expand filters'
-            }
+            aria-label={mobileSidebarOpen ? '收起年度筛选' : '展开年度筛选'}
             aria-expanded={mobileSidebarOpen}
             aria-controls="sidebar-content"
             onClick={() => setMobileSidebarOpen((open) => !open)}

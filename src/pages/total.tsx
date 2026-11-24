@@ -15,7 +15,7 @@ const SummaryPage = () => {
     <>
       <Helmet>
         <html lang="zh-CN" data-theme={theme} />
-        <title>Summary · danran workouts</title>
+        <title>周期汇总 · danran workouts</title>
       </Helmet>
       <Header />
       <main className="mx-auto max-w-[1440px] px-4 pt-6 pb-16 lg:px-16">
