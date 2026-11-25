@@ -3,6 +3,7 @@ import React, {
   Suspense,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -30,12 +31,25 @@ import {
   type TaxonomyMode,
 } from '@/utils/workoutTaxonomy';
 import {
+  calculateTrimp,
   formatDurationShort,
   getActivityMinutes,
 } from '@/utils/workoutAnalytics';
+import { TRAINING_GOALS } from '@/utils/trainingGoals';
+import {
+  DayActivityTooltip,
+  getDaySportCategories,
+  getDaySportColors,
+  getSplitCellCssBackground,
+  SplitGradientDefs,
+  type HoveredDayState,
+  type SplitGradientSpec,
+} from '@/components/Dashboard/HeatmapShared';
 
 type IntervalType = 'year' | 'month' | 'week' | 'day' | 'life';
 type ChartMetric = 'hours' | 'kcal' | 'km';
+type MonthViewMode = 'calendar' | 'bar';
+type YearViewMode = 'bar' | 'heatmap';
 type PosterKind = 'mol' | 'year_summary' | 'circular' | 'grid' | 'github';
 
 const INTERVAL_TABS: Array<{ key: IntervalType; label: string }> = [
@@ -52,6 +66,31 @@ const POSTER_MODES: Array<{ key: PosterKind; label: string }> = [
   { key: 'circular', label: '环形年历' },
   { key: 'grid', label: '路线网格' },
   { key: 'github', label: '历年打卡' },
+];
+
+const WEEKDAY_HEADERS = ['一', '二', '三', '四', '五', '六', '日'] as const;
+
+const WALL_COLS = 54;
+const WALL_CELL = 10;
+const WALL_GAP = 2;
+const WALL_STEP = WALL_CELL + WALL_GAP;
+const WALL_LEFT_PAD = 16;
+const WALL_SVG_WIDTH = WALL_LEFT_PAD + WALL_COLS * WALL_STEP;
+const WALL_SVG_HEIGHT = 7 * WALL_STEP - WALL_GAP;
+
+const WALL_MONTH_TICKS: Array<{ col: number; label: string }> = [
+  { col: 0, label: '1月' },
+  { col: 4, label: '2月' },
+  { col: 8, label: '3月' },
+  { col: 13, label: '4月' },
+  { col: 17, label: '5月' },
+  { col: 21, label: '6月' },
+  { col: 26, label: '7月' },
+  { col: 30, label: '8月' },
+  { col: 35, label: '9月' },
+  { col: 39, label: '10月' },
+  { col: 43, label: '11月' },
+  { col: 48, label: '12月' },
 ];
 
 const loadRoutePreview = () => import('@/components/RoutePreview');
@@ -112,8 +151,10 @@ const SPORT_TO_SVG_TOKEN: Record<string, string> = {
 interface PeriodSummary {
   period: string;
   count: number;
+  activeDays: number;
   totalMinutes: number;
   totalCalories: number;
+  totalTrimp: number;
   totalDistanceKm: number;
   totalElevationM: number;
   hrSum: number;
@@ -123,6 +164,7 @@ interface PeriodSummary {
   dailyCalories: number[];
   dailyKm: number[];
   activities: Activity[];
+  byDate: Map<string, Activity[]>;
 }
 
 function getBucketCount(interval: IntervalType, period: string): number {
@@ -130,7 +172,7 @@ function getBucketCount(interval: IntervalType, period: string): number {
   if (interval === 'week') return 7;
   if (interval === 'month') {
     const [y, m] = period.split('-').map(Number);
-    return new Date(y, m, 0).getDate();
+    return new Date(Date.UTC(y, m, 0)).getUTCDate();
   }
   return 0;
 }
@@ -165,6 +207,7 @@ function buildPeriodSummaries(
 
     const dateStr = act.start_date_local.slice(0, 10);
     const [yStr, mStr, dStr] = dateStr.split('-');
+    const yearNum = Number(yStr);
     const month = Number(mStr);
     const day = Number(dStr);
 
@@ -178,8 +221,8 @@ function buildPeriodSummaries(
       period = `${yStr}-${mStr}`;
       bucketIdx = day - 1;
     } else if (interval === 'week') {
-      const dt = new Date(`${dateStr}T12:00:00`);
-      const dow = (dt.getDay() + 6) % 7;
+      const dt = new Date(Date.UTC(yearNum, month - 1, day));
+      const dow = (dt.getUTCDay() + 6) % 7;
       const monday = new Date(dt.getTime() - dow * 86400000);
       period = `${monday.toISOString().slice(0, 10)} 周`;
       bucketIdx = dow;
@@ -193,8 +236,10 @@ function buildPeriodSummaries(
       entry = {
         period,
         count: 0,
+        activeDays: 0,
         totalMinutes: 0,
         totalCalories: 0,
+        totalTrimp: 0,
         totalDistanceKm: 0,
         totalElevationM: 0,
         hrSum: 0,
@@ -204,18 +249,21 @@ function buildPeriodSummaries(
         dailyCalories: Array<number>(len).fill(0),
         dailyKm: Array<number>(len).fill(0),
         activities: [],
+        byDate: new Map<string, Activity[]>(),
       };
       map.set(period, entry);
     }
 
     const mins = getActivityMinutes(act);
     const kcal = act.calories || 0;
+    const trimp = calculateTrimp(act);
     const km = (act.distance || 0) / M_TO_DIST;
     const elev = (act.elevation_gain || 0) * M_TO_ELEV;
 
     entry.count += 1;
     entry.totalMinutes += mins;
     entry.totalCalories += kcal;
+    entry.totalTrimp += trimp;
     entry.totalDistanceKm += km;
     entry.totalElevationM += elev;
     if (act.average_heartrate && act.average_heartrate > 0) {
@@ -230,6 +278,15 @@ function buildPeriodSummaries(
       entry.dailyCalories[bucketIdx] += kcal;
       entry.dailyKm[bucketIdx] += km;
     }
+
+    const dayList = entry.byDate.get(dateStr);
+    if (dayList) {
+      dayList.push(act);
+    } else {
+      entry.byDate.set(dateStr, [act]);
+      entry.activeDays += 1;
+    }
+
     if (interval === 'day') {
       entry.activities.push(act);
     }
@@ -324,13 +381,438 @@ const MiniSparkBars = ({
   );
 };
 
+/**
+ * Compact Mon–Sun 7-column monthly calendar heatmap supporting multi-sport equal splits.
+ */
+const MonthCalendarGrid = React.memo(
+  ({
+    period,
+    byDate,
+    taxonomyMode,
+    onHoverDay,
+  }: {
+    period: string;
+    byDate: Map<string, Activity[]>;
+    taxonomyMode: TaxonomyMode;
+    onHoverDay: (_hovered: HoveredDayState | null) => void;
+  }) => {
+    const { leadingBlanks, days } = useMemo(() => {
+      const [yearNum, monthNum] = period.split('-').map(Number);
+      const firstDay = new Date(Date.UTC(yearNum, monthNum - 1, 1));
+      const blanks = (firstDay.getUTCDay() + 6) % 7;
+      const daysInMonth = new Date(Date.UTC(yearNum, monthNum, 0)).getUTCDate();
+      const ymPrefix = `${yearNum}-${String(monthNum).padStart(2, '0')}`;
+
+      const list = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        const iso = `${ymPrefix}-${String(day).padStart(2, '0')}`;
+        const items = byDate.get(iso) ?? null;
+        const colors = items ? getDaySportColors(items, taxonomyMode) : [];
+        return { day, iso, items, colors };
+      });
+
+      return { leadingBlanks: blanks, days: list };
+    }, [period, byDate, taxonomyMode]);
+
+    return (
+      <div
+        className={styles.monthCal}
+        onMouseLeave={() => onHoverDay(null)}
+        aria-label={`${period} 月历热力方格`}
+      >
+        <div className={styles.monthCalHeader} aria-hidden="true">
+          {WEEKDAY_HEADERS.map((lbl) => (
+            <span key={lbl} className={styles.monthCalDow}>
+              {lbl}
+            </span>
+          ))}
+        </div>
+        <div className={styles.monthCalGrid}>
+          {Array.from({ length: leadingBlanks }, (_, idx) => (
+            <span
+              key={`blank-${idx}`}
+              className={styles.monthCalBlank}
+              aria-hidden="true"
+            />
+          ))}
+          {days.map(({ day, iso, items, colors }) => {
+            if (!items || !items.length) {
+              return (
+                <span
+                  key={iso}
+                  className={`${styles.monthCalCell} ${styles.monthCalCellEmpty}`}
+                >
+                  {day}
+                </span>
+              );
+            }
+
+            const background = getSplitCellCssBackground(colors);
+            return (
+              <button
+                key={iso}
+                type="button"
+                className={`${styles.monthCalCell} ${styles.monthCalCellActive}`}
+                style={{ background }}
+                aria-label={`${iso}，${items.length} 项活动`}
+                onMouseEnter={(e) =>
+                  onHoverDay({
+                    date: iso,
+                    items,
+                    x: e.clientX,
+                    y: e.clientY,
+                  })
+                }
+                onMouseMove={(e) =>
+                  onHoverDay({
+                    date: iso,
+                    items,
+                    x: e.clientX,
+                    y: e.clientY,
+                  })
+                }
+                onMouseLeave={() => onHoverDay(null)}
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  onHoverDay({
+                    date: iso,
+                    items,
+                    x: rect.right,
+                    y: rect.bottom,
+                  });
+                }}
+                onBlur={() => onHoverDay(null)}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+);
+
+const YearHeatmapRow = React.memo(
+  ({
+    item,
+    taxonomyMode,
+    onHoverDay,
+  }: {
+    item: PeriodSummary;
+    taxonomyMode: TaxonomyMode;
+    onHoverDay: (_hovered: HoveredDayState | null) => void;
+  }) => {
+    const rawId = useId();
+    const gradientPrefix = `yw-${item.period}-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+
+    const { cells, splitGradients, gradientIdByKey } = useMemo(() => {
+      const yearNum = Number(item.period);
+      const startDate = new Date(Date.UTC(yearNum, 0, 1));
+      const endDate = new Date(Date.UTC(yearNum, 11, 31));
+      const startDow = (startDate.getUTCDay() + 6) % 7;
+
+      const dayCells: Array<{
+        iso: string;
+        col: number;
+        row: number;
+        items: Activity[] | null;
+        colors: string[];
+      }> = [];
+      const gradSpecs: SplitGradientSpec[] = [];
+      const gradIdMap = new Map<string, string>();
+
+      let dayOffset = 0;
+      for (
+        let cur = new Date(startDate);
+        cur <= endDate;
+        cur = new Date(cur.getTime() + 86400000)
+      ) {
+        const iso = cur.toISOString().slice(0, 10);
+        const gridIndex = startDow + dayOffset;
+        const col = Math.floor(gridIndex / 7);
+        const row = gridIndex % 7;
+        const items = item.byDate.get(iso) ?? null;
+        let colors: string[] = [];
+
+        if (items && items.length) {
+          colors = getDaySportColors(items, taxonomyMode);
+          if (colors.length > 1) {
+            const key = colors.join('|');
+            if (!gradIdMap.has(key)) {
+              const id = `${gradientPrefix}-s-${gradSpecs.length}`;
+              gradIdMap.set(key, id);
+              gradSpecs.push({ key, id, colors });
+            }
+          }
+        }
+
+        dayCells.push({ iso, col, row, items, colors });
+        dayOffset += 1;
+      }
+
+      return {
+        cells: dayCells,
+        splitGradients: gradSpecs,
+        gradientIdByKey: gradIdMap,
+      };
+    }, [item.period, item.byDate, taxonomyMode, gradientPrefix]);
+
+    const totalHours = item.totalMinutes / 60;
+    const avgTrimp = item.count ? Math.round(item.totalTrimp / item.count) : 0;
+
+    return (
+      <div className={styles.heatmapWallRow}>
+        <div className={styles.heatmapWallMeta}>
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono-num text-sm font-bold tracking-tight">
+              {item.period}
+            </span>
+            <span
+              className="font-mono-num text-[11px]"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {item.activeDays} 天 · {item.count} 次
+            </span>
+          </div>
+          <div
+            className="font-mono-num text-[11px]"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {totalHours >= 10
+              ? `${totalHours.toFixed(0)}h`
+              : `${totalHours.toFixed(1)}h`}
+            {avgTrimp > 0 ? ` · 均 TRIMP ${avgTrimp}` : ''}
+          </div>
+        </div>
+
+        <svg
+          viewBox={`0 0 ${WALL_SVG_WIDTH} ${WALL_SVG_HEIGHT}`}
+          className={styles.heatmapWallStrip}
+          role="img"
+          aria-label={`${item.period} 年活跃热力条，共 ${item.activeDays} 活跃日`}
+          onMouseLeave={() => onHoverDay(null)}
+        >
+          <SplitGradientDefs gradients={splitGradients} />
+
+          {(
+            [
+              [0, '一'],
+              [3, '四'],
+              [6, '日'],
+            ] as const
+          ).map(([rowIdx, lbl]) => (
+            <text
+              key={lbl}
+              x={2}
+              y={rowIdx * WALL_STEP + 8.5}
+              fill="var(--color-text-muted)"
+              fontSize={8.5}
+            >
+              {lbl}
+            </text>
+          ))}
+
+          {cells.map((c) => {
+            const x = WALL_LEFT_PAD + c.col * WALL_STEP;
+            const y = c.row * WALL_STEP;
+
+            if (!c.items || !c.items.length) {
+              return (
+                <rect
+                  key={c.iso}
+                  x={x}
+                  y={y}
+                  width={WALL_CELL}
+                  height={WALL_CELL}
+                  rx={2}
+                  fill="var(--color-border)"
+                  fillOpacity={0.48}
+                />
+              );
+            }
+
+            const fill =
+              c.colors.length > 1
+                ? `url(#${gradientIdByKey.get(c.colors.join('|'))})`
+                : c.colors[0];
+
+            return (
+              <rect
+                key={c.iso}
+                x={x}
+                y={y}
+                width={WALL_CELL}
+                height={WALL_CELL}
+                rx={2}
+                fill={fill}
+                fillOpacity={0.92}
+                className="cursor-pointer transition-opacity hover:opacity-80"
+                onMouseEnter={(e) =>
+                  onHoverDay({
+                    date: c.iso,
+                    items: c.items!,
+                    x: e.clientX,
+                    y: e.clientY,
+                  })
+                }
+                onMouseMove={(e) =>
+                  onHoverDay({
+                    date: c.iso,
+                    items: c.items!,
+                    x: e.clientX,
+                    y: e.clientY,
+                  })
+                }
+              />
+            );
+          })}
+        </svg>
+      </div>
+    );
+  }
+);
+
+const YearHeatmapWall = ({
+  summaries,
+  taxonomyMode,
+  onHoverDay,
+}: {
+  summaries: PeriodSummary[];
+  taxonomyMode: TaxonomyMode;
+  onHoverDay: (_hovered: HoveredDayState | null) => void;
+}) => {
+  const { totalActiveDays, activeSports, multiSportDays, sampleSplitBg } =
+    useMemo(() => {
+      const sportCounts = new Map<string, number>();
+      let days = 0;
+      let multiDays = 0;
+      let firstSplitPair: string[] | null = null;
+
+      summaries.forEach((yr) => {
+        days += yr.activeDays;
+        yr.byDate.forEach((items) => {
+          const categories = getDaySportCategories(items, taxonomyMode);
+          categories.forEach((cat) => {
+            sportCounts.set(cat, (sportCounts.get(cat) || 0) + 1);
+          });
+          if (categories.length > 1) {
+            multiDays += 1;
+            if (!firstSplitPair) {
+              firstSplitPair = categories
+                .slice(0, 2)
+                .map((cat) => getSportMeta(cat).color);
+            }
+          }
+        });
+      });
+
+      const orderedSports = Array.from(sportCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([cat]) => cat);
+
+      return {
+        totalActiveDays: days,
+        activeSports: orderedSports,
+        multiSportDays: multiDays,
+        sampleSplitBg: getSplitCellCssBackground(
+          firstSplitPair ?? ['#10b981', '#38bdf8']
+        ),
+      };
+    }, [summaries, taxonomyMode]);
+
+  return (
+    <section className={styles.heatmapWall} aria-label="历年多色热力墙">
+      <div className={styles.heatmapWallHeader}>
+        <div className="flex flex-wrap items-baseline gap-3">
+          <h2 className="text-sm font-semibold tracking-tight">年度热力墙</h2>
+          <span
+            className="font-mono-num text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            {summaries.length} 个年份 · {totalActiveDays} 活跃日
+          </span>
+        </div>
+
+        <div className={styles.legendBar}>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {activeSports.map((sport) => {
+              const meta = getSportMeta(sport);
+              return (
+                <span key={sport} className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-xs"
+                    style={{ backgroundColor: meta.color }}
+                  />
+                  {meta.shortLabel}
+                </span>
+              );
+            })}
+          </div>
+          {multiSportDays > 0 && (
+            <span className="font-mono-num inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 rounded-xs"
+                style={{ background: sampleSplitBg }}
+              />
+              双练多色 · {multiSportDays} 天
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.heatmapWallScroll}>
+        <div className={styles.heatmapWallInner}>
+          <div className={styles.heatmapWallAxis} aria-hidden="true">
+            <span
+              className="font-mono-num text-[11px]"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              年份 / 均 TRIMP
+            </span>
+            <svg
+              viewBox={`0 0 ${WALL_SVG_WIDTH} 14`}
+              className={styles.heatmapWallStrip}
+            >
+              {WALL_MONTH_TICKS.map((tick) => (
+                <text
+                  key={tick.label}
+                  x={WALL_LEFT_PAD + tick.col * WALL_STEP}
+                  y={10}
+                  fill="var(--color-text-muted)"
+                  fontSize={9.5}
+                >
+                  {tick.label}
+                </text>
+              ))}
+            </svg>
+          </div>
+
+          {summaries.map((item) => (
+            <YearHeatmapRow
+              key={item.period}
+              item={item}
+              taxonomyMode={taxonomyMode}
+              onHoverDay={onHoverDay}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 interface PeriodCardProps {
   item: PeriodSummary;
   interval: IntervalType;
   metric: ChartMetric;
+  monthView: MonthViewMode;
   accentColor: string;
   deferRender: boolean;
   taxonomyMode: TaxonomyMode;
+  onHoverDay: (_hovered: HoveredDayState | null) => void;
 }
 
 const PeriodCard = React.memo(
@@ -338,9 +820,11 @@ const PeriodCard = React.memo(
     item,
     interval,
     metric,
+    monthView,
     accentColor,
     deferRender,
     taxonomyMode,
+    onHoverDay,
   }: PeriodCardProps) => {
     const [showRoute, setShowRoute] = useState(false);
     const hasGps =
@@ -348,10 +832,15 @@ const PeriodCard = React.memo(
       item.activities.some((a) => Boolean(a.summary_polyline));
     const avgHr = item.hrCount ? Math.round(item.hrSum / item.hrCount) : 0;
     const totalHours = item.totalMinutes / 60;
+    const avgTrimp = item.count ? Math.round(item.totalTrimp / item.count) : 0;
     const avgSpeedMps =
       item.totalDistanceKm > 0 && item.totalMinutes > 0
         ? (item.totalDistanceKm * M_TO_DIST) / (item.totalMinutes * 60)
         : 0;
+
+    const hitFloorDays = item.activeDays >= TRAINING_GOALS.weeklyFloorDays;
+    const hitFatLossKcal =
+      Math.round(item.totalCalories) >= TRAINING_GOALS.weeklyTargetKcal;
 
     const chartValues =
       metric === 'hours'
@@ -375,7 +864,9 @@ const PeriodCard = React.memo(
             className="font-mono-num text-xs"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            {item.count} 次
+            {interval === 'day'
+              ? `${item.count} 次`
+              : `${item.count} 次 · ${item.activeDays} 天`}
           </span>
         </header>
 
@@ -412,6 +903,34 @@ const PeriodCard = React.memo(
                 >
                   kcal
                 </span>
+              </dd>
+            </div>
+          )}
+
+          {interval === 'week' && item.totalTrimp > 0 && (
+            <div>
+              <dt
+                className="text-xs"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                周 TRIMP
+              </dt>
+              <dd className="font-mono-num mt-0.5 text-sm font-semibold">
+                {Math.round(item.totalTrimp).toLocaleString()}
+              </dd>
+            </div>
+          )}
+
+          {(interval === 'month' || interval === 'year') && avgTrimp > 0 && (
+            <div>
+              <dt
+                className="text-xs"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                均 TRIMP
+              </dt>
+              <dd className="font-mono-num mt-0.5 text-sm font-semibold">
+                {avgTrimp}
               </dd>
             </div>
           )}
@@ -486,13 +1005,46 @@ const PeriodCard = React.memo(
           )}
         </dl>
 
-        {interval !== 'day' && chartValues.length > 0 && (
-          <MiniSparkBars
-            values={chartValues}
-            labels={chartLabels}
-            unit={chartUnit}
-            color={accentColor}
+        {interval === 'week' && (
+          <div className={styles.goalStrip} aria-label="周训练目标达成状态">
+            <span
+              className={styles.goalChip}
+              data-hit={hitFloorDays}
+              title={`保底出勤目标：每周 ≥ ${TRAINING_GOALS.weeklyFloorDays} 天`}
+            >
+              {hitFloorDays
+                ? `✓ 保底 ≥${TRAINING_GOALS.weeklyFloorDays}天`
+                : `保底 ${item.activeDays}/${TRAINING_GOALS.weeklyFloorDays}天`}
+            </span>
+            <span
+              className={styles.goalChip}
+              data-hit={hitFatLossKcal}
+              title={`减脂周主动消耗目标：≥ ${TRAINING_GOALS.weeklyTargetKcal.toLocaleString()} kcal`}
+            >
+              {hitFatLossKcal
+                ? `✓ 减脂 ≥${TRAINING_GOALS.weeklyTargetKcal.toLocaleString()} kcal`
+                : `减脂 ${Math.round(item.totalCalories).toLocaleString()}/${TRAINING_GOALS.weeklyTargetKcal.toLocaleString()} kcal`}
+            </span>
+          </div>
+        )}
+
+        {interval === 'month' && monthView === 'calendar' ? (
+          <MonthCalendarGrid
+            period={item.period}
+            byDate={item.byDate}
+            taxonomyMode={taxonomyMode}
+            onHoverDay={onHoverDay}
           />
+        ) : (
+          interval !== 'day' &&
+          chartValues.length > 0 && (
+            <MiniSparkBars
+              values={chartValues}
+              labels={chartLabels}
+              unit={chartUnit}
+              color={accentColor}
+            />
+          )
         )}
 
         {interval === 'day' && item.activities.length > 0 && (
@@ -804,6 +1356,9 @@ const ActivityList: React.FC = () => {
   const [taxonomyMode, setTaxonomyMode] = useState<TaxonomyMode>('sub');
   const [sportFilter, setSportFilter] = useState<string>('all');
   const [chartMetric, setChartMetric] = useState<ChartMetric>('hours');
+  const [monthView, setMonthView] = useState<MonthViewMode>('calendar');
+  const [yearView, setYearView] = useState<YearViewMode>('bar');
+  const [hoveredDay, setHoveredDay] = useState<HoveredDayState | null>(null);
   const tabElementsRef = useRef<Record<IntervalType, HTMLButtonElement | null>>(
     {
       year: null,
@@ -840,6 +1395,44 @@ const ActivityList: React.FC = () => {
     [activityData, interval, sportFilter, taxonomyMode]
   );
 
+  const monthCalendarLegend = useMemo(() => {
+    if (interval !== 'month' || monthView !== 'calendar') {
+      return { sports: [] as string[], multiDays: 0, sampleSplitBg: '' };
+    }
+    const counts = new Map<string, number>();
+    let multiDays = 0;
+    let firstPair: string[] | null = null;
+
+    summaries.forEach((mo) => {
+      mo.byDate.forEach((items) => {
+        const categories = getDaySportCategories(items, taxonomyMode);
+        categories.forEach((cat) => {
+          counts.set(cat, (counts.get(cat) || 0) + 1);
+        });
+        if (categories.length > 1) {
+          multiDays += 1;
+          if (!firstPair) {
+            firstPair = categories
+              .slice(0, 2)
+              .map((cat) => getSportMeta(cat).color);
+          }
+        }
+      });
+    });
+
+    const sports = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat]) => cat);
+
+    return {
+      sports,
+      multiDays,
+      sampleSplitBg: getSplitCellCssBackground(
+        firstPair ?? ['#10b981', '#38bdf8']
+      ),
+    };
+  }, [interval, monthView, summaries, taxonomyMode]);
+
   const activeMetric: ChartMetric =
     sportFilter !== 'all' &&
     isOutdoorSport(sportFilter) &&
@@ -852,11 +1445,17 @@ const ActivityList: React.FC = () => {
       ? 'var(--color-brand)'
       : getSportMeta(sportFilter).color;
 
+  const showBarMetricSwitcher =
+    interval === 'week' ||
+    (interval === 'month' && monthView === 'bar') ||
+    (interval === 'year' && yearView === 'bar');
+
   const selectInterval = useCallback(
     (next: IntervalType, shouldFocus = false) => {
       if (next === 'day') {
         void loadRoutePreview();
       }
+      setHoveredDay(null);
       setInterval(next);
       const el = tabElementsRef.current[next];
       if (el) {
@@ -923,6 +1522,7 @@ const ActivityList: React.FC = () => {
                 key={mode}
                 type="button"
                 onClick={() => {
+                  setHoveredDay(null);
                   setTaxonomyMode(mode);
                   setSportFilter('all');
                 }}
@@ -943,8 +1543,86 @@ const ActivityList: React.FC = () => {
             ))}
           </div>
 
+          {/* Month View Mode Switcher */}
+          {interval === 'month' && (
+            <div
+              className="flex items-center gap-2.5 text-xs"
+              role="group"
+              aria-label="按月视图模式"
+            >
+              {(
+                [
+                  ['calendar', '月历'],
+                  ['bar', '柱状'],
+                ] as const
+              ).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  aria-pressed={monthView === mode}
+                  onClick={() => {
+                    setHoveredDay(null);
+                    setMonthView(mode);
+                  }}
+                  className="pb-0.5"
+                  style={{
+                    color:
+                      monthView === mode
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-muted)',
+                    borderBottom:
+                      monthView === mode
+                        ? '1.5px solid var(--color-brand)'
+                        : '1.5px solid transparent',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Year View Mode Switcher */}
+          {interval === 'year' && (
+            <div
+              className="flex items-center gap-2.5 text-xs"
+              role="group"
+              aria-label="按年视图模式"
+            >
+              {(
+                [
+                  ['bar', '柱状'],
+                  ['heatmap', '热力墙'],
+                ] as const
+              ).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  aria-pressed={yearView === mode}
+                  onClick={() => {
+                    setHoveredDay(null);
+                    setYearView(mode);
+                  }}
+                  className="pb-0.5"
+                  style={{
+                    color:
+                      yearView === mode
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-muted)',
+                    borderBottom:
+                      yearView === mode
+                        ? '1.5px solid var(--color-brand)'
+                        : '1.5px solid transparent',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Chart Metric Switcher */}
-          {interval !== 'life' && interval !== 'day' && (
+          {showBarMetricSwitcher && (
             <div className="flex items-center gap-2.5 text-xs">
               {(
                 [
@@ -1019,7 +1697,10 @@ const ActivityList: React.FC = () => {
               type="button"
               aria-pressed={pressed}
               className={styles.sportButton}
-              onClick={() => setSportFilter(opt.key)}
+              onClick={() => {
+                setHoveredDay(null);
+                setSportFilter(opt.key);
+              }}
             >
               {meta && (
                 <span
@@ -1041,25 +1722,74 @@ const ActivityList: React.FC = () => {
           sportType={sportFilter}
           availableYears={availableYears}
         />
+      ) : interval === 'year' && yearView === 'heatmap' ? (
+        <div role="tabpanel" aria-labelledby="summary-tab-year">
+          <YearHeatmapWall
+            summaries={summaries}
+            taxonomyMode={taxonomyMode}
+            onHoverDay={setHoveredDay}
+          />
+        </div>
       ) : (
         <div
           role="tabpanel"
           aria-labelledby={`summary-tab-${interval}`}
-          className={styles.cardGrid}
+          className="space-y-4"
         >
-          {summaries.map((item, idx) => (
-            <PeriodCard
-              key={item.period}
-              item={item}
-              interval={interval}
-              metric={activeMetric}
-              accentColor={accentColor}
-              deferRender={idx >= 6}
-              taxonomyMode={taxonomyMode}
-            />
-          ))}
+          {interval === 'month' &&
+            monthView === 'calendar' &&
+            monthCalendarLegend.sports.length > 0 && (
+              <div className={styles.legendBar}>
+                <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1">
+                  {monthCalendarLegend.sports.map((sport) => {
+                    const meta = getSportMeta(sport);
+                    return (
+                      <span
+                        key={sport}
+                        className="inline-flex items-center gap-1.5"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="h-2 w-2 rounded-xs"
+                          style={{ backgroundColor: meta.color }}
+                        />
+                        {meta.shortLabel}
+                      </span>
+                    );
+                  })}
+                </div>
+                {monthCalendarLegend.multiDays > 0 && (
+                  <span className="font-mono-num inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 rounded-xs"
+                      style={{ background: monthCalendarLegend.sampleSplitBg }}
+                    />
+                    双练多色 · {monthCalendarLegend.multiDays} 天
+                  </span>
+                )}
+              </div>
+            )}
+
+          <div className={styles.cardGrid}>
+            {summaries.map((item, idx) => (
+              <PeriodCard
+                key={item.period}
+                item={item}
+                interval={interval}
+                metric={activeMetric}
+                monthView={monthView}
+                accentColor={accentColor}
+                deferRender={idx >= 6}
+                taxonomyMode={taxonomyMode}
+                onHoverDay={setHoveredDay}
+              />
+            ))}
+          </div>
         </div>
       )}
+
+      <DayActivityTooltip hovered={hoveredDay} taxonomyMode={taxonomyMode} />
     </div>
   );
 };
