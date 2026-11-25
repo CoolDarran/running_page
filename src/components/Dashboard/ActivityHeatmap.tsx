@@ -1,14 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { Activity } from '@/utils/utils';
+import { getSportMeta, type TaxonomyMode } from '@/utils/workoutTaxonomy';
 import {
-  getActivityCategory,
-  getSportMeta,
-  type TaxonomyMode,
-} from '@/utils/workoutTaxonomy';
-import {
-  formatDurationShort,
-  getActivityMinutes,
-} from '@/utils/workoutAnalytics';
+  DayActivityTooltip,
+  getDaySportCategories,
+  getSplitCellCssBackground,
+  SplitGradientDefs,
+  type HoveredDayState,
+  type SplitGradientSpec,
+} from './HeatmapShared';
 
 interface ActivityHeatmapProps {
   activities: Activity[];
@@ -18,13 +18,6 @@ interface ActivityHeatmapProps {
   onSelectDate: (_date: string | null) => void;
 }
 
-interface HoveredDay {
-  date: string;
-  items: Activity[];
-  x: number;
-  y: number;
-}
-
 const ActivityHeatmap = ({
   activities,
   year,
@@ -32,15 +25,21 @@ const ActivityHeatmap = ({
   selectedDate,
   onSelectDate,
 }: ActivityHeatmapProps) => {
+  const rawId = useId();
+  const gradientPrefix = `hm-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const [colorMode, setColorMode] = useState<'sport' | 'kcal'>('sport');
-  const [hovered, setHovered] = useState<HoveredDay | null>(null);
+  const [hovered, setHovered] = useState<HoveredDayState | null>(null);
 
   const {
     weeks,
     byDate,
+    dayColorsByIso,
+    splitGradients,
+    gradientIdByKey,
     monthLabels,
     activeSports,
     activeDays,
+    multiSportDays,
     svgWidth,
     svgHeight,
   } = useMemo(() => {
@@ -55,20 +54,32 @@ const ActivityHeatmap = ({
       else map.set(iso, [a]);
     });
 
+    const parseIsoUtc = (iso: string) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    };
+
     let startDate: Date;
     let endDate: Date;
     if (year === 'Total') {
       const anchor = latestDateIso
-        ? new Date(`${latestDateIso}T12:00:00`)
-        : new Date();
+        ? parseIsoUtc(latestDateIso)
+        : new Date(
+            Date.UTC(
+              new Date().getFullYear(),
+              new Date().getMonth(),
+              new Date().getDate()
+            )
+          );
       endDate = anchor;
       startDate = new Date(anchor.getTime() - 364 * 86400000);
     } else {
-      startDate = new Date(`${year}-01-01T12:00:00`);
-      endDate = new Date(`${year}-12-31T12:00:00`);
+      const yearNum = Number(year);
+      startDate = new Date(Date.UTC(yearNum, 0, 1));
+      endDate = new Date(Date.UTC(yearNum, 11, 31));
     }
 
-    const startDow = (startDate.getDay() + 6) % 7;
+    const startDow = (startDate.getUTCDay() + 6) % 7;
     const gridStart = new Date(startDate.getTime() - startDow * 86400000);
 
     const wkList: Array<
@@ -86,7 +97,7 @@ const ActivityHeatmap = ({
         col.push({
           iso,
           inRange: dt >= startDate && dt <= endDate,
-          month: dt.getMonth() + 1,
+          month: dt.getUTCMonth() + 1,
         });
       }
       wkList.push(col);
@@ -102,21 +113,42 @@ const ActivityHeatmap = ({
       }
     });
 
-    const sports = new Set<string>();
+    const sportCounts = new Map<string, number>();
+    const colorsByIso = new Map<string, string[]>();
+    const gradSpecs: SplitGradientSpec[] = [];
+    const gradIdMap = new Map<string, string>();
     let days = 0;
+    let multiDays = 0;
+
     wkList.forEach((wk) => {
       wk.forEach((c) => {
         if (!c.inRange) return;
         const items = map.get(c.iso);
         if (items && items.length) {
           days += 1;
-          const dom = items
-            .slice()
-            .sort((a, b) => getActivityMinutes(b) - getActivityMinutes(a))[0];
-          sports.add(getActivityCategory(dom, taxonomyMode));
+          const categories = getDaySportCategories(items, taxonomyMode);
+          categories.forEach((cat) => {
+            sportCounts.set(cat, (sportCounts.get(cat) || 0) + 1);
+          });
+          const colors = categories.map((cat) => getSportMeta(cat).color);
+          colorsByIso.set(c.iso, colors);
+
+          if (colors.length > 1) {
+            multiDays += 1;
+            const key = colors.join('|');
+            if (!gradIdMap.has(key)) {
+              const id = `${gradientPrefix}-split-${gradSpecs.length}`;
+              gradIdMap.set(key, id);
+              gradSpecs.push({ key, id, colors });
+            }
+          }
         }
       });
     });
+
+    const orderedSports = Array.from(sportCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat]) => cat);
 
     const cell = 13;
     const gap = 3;
@@ -127,13 +159,17 @@ const ActivityHeatmap = ({
     return {
       weeks: wkList,
       byDate: map,
+      dayColorsByIso: colorsByIso,
+      splitGradients: gradSpecs,
+      gradientIdByKey: gradIdMap,
       monthLabels: labels,
-      activeSports: Array.from(sports),
+      activeSports: orderedSports,
       activeDays: days,
+      multiSportDays: multiDays,
       svgWidth: leftPad + wkList.length * step + 6,
       svgHeight: topPad + 7 * step + 4,
     };
-  }, [activities, year, taxonomyMode]);
+  }, [activities, year, taxonomyMode, gradientPrefix]);
 
   const cell = 13;
   const gap = 3;
@@ -141,6 +177,14 @@ const ActivityHeatmap = ({
   const leftPad = 24;
   const topPad = 20;
   const dayNames = ['一', '', '三', '', '五', '', '日'];
+
+  const sampleSplitBg = useMemo(() => {
+    const firstPair = splitGradients[0]?.colors.slice(0, 2);
+    if (firstPair && firstPair.length === 2) {
+      return getSplitCellCssBackground(firstPair);
+    }
+    return getSplitCellCssBackground(['#10b981', '#38bdf8']);
+  }, [splitGradients]);
 
   return (
     <section
@@ -197,6 +241,10 @@ const ActivityHeatmap = ({
           className="block"
           onMouseLeave={() => setHovered(null)}
         >
+          {colorMode === 'sport' && (
+            <SplitGradientDefs gradients={splitGradients} />
+          )}
+
           {monthLabels.map((m) => (
             <text
               key={`${m.idx}-${m.label}`}
@@ -244,20 +292,24 @@ const ActivityHeatmap = ({
                 );
               }
 
-              const dom = items
-                .slice()
-                .sort(
-                  (a, b) => getActivityMinutes(b) - getActivityMinutes(a)
-                )[0];
-              const sport = getActivityCategory(dom, taxonomyMode);
+              const colors = dayColorsByIso.get(c.iso) || ['#94a3b8'];
               const totKcal = items.reduce(
                 (s, it) => s + (it.calories || 0),
                 0
               );
-              const fill =
-                colorMode === 'sport'
-                  ? getSportMeta(sport).color
-                  : 'var(--color-brand)';
+
+              let fill: string;
+              if (colorMode === 'sport') {
+                if (colors.length > 1) {
+                  const gradId = gradientIdByKey.get(colors.join('|'));
+                  fill = gradId ? `url(#${gradId})` : colors[0];
+                } else {
+                  fill = colors[0];
+                }
+              } else {
+                fill = 'var(--color-brand)';
+              }
+
               const opacity =
                 colorMode === 'sport'
                   ? 0.92
@@ -308,21 +360,33 @@ const ActivityHeatmap = ({
         style={{ color: 'var(--color-text-muted)' }}
       >
         {colorMode === 'sport' ? (
-          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1">
-            {activeSports.map((s) => {
-              const m = getSportMeta(s);
-              return (
-                <span key={s} className="inline-flex items-center gap-1.5">
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 rounded-xs"
-                    style={{ backgroundColor: m.color }}
-                  />
-                  {m.shortLabel}
-                </span>
-              );
-            })}
-          </div>
+          <>
+            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1">
+              {activeSports.map((s) => {
+                const m = getSportMeta(s);
+                return (
+                  <span key={s} className="inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 rounded-xs"
+                      style={{ backgroundColor: m.color }}
+                    />
+                    {m.shortLabel}
+                  </span>
+                );
+              })}
+            </div>
+            {multiSportDays > 0 && (
+              <span className="font-mono-num inline-flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="h-2.5 w-2.5 rounded-xs"
+                  style={{ background: sampleSplitBg }}
+                />
+                双练多色 · {multiSportDays} 天
+              </span>
+            )}
+          </>
         ) : (
           <div className="flex items-center gap-1.5">
             <span>低</span>
@@ -338,47 +402,7 @@ const ActivityHeatmap = ({
         )}
       </div>
 
-      {hovered && (
-        <div
-          className="pointer-events-none fixed z-50 max-w-xs rounded-lg border px-3 py-2 text-xs shadow-lg"
-          style={{
-            left: Math.min(hovered.x + 14, window.innerWidth - 260),
-            top: Math.max(12, hovered.y + 14),
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-        >
-          <div className="font-mono-num font-semibold">{hovered.date}</div>
-          {hovered.items.map((a) => {
-            const m = getSportMeta(getActivityCategory(a, taxonomyMode));
-            const km = (a.distance || 0) / 1000;
-            return (
-              <div key={a.run_id} className="mt-1 flex items-start gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="mt-1 h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: m.color }}
-                />
-                <div>
-                  <div className="font-medium">{a.name}</div>
-                  <div
-                    className="font-mono-num"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
-                    {formatDurationShort(getActivityMinutes(a))}
-                    {a.calories ? ` · ${Math.round(a.calories)} kcal` : ''}
-                    {a.average_heartrate
-                      ? ` · ${Math.round(a.average_heartrate)}/${a.max_heartrate ? Math.round(a.max_heartrate) : '?'} bpm`
-                      : ''}
-                    {km > 0 ? ` · ${km.toFixed(1)} km` : ''}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <DayActivityTooltip hovered={hovered} taxonomyMode={taxonomyMode} />
     </section>
   );
 };

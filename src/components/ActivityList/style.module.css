@@ -176,3 +176,172 @@
   height: auto;
   max-height: 78vh;
 }
+
+/* Weekly training goal status tags */
+.goalStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.goalChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.175rem 0.45rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.goalChip[data-hit='true'] {
+  color: var(--color-brand);
+  border-color: color-mix(
+    in oklab,
+    var(--color-brand) 40%,
+    var(--color-border)
+  );
+  background-color: color-mix(
+    in oklab,
+    var(--color-brand) 12%,
+    var(--color-surface)
+  );
+}
+
+/* Compact shared legend bar */
+.legendBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Compact Mon-Sun 7-column monthly calendar heatmap */
+.monthCal {
+  padding-block-start: 0.625rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.monthCalHeader,
+.monthCalGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.monthCalHeader {
+  margin-block-end: 4px;
+}
+
+.monthCalDow {
+  text-align: center;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.monthCalBlank {
+  height: 24px;
+}
+
+.monthCalCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 24px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.625rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.monthCalCellEmpty {
+  background-color: color-mix(in oklab, var(--color-border) 42%, transparent);
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.monthCalCellActive {
+  border: 0;
+  padding: 0;
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+  cursor: pointer;
+}
+
+.monthCalCellActive:hover {
+  opacity: 0.86;
+}
+
+/* Multi-year stacked heatmap wall */
+.heatmapWall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.125rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.heatmapWallHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.heatmapWallScroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-block-end: 0.25rem;
+}
+
+.heatmapWallInner {
+  min-width: 832px;
+}
+
+.heatmapWallAxis {
+  display: grid;
+  grid-template-columns: 156px 1fr;
+  gap: 0.75rem;
+  align-items: end;
+  padding-block-end: 0.35rem;
+}
+
+.heatmapWallRow {
+  display: grid;
+  grid-template-columns: 156px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding-block: 0.55rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.heatmapWallMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.heatmapWallStrip {
+  display: block;
+  width: 100%;
+  height: auto;
+}
