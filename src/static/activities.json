@@ -10480,5 +10480,29 @@
 "description": "",
 "hr_zones": "[459, 1041, 518, 1070, 0]",
 "streak": 3
+},
+{
+"run_id": 21138246875,
+"name": "Morning CrossFit",
+"distance": 0.0,
+"moving_time": "1:03:18",
+"elapsed_time": "1:03:18",
+"type": "Workout",
+"start_date": "2026-11-26 23:02:29+00:00",
+"start_date_local": "2026-11-27 07:02:29",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 123.5,
+"max_heartrate": 164.0,
+"average_speed": 0.0,
+"calories": 545.0,
+"elevation_gain": 0.0,
+"source": "strava",
+"subtype": "Crossfit",
+"suffer_score": 29.0,
+"device_name": "Apple Watch Series 6",
+"description": "",
+"hr_zones": "[1836, 1337, 625, 0, 0]",
+"streak": 1
 }
 ]
